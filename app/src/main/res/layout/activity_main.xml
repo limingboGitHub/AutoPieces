@@ -11,4 +11,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/store_rv"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="@color/gray"
+        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+        app:spanCount="5"
+        tools:listitem="@layout/item_store"
+        app:layout_constraintBottom_toBottomOf="parent"/>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

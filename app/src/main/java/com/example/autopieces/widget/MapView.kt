@@ -11,14 +11,17 @@ import android.view.ViewGroup
 import com.example.autopieces.utils.getDensity
 import com.example.autopieces.utils.getScreenHeight
 import com.example.autopieces.utils.getScreenWidth
+import com.example.autopieces.utils.logD
+import java.lang.RuntimeException
 
 class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs) {
+    private val TAG = "MapView"
 
     /**
      * 地图相关参数
      */
-    private val cellRows = 10
-    private var cellCols = 0
+    private val cellCols = 7
+    private var cellRows = 8
 
     private var cellWidth = 0
 
@@ -37,8 +40,8 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         paint.strokeWidth = 2*density
         paint.color = Color.GRAY
 
-        cellWidth = screenWidth/cellRows
-        cellCols = screenHeight/cellWidth
+        cellWidth = screenWidth/cellCols
+//        cellCols = screenHeight/cellWidth
 
         setWillNotDraw(false)
     }
@@ -47,21 +50,34 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         for (index in 0 until childCount){
             val childView = getChildAt(index)
-            childView.layout(3*cellWidth,0,4*cellWidth,cellWidth)
+            roleCoordinates[childView]?.apply {
+                childView.layout(x*cellWidth,y*cellWidth,(x+1)*cellWidth,(y+1)*cellWidth)
+            }
+            logD(TAG,"onLayout $childView to:${childView.left}")
         }
     }
 
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        for (index in 1 until cellRows){
-            val startX = (index*cellWidth).toFloat()
-            canvas.drawLine(startX,0f,startX,screenHeight.toFloat(),paint)
-        }
         for (index in 1 until cellCols){
+            val startX = (index*cellWidth).toFloat()
+            canvas.drawLine(startX,0f,startX, ((cellRows-1)*cellWidth).toFloat(),paint)
+        }
+        for (index in 1 until cellRows){
             val startY = (index * cellWidth).toFloat()
             canvas.drawLine(0f,startY,screenWidth.toFloat(),startY,paint)
         }
+    }
+
+    fun addView(view:View,point:Point){
+        if (point.x>=cellCols)
+            throw RuntimeException("x must < $cellCols")
+        if (point.y>=cellRows)
+            throw RuntimeException("y must < $cellRows")
+        roleCoordinates[view] = point
+        addView(view)
+        logD(TAG,"add $view to:${point.x},${point.y}")
     }
 
 }
