@@ -18,6 +18,7 @@
         android:background="@color/gray"
         app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
         app:spanCount="5"
+        android:visibility="gone"
         tools:listitem="@layout/item_store"
         app:layout_constraintBottom_toBottomOf="parent"/>
 

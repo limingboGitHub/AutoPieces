@@ -6,8 +6,11 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Point
 import android.util.AttributeSet
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.customview.widget.ViewDragHelper
 import com.example.autopieces.utils.getDensity
 import com.example.autopieces.utils.getScreenHeight
 import com.example.autopieces.utils.getScreenWidth
@@ -35,6 +38,33 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     private val density = getDensity()
 
     private val paint = Paint()
+
+    /**
+     * 子View拖动
+     */
+    private val dragCallback = object : ViewDragHelper.Callback() {
+        override fun tryCaptureView(view: View, i: Int): Boolean {
+            return true
+        }
+
+        override fun getViewHorizontalDragRange(view: View): Int {
+            return view.width
+        }
+
+        override fun getViewVerticalDragRange(view: View): Int {
+            return view.height
+        }
+
+        override fun clampViewPositionHorizontal(child: View, left: Int, dx: Int): Int {
+            return left
+        }
+
+        override fun clampViewPositionVertical(child: View, top: Int, dy: Int): Int {
+            return top
+        }
+
+    }
+    private val viewDragHelper = ViewDragHelper.create(this,dragCallback)
 
     init {
         paint.strokeWidth = 2*density
@@ -79,5 +109,17 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         addView(view)
         logD(TAG,"add $view to:${point.x},${point.y}")
     }
+
+    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
+        return viewDragHelper.shouldInterceptTouchEvent(ev) || super.onInterceptTouchEvent(ev)
+    }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        viewDragHelper.processTouchEvent(event)
+//        return super.onTouchEvent(event)
+        return true
+    }
+
+
 
 }
