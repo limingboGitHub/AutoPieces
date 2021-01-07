@@ -5,7 +5,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.widget.LinearLayout
 import com.example.autopieces.R
-import com.example.autopieces.utils.getScreenWidth
+import com.lmb.lmbkit.utils.getScreenWidth
 import kotlinx.android.synthetic.main.item_store.view.*
 
 class StoreView(context: Context, attrs: AttributeSet?) : LinearLayout(context, attrs){

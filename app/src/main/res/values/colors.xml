@@ -4,4 +4,6 @@
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
     <color name="gray">#efefef</color>
+    <color name="ready_zone_color">#000000</color>
+    <color name="store_stroke_color">#999999</color>
 </resources>
