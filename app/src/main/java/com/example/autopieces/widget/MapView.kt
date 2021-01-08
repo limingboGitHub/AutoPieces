@@ -1,16 +1,16 @@
 package com.example.autopieces.widget
 
+import android.animation.ValueAnimator
 import android.content.Context
-import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
-import android.graphics.Point
+import android.graphics.*
 import android.util.AttributeSet
+import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.customview.widget.ViewDragHelper
 import com.example.autopieces.R
+import com.example.autopieces.role.Role
 import com.example.autopieces.utils.*
 import com.lmb.lmbkit.utils.getDensity
 import com.lmb.lmbkit.utils.getScreenHeight
@@ -35,7 +35,7 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
 
     private var cellWidth = 0
 
-    private var roleCoordinates = HashMap<View,Point>()
+    private var roleCoordinates = HashMap<View,Rect>()
 
     private val mapPaint = Paint()
 
@@ -63,7 +63,10 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
 
     private val storePaint = Paint()
 
-
+    /**
+     * 商店角色
+     */
+    private val storeRoles = ArrayList<Role>()
 
     /**
      * 子View拖动
@@ -71,6 +74,28 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     private val dragCallback = object : ViewDragHelper.Callback() {
         override fun tryCaptureView(view: View, i: Int): Boolean {
             return true
+        }
+
+        override fun onViewReleased(releasedChild: View, xvel: Float, yvel: Float) {
+            //归位
+            val curX = releasedChild.x
+            val curY = releasedChild.y
+
+            roleCoordinates[releasedChild]?.apply {
+                val targetX = left
+                val targetY = top
+
+                val animation = ValueAnimator.ofFloat(1f,0f)
+                animation.addUpdateListener {
+                    val scale = it.animatedValue as Float
+                    releasedChild.x = targetX + (curX - targetX)*scale
+                    releasedChild.y = targetY + (curY - targetY)*scale
+                }
+                animation.duration = 200
+                animation.start()
+            }
+            logE(TAG,"x:$curX y:$curY")
+
         }
 
         override fun getViewHorizontalDragRange(view: View): Int {
@@ -121,8 +146,9 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         for (index in 0 until childCount){
             val childView = getChildAt(index)
             roleCoordinates[childView]?.apply {
-                childView.layout(x*cellWidth,y*cellWidth,(x+1)*cellWidth,(y+1)*cellWidth)
+                childView.layout(left,top,right,bottom)
             }
+
             logD(TAG,"onLayout $childView to:${childView.left}")
         }
     }
@@ -195,12 +221,37 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         }
     }
 
+    fun addStore(role: Role){
+        val padding = 4 *density
+        val cardWidth = (storeCellWidth - 2*padding).toInt()
+
+        val cardView = LayoutInflater.from(context).inflate(R.layout.item_store,this,false)
+        val layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT)
+        layoutParams.width = cardWidth
+        layoutParams.height = cardWidth
+        cardView.layoutParams = layoutParams
+
+        addView(cardView)
+        //计算每个卡片对应在商店区域的坐标
+        val x = storeStartMargin + padding + (cardWidth + 2*padding)*storeRoles.size
+        val y = screenHeight - storeBottomMargin - storeCellWidth + padding
+
+        roleCoordinates[cardView] = Rect(
+                x.toInt(), y.toInt(), (x+cardWidth).toInt(), (y+cardWidth).toInt()
+        )
+
+        storeRoles.add(role)
+    }
+
     fun addView(view:View,point:Point){
         if (point.x>=cellCols)
             throw RuntimeException("x must < $cellCols")
         if (point.y>=cellRows)
             throw RuntimeException("y must < $cellRows")
-        roleCoordinates[view] = point
+        roleCoordinates[view] = Rect(
+                point.x*cellWidth, point.y*cellWidth,
+                (point.x+1)*cellWidth, (point.y+1)*cellWidth
+        )
         addView(view)
         logD(TAG,"add $view to:${point.x},${point.y}")
     }

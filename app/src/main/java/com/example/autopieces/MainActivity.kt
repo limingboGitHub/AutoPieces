@@ -23,8 +23,13 @@ class MainActivity : AppCompatActivity() {
         roleView.setImageResource(R.mipmap.icon_dog)
         map_view.addView(roleView, Point(4,4))
 
-        val card = layoutInflater.inflate(R.layout.item_store,null)
-        map_view.addView(card, Point(5,5))
+        repeat(5){
+            val role = Role("鸣人")
+            map_view.addStore(role)
+        }
     }
 
+    private fun createCard(){
+
+    }
 }
