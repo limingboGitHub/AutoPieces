@@ -2,4 +2,5 @@
 <resources>
     <dimen name="store_height">80dp</dimen>
     <dimen name="card_space">10dp</dimen>
+    <dimen name="store_item_padding">2dp</dimen>
 </resources>

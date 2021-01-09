@@ -1,5 +1,7 @@
 package com.example.autopieces.widget
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.*
@@ -20,6 +22,7 @@ import java.lang.RuntimeException
 class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs) {
     private val TAG = "MapView"
 
+    private val mapDraw = MapDraw()
     /**
      * 系统参数
      */
@@ -30,38 +33,7 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     /**
      * 地图相关参数
      */
-    private val cellCols = 7
-    private var cellRows = 8
-
-    private var cellWidth = 0
-
     private var roleCoordinates = HashMap<View,Rect>()
-
-    private val mapPaint = Paint()
-
-    /**
-     * 预备区域
-     */
-    private val readyCellNum = 9
-
-    private var readyZoneCellWidth = 0
-
-    private var readyZoneStartY = 0
-
-    private val readyPaint = Paint()
-
-    /**
-     * 商店区域
-     */
-    private val storeNum = 5
-
-    private var storeCellWidth = 0
-
-    //margin边距
-    private var storeStartMargin = (5 * density).toInt()
-    private var storeBottomMargin = (5 * density).toInt()
-
-    private val storePaint = Paint()
 
     /**
      * 商店角色
@@ -76,25 +48,38 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
             return true
         }
 
+        override fun onViewCaptured(capturedChild: View, activePointerId: Int) {
+            capturedChild.elevation = 5*density
+        }
+
         override fun onViewReleased(releasedChild: View, xvel: Float, yvel: Float) {
             //归位
-            val curX = releasedChild.x
-            val curY = releasedChild.y
+            val curLeft = releasedChild.left
+            val curTop = releasedChild.top
+            val childWith = releasedChild.width
+            val childHeight = releasedChild.height
 
             roleCoordinates[releasedChild]?.apply {
-                val targetX = left
-                val targetY = top
+                val targetLeft = left
+                val targetTop = top
 
                 val animation = ValueAnimator.ofFloat(1f,0f)
                 animation.addUpdateListener {
                     val scale = it.animatedValue as Float
-                    releasedChild.x = targetX + (curX - targetX)*scale
-                    releasedChild.y = targetY + (curY - targetY)*scale
+                    releasedChild.left = (targetLeft + (curLeft - targetLeft)*scale).toInt()
+                    releasedChild.top = (targetTop + (curTop - targetTop)*scale).toInt()
+                    releasedChild.right = releasedChild.left + childWith
+                    releasedChild.bottom = releasedChild.top + childHeight
                 }
+                animation.addListener(object : AnimatorListenerAdapter(){
+                    override fun onAnimationEnd(animation: Animator?) {
+                        releasedChild.elevation = 3*density
+                    }
+                })
                 animation.duration = 200
                 animation.start()
             }
-            logE(TAG,"x:$curX y:$curY")
+            logE(TAG,"x:$curLeft y:$curTop")
 
         }
 
@@ -118,26 +103,6 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     private val viewDragHelper = ViewDragHelper.create(this,dragCallback)
 
     init {
-        //地图绘制相关参数
-        mapPaint.strokeWidth = 2*density
-        mapPaint.color = Color.GRAY
-
-        cellWidth = screenWidth/cellCols
-
-        //准备区域相关参数
-        readyPaint.strokeWidth = 1 * density
-        readyPaint.color = getColor(R.color.ready_zone_color)
-
-        readyZoneCellWidth = screenWidth/readyCellNum
-
-        readyZoneStartY = (screenWidth + 10 * density).toInt()
-
-        //商店区域
-        storePaint.strokeWidth = 3 * density
-        storePaint.color = getColor(R.color.store_stroke_color)
-
-        storeCellWidth = (screenWidth-storeStartMargin*2)/storeNum
-
         setWillNotDraw(false)
     }
 
@@ -157,97 +122,42 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         //绘制地图
-        drawMap(canvas)
+        mapDraw.drawMap(canvas)
         //绘制棋子准备区域
-        drawReadyZone(canvas)
+        mapDraw.drawReadyZone(canvas)
         //绘制商店区域
-        drawStore(canvas)
+        mapDraw.drawStore(canvas)
     }
 
-    private fun drawStore(canvas: Canvas) {
-        canvas.drawLine(
-            storeStartMargin.toFloat(),
-            (screenHeight - storeBottomMargin - storeCellWidth).toFloat(),
-            (screenWidth - storeStartMargin).toFloat(),
-            (screenHeight - storeBottomMargin - storeCellWidth).toFloat(),
-            storePaint
-        )
-        canvas.drawLine(
-            storeStartMargin.toFloat(),
-            (screenHeight - storeBottomMargin).toFloat(),
-            (screenWidth - storeStartMargin).toFloat(),
-            (screenHeight - storeBottomMargin).toFloat(),
-            storePaint
-        )
-        repeat(storeNum + 1) {
-            canvas.drawLine(
-                storeStartMargin.toFloat() + storeCellWidth * it,
-                (screenHeight - storeBottomMargin - storeCellWidth).toFloat(),
-                storeStartMargin.toFloat() + storeCellWidth * it,
-                (screenHeight - storeBottomMargin).toFloat(),
-                storePaint
-            )
-        }
-    }
 
-    private fun drawReadyZone(canvas: Canvas) {
-        canvas.drawLine(
-            0f, readyZoneStartY.toFloat(),
-            screenWidth.toFloat(), readyZoneStartY.toFloat(),
-            readyPaint
-        )
-        canvas.drawLine(
-            0f, (readyZoneStartY + readyZoneCellWidth).toFloat(),
-            screenWidth.toFloat(), (readyZoneStartY + readyZoneCellWidth).toFloat(),
-            readyPaint
-        )
-        repeat(readyCellNum-1){
-            canvas.drawLine(
-                (readyZoneCellWidth*(it+1)).toFloat(), readyZoneStartY.toFloat(),
-                (readyZoneCellWidth*(it+1)).toFloat(), (readyZoneStartY + readyZoneCellWidth).toFloat(),
-                readyPaint
-            )
-        }
-    }
-
-    private fun drawMap(canvas: Canvas) {
-        for (index in 1 until cellCols) {
-            val startX = (index * cellWidth).toFloat()
-            canvas.drawLine(startX, 0f, startX, ((cellRows - 1) * cellWidth).toFloat(), mapPaint)
-        }
-        for (index in 1 until cellRows) {
-            val startY = (index * cellWidth).toFloat()
-            canvas.drawLine(0f, startY, screenWidth.toFloat(), startY, mapPaint)
-        }
-    }
 
     fun addStore(role: Role){
-        val padding = 4 *density
-        val cardWidth = (storeCellWidth - 2*padding).toInt()
+        val storeItemWidth = mapDraw.getStoreItemWidth()
 
-        val cardView = LayoutInflater.from(context).inflate(R.layout.item_store,this,false)
+        val roleView = LayoutInflater.from(context).inflate(R.layout.item_store,this,false)
         val layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT)
-        layoutParams.width = cardWidth
-        layoutParams.height = cardWidth
-        cardView.layoutParams = layoutParams
+        layoutParams.width = storeItemWidth
+        layoutParams.height = storeItemWidth
+        roleView.layoutParams = layoutParams
 
-        addView(cardView)
+        addView(roleView)
         //计算每个卡片对应在商店区域的坐标
-        val x = storeStartMargin + padding + (cardWidth + 2*padding)*storeRoles.size
-        val y = screenHeight - storeBottomMargin - storeCellWidth + padding
+        val x = mapDraw.getStoreZone().left + mapDraw.getStoreCellWith() * storeRoles.size
+        val y = mapDraw.getStoreZone().top
 
-        roleCoordinates[cardView] = Rect(
-                x.toInt(), y.toInt(), (x+cardWidth).toInt(), (y+cardWidth).toInt()
+        roleCoordinates[roleView] = Rect(
+                x.toInt(), y.toInt(), (x+storeItemWidth).toInt(), (y+storeItemWidth).toInt()
         )
 
         storeRoles.add(role)
     }
 
     fun addView(view:View,point:Point){
-        if (point.x>=cellCols)
-            throw RuntimeException("x must < $cellCols")
-        if (point.y>=cellRows)
-            throw RuntimeException("y must < $cellRows")
+//        if (point.x>=cellCols)
+//            throw RuntimeException("x must < $cellCols")
+//        if (point.y>=cellRows)
+//            throw RuntimeException("y must < $cellRows")
+        val cellWidth = mapDraw.getMapCellWidth()
         roleCoordinates[view] = Rect(
                 point.x*cellWidth, point.y*cellWidth,
                 (point.x+1)*cellWidth, (point.y+1)*cellWidth
