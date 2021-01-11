@@ -19,10 +19,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         useNotchTransStatus()
 
-        val roleView = ImageView(this)
-        roleView.setImageResource(R.mipmap.icon_dog)
-        map_view.addView(roleView, Point(4,4))
-
+        //商店进货 5个角色
         repeat(5){
             val role = Role("鸣人")
             map_view.addStore(role)

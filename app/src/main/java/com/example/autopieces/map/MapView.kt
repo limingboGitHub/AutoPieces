@@ -1,4 +1,4 @@
-package com.example.autopieces.widget
+package com.example.autopieces.map
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
@@ -22,6 +22,13 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     companion object{
         val TYPE_STORE = "store"
         val TYPE_ROLE = "role"
+
+        /**
+         * 角色的位置
+         */
+        val LOCATION_STORE = "store"
+        val LOCATION_READY = "ready"
+        val LOCATION_MAP = "map"
     }
     private val mapDraw = MapDraw()
     /**
@@ -32,7 +39,9 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     /**
      * 地图相关参数
      */
-    private var roleCoordinates = HashMap<View,Rect>()
+    private var roleCoordinates = HashMap<View,RectF>()
+
+    private val rolesInMap = RoleMatrix(MapDraw.COMBAT_ROW_NUM,MapDraw.COMBAT_COL_NUM)
 
     /**
      * 商店角色
@@ -40,9 +49,10 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     private val storeRoles = ArrayList<Role>()
 
     /**
-     * 预备区角色
+     * 预备区
      */
-    private val readyRoles = ArrayList<Role>()
+    private val readyZone = ReadyZone()
+
 
     private val rolesViews = HashMap<View,Role>()
 
@@ -59,23 +69,44 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         }
 
         override fun onViewReleased(releasedChild: View, xvel: Float, yvel: Float) {
-            //如果是商店角色
-            val tag = releasedChild.tag
-            if (tag is String && tag == TYPE_STORE){
-                //拖出了商店区域
-                if (releasedChild.bottom<mapDraw.getStoreZone().top){
-                    //购买，加入预备区
-                    val roleToAddReady = rolesViews[releasedChild]
-                    roleToAddReady?.apply {
-                        storeRoles.remove(this)
+            val role = rolesViews[releasedChild]?:return
+
+            val targetRect = mapDraw.calculateLocation(role,releasedChild)
+
+            when(role.location){
+                LOCATION_STORE -> {
+                    //拖出了商店区域
+                    if (!mapDraw.belongStoreZone(targetRect)){
+                        //购买，加入预备区
+                        storeRoles.remove(role)
                         //新的位置
-                        val readyZoneRect = mapDraw.getReadyItemZone(readyRoles.size)
+                        val firstEmptyIndex = readyZone.getFirstEmptyIndex()
+                        val readyZoneRect = mapDraw.getReadyItemZone(firstEmptyIndex)
                         roleCoordinates[releasedChild] = readyZoneRect
-                        readyRoles.add(this)
-                        releasedChild.tag = TYPE_ROLE
+
+                        readyZone.addRole(role)
+
+                        role.location = LOCATION_READY
+                    }
+                }
+                LOCATION_READY -> {
+                    //拖入商店 出售
+                    if (mapDraw.belongStoreZone(targetRect)){
+                        readyZone.removeRole(role)
+                        removeView(releasedChild)
+                    }else if (mapDraw.belongReadyZone(targetRect)){
+                        //交换
+                    }
+                }
+                LOCATION_MAP -> {
+                    //拖入商店 出售
+                    if (releasedChild.top>mapDraw.getStoreZone().top){
+                        rolesInMap.removeRole(role)
+                        removeView(releasedChild)
                     }
                 }
             }
+
 
             //归位
             val curLeft = releasedChild.left
@@ -133,23 +164,26 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         setWillNotDraw(false)
     }
 
+    override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+        measureChildren(widthMeasureSpec,heightMeasureSpec)
+    }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         for (index in 0 until childCount){
             val childView = getChildAt(index)
             roleCoordinates[childView]?.apply {
-                childView.layout(left,top,right,bottom)
+                childView.layout(left.toInt(), top.toInt(), right.toInt(), bottom.toInt())
             }
 
             logD(TAG,"onLayout $childView to:${childView.left}")
         }
     }
 
-
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         //绘制地图
-        mapDraw.drawMap(canvas)
+        mapDraw.drawCombat(canvas)
         //绘制棋子准备区域
         mapDraw.drawReadyZone(canvas)
         //绘制商店区域
@@ -161,18 +195,17 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
 
         val roleView = LayoutInflater.from(context).inflate(R.layout.item_store,this,false)
         val layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT)
-        layoutParams.width = storeItemWidth
-        layoutParams.height = storeItemWidth
+        layoutParams.width = storeItemWidth.toInt()
+        layoutParams.height = storeItemWidth.toInt()
         roleView.layoutParams = layoutParams
-
-        roleView.tag = TYPE_STORE
+        roleView.layoutParams = layoutParams
 
         addView(roleView)
         //计算每个卡片对应在商店区域的坐标
         val x = mapDraw.getStoreZone().left + mapDraw.getStoreCellWith() * storeRoles.size
         val y = mapDraw.getStoreZone().top
 
-        roleCoordinates[roleView] = Rect(
+        roleCoordinates[roleView] = RectF(
                 x, y, (x+storeItemWidth), (y+storeItemWidth)
         )
 
@@ -186,8 +219,8 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
 //            throw RuntimeException("x must < $cellCols")
 //        if (point.y>=cellRows)
 //            throw RuntimeException("y must < $cellRows")
-        val cellWidth = mapDraw.getMapCellWidth()
-        roleCoordinates[view] = Rect(
+        val cellWidth = mapDraw.getCombatCellWidth()
+        roleCoordinates[view] = RectF(
                 point.x*cellWidth, point.y*cellWidth,
                 (point.x+1)*cellWidth, (point.y+1)*cellWidth
         )
