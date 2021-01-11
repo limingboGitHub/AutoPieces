@@ -15,19 +15,18 @@ import com.example.autopieces.R
 import com.example.autopieces.role.Role
 import com.example.autopieces.utils.*
 import com.lmb.lmbkit.utils.getDensity
-import com.lmb.lmbkit.utils.getScreenHeight
-import com.lmb.lmbkit.utils.getScreenWidth
-import java.lang.RuntimeException
 
 class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs) {
     private val TAG = "MapView"
 
+    companion object{
+        val TYPE_STORE = "store"
+        val TYPE_ROLE = "role"
+    }
     private val mapDraw = MapDraw()
     /**
      * 系统参数
      */
-    private val screenWidth = getScreenWidth()
-    private val screenHeight = getScreenHeight()
     private val density = getDensity()
 
     /**
@@ -39,6 +38,13 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
      * 商店角色
      */
     private val storeRoles = ArrayList<Role>()
+
+    /**
+     * 预备区角色
+     */
+    private val readyRoles = ArrayList<Role>()
+
+    private val rolesViews = HashMap<View,Role>()
 
     /**
      * 子View拖动
@@ -53,23 +59,44 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         }
 
         override fun onViewReleased(releasedChild: View, xvel: Float, yvel: Float) {
+            //如果是商店角色
+            val tag = releasedChild.tag
+            if (tag is String && tag == TYPE_STORE){
+                //拖出了商店区域
+                if (releasedChild.bottom<mapDraw.getStoreZone().top){
+                    //购买，加入预备区
+                    val roleToAddReady = rolesViews[releasedChild]
+                    roleToAddReady?.apply {
+                        storeRoles.remove(this)
+                        //新的位置
+                        val readyZoneRect = mapDraw.getReadyItemZone(readyRoles.size)
+                        roleCoordinates[releasedChild] = readyZoneRect
+                        readyRoles.add(this)
+                        releasedChild.tag = TYPE_ROLE
+                    }
+                }
+            }
+
             //归位
             val curLeft = releasedChild.left
             val curTop = releasedChild.top
-            val childWith = releasedChild.width
-            val childHeight = releasedChild.height
+            val curWith = releasedChild.width
+            val curHeight = releasedChild.height
 
             roleCoordinates[releasedChild]?.apply {
                 val targetLeft = left
                 val targetTop = top
+                val targetWidth = width()
+                val targetHeight = height()
 
                 val animation = ValueAnimator.ofFloat(1f,0f)
                 animation.addUpdateListener {
                     val scale = it.animatedValue as Float
                     releasedChild.left = (targetLeft + (curLeft - targetLeft)*scale).toInt()
                     releasedChild.top = (targetTop + (curTop - targetTop)*scale).toInt()
-                    releasedChild.right = releasedChild.left + childWith
-                    releasedChild.bottom = releasedChild.top + childHeight
+                    releasedChild.right = (releasedChild.left + targetWidth + (curWith -targetWidth)*scale).toInt()
+                    releasedChild.bottom = (releasedChild.top + targetHeight + (curHeight - targetHeight)*scale).toInt()
+                    logE(TAG,"l:${releasedChild.left} r:${releasedChild.right}")
                 }
                 animation.addListener(object : AnimatorListenerAdapter(){
                     override fun onAnimationEnd(animation: Animator?) {
@@ -129,8 +156,6 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         mapDraw.drawStore(canvas)
     }
 
-
-
     fun addStore(role: Role){
         val storeItemWidth = mapDraw.getStoreItemWidth()
 
@@ -140,19 +165,23 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         layoutParams.height = storeItemWidth
         roleView.layoutParams = layoutParams
 
+        roleView.tag = TYPE_STORE
+
         addView(roleView)
         //计算每个卡片对应在商店区域的坐标
         val x = mapDraw.getStoreZone().left + mapDraw.getStoreCellWith() * storeRoles.size
         val y = mapDraw.getStoreZone().top
 
         roleCoordinates[roleView] = Rect(
-                x.toInt(), y.toInt(), (x+storeItemWidth).toInt(), (y+storeItemWidth).toInt()
+                x, y, (x+storeItemWidth), (y+storeItemWidth)
         )
 
         storeRoles.add(role)
+        rolesViews[roleView] = role
     }
 
     fun addView(view:View,point:Point){
+        view.tag = TYPE_ROLE
 //        if (point.x>=cellCols)
 //            throw RuntimeException("x must < $cellCols")
 //        if (point.y>=cellRows)
@@ -163,6 +192,8 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
                 (point.x+1)*cellWidth, (point.y+1)*cellWidth
         )
         addView(view)
+
+        rolesViews[view] = Role("")
         logD(TAG,"add $view to:${point.x},${point.y}")
     }
 

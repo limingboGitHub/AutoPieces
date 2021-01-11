@@ -168,4 +168,11 @@ class MapDraw {
     fun getStoreZone() = storeZoneRect
 
     fun getMapCellWidth() = cellWidth
+
+    fun getReadyItemZone(index:Int) = Rect(
+            readyZoneRect.left + readyZoneCellWidth*index,
+            readyZoneRect.top,
+            readyZoneRect.left + readyZoneCellWidth*(index+1),
+            readyZoneRect.bottom
+    )
 }
