@@ -206,6 +206,8 @@ class MapDraw {
 
     fun getCombatCellWidth() = combatCellWidth
 
+    fun getReadyCellWidth() = readyZoneCellWidth
+
     fun getReadyItemZone(index:Int) = RectF(
             readyZoneRect.left + readyZoneCellWidth*index,
             readyZoneRect.top,
@@ -225,7 +227,7 @@ class MapDraw {
     }
 
     fun belongCombatZone(zone: RectF):Boolean{
-        return false
+        return true
     }
 
 

@@ -11,7 +11,8 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.customview.widget.ViewDragHelper
-import com.example.autopieces.R
+import com.example.autopieces.databinding.ItemRoleBinding
+import com.example.autopieces.databinding.ItemStoreBinding
 import com.example.autopieces.role.Role
 import com.example.autopieces.utils.*
 import com.lmb.lmbkit.utils.getDensity
@@ -28,7 +29,7 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
          */
         val LOCATION_STORE = "store"
         val LOCATION_READY = "ready"
-        val LOCATION_MAP = "map"
+        val LOCATION_COMBAT = "map"
     }
     private val mapDraw = MapDraw()
     /**
@@ -96,9 +97,13 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
                         removeView(releasedChild)
                     }else if (mapDraw.belongReadyZone(targetRect)){
                         //交换
+                    }else if (mapDraw.belongCombatZone(targetRect)){
+                        readyZone.removeRole(role)
+                        roleCoordinates[releasedChild] = targetRect
+                        role.location = LOCATION_COMBAT
                     }
                 }
-                LOCATION_MAP -> {
+                LOCATION_COMBAT -> {
                     //拖入商店 出售
                     if (releasedChild.top>mapDraw.getStoreZone().top){
                         rolesInMap.removeRole(role)
@@ -106,7 +111,6 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
                     }
                 }
             }
-
 
             //归位
             val curLeft = releasedChild.left
@@ -132,6 +136,15 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
                 animation.addListener(object : AnimatorListenerAdapter(){
                     override fun onAnimationEnd(animation: Animator?) {
                         releasedChild.elevation = 3*density
+                        //商店的视图删除，由新的角色视图替换
+                        val roleView = createRoleView(role)
+                        roleCoordinates[roleView] = this@apply
+                        rolesViews[roleView] = role
+                        addView(roleView)
+
+                        removeView(releasedChild)
+                        roleCoordinates.remove(releasedChild)
+                        rolesViews.remove(releasedChild)
                     }
                 })
                 animation.duration = 200
@@ -193,28 +206,42 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     fun addStore(role: Role){
         val storeItemWidth = mapDraw.getStoreItemWidth()
 
-        val roleView = LayoutInflater.from(context).inflate(R.layout.item_store,this,false)
+        val storeBinding = ItemStoreBinding.inflate(LayoutInflater.from(context),this,false)
         val layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT)
         layoutParams.width = storeItemWidth.toInt()
         layoutParams.height = storeItemWidth.toInt()
-        roleView.layoutParams = layoutParams
-        roleView.layoutParams = layoutParams
 
-        addView(roleView)
+        storeBinding.apply {
+            nameTv.text = role.name
+            root.layoutParams = layoutParams
+            addView(root)
+        }
+
+
         //计算每个卡片对应在商店区域的坐标
         val x = mapDraw.getStoreZone().left + mapDraw.getStoreCellWith() * storeRoles.size
         val y = mapDraw.getStoreZone().top
 
-        roleCoordinates[roleView] = RectF(
+        roleCoordinates[storeBinding.root] = RectF(
                 x, y, (x+storeItemWidth), (y+storeItemWidth)
         )
 
         storeRoles.add(role)
-        rolesViews[roleView] = role
+        rolesViews[storeBinding.root] = role
+    }
+
+    fun createRoleView(role: Role):View{
+        val roleBinding = ItemRoleBinding.inflate(LayoutInflater.from(context),this,false)
+        val layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT)
+        layoutParams.width = mapDraw.getReadyCellWidth().toInt()
+        layoutParams.height = mapDraw.getReadyCellWidth().toInt()
+        roleBinding.root.layoutParams = layoutParams
+
+        roleBinding.nameTv.text = role.name
+        return roleBinding.root
     }
 
     fun addView(view:View,point:Point){
-        view.tag = TYPE_ROLE
 //        if (point.x>=cellCols)
 //            throw RuntimeException("x must < $cellCols")
 //        if (point.y>=cellRows)

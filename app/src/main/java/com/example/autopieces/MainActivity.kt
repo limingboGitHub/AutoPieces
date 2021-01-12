@@ -9,6 +9,7 @@ import android.widget.ImageView
 import androidx.customview.widget.ViewDragHelper
 import com.example.autopieces.adapter.StoreAdapter
 import com.example.autopieces.role.Role
+import com.example.autopieces.role.randomCreateRoles
 import com.google.android.material.card.MaterialCardView
 import com.lmb.lmbkit.extend.useNotchTransStatus
 import kotlinx.android.synthetic.main.activity_main.*
@@ -20,13 +21,10 @@ class MainActivity : AppCompatActivity() {
         useNotchTransStatus()
 
         //商店进货 5个角色
-        repeat(5){
-            val role = Role("鸣人")
-            map_view.addStore(role)
+        val roles = randomCreateRoles(5)
+        roles.forEach {
+            map_view.addStore(it)
         }
     }
 
-    private fun createCard(){
-
-    }
 }

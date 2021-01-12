@@ -7,4 +7,5 @@
     <color name="ready_zone_color">#000000</color>
     <color name="store_stroke_color">#999999</color>
     <color name="store_role_bg_color">#cccccc</color>
+    <color name="role_bg_color">#0088ff</color>
 </resources>
