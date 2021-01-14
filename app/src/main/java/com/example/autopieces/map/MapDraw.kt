@@ -3,6 +3,7 @@ package com.example.autopieces.map
 import android.graphics.*
 import android.view.View
 import com.example.autopieces.R
+import com.example.autopieces.extend.belongRect
 import com.example.autopieces.role.Role
 import com.example.autopieces.utils.getColor
 import com.example.autopieces.utils.logE
@@ -218,30 +219,22 @@ class MapDraw {
     /**
      * 判断区域是否属于商店
      */
-    fun belongStoreZone(zone:RectF):Boolean{
-        return false
-    }
+    fun belongStoreZone(zone:RectF) = zone.belongRect(storeZoneRect)
 
-    fun belongReadyZone(zone:RectF):Boolean{
-        return false
-    }
+    fun belongReadyZone(zone:RectF) = zone.belongRect(readyZoneRect)
 
-    fun belongCombatZone(zone: RectF):Boolean{
-        return true
-    }
-
+    fun belongCombatZone(zone: RectF) = zone.belongRect(combatZoneRect)
 
     /**
      * 计算视图的位置
      */
-    fun calculateLocation(role:Role, roleView:View):RectF{
+    fun calculateLocation(roleView:View):RectF{
         val roleViewCenterX = roleView.left + (roleView.right-roleView.left)/2
         val roleViewCenterY = roleView.top + (roleView.bottom - roleView.top)/2
 
         //判断是否进入各区域
         if (roleViewCenterY>storeZoneRect.top && roleViewCenterY<storeZoneRect.bottom){
             logE(TAG, "商店区")
-            role.location = MapView.LOCATION_STORE
         }else if (roleViewCenterY>readyZoneRect.top && roleViewCenterY<readyZoneRect.bottom){
             //判断进入哪一个格子
             var index = 0

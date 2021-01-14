@@ -72,7 +72,7 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         override fun onViewReleased(releasedChild: View, xvel: Float, yvel: Float) {
             val role = rolesViews[releasedChild]?:return
 
-            val targetRect = mapDraw.calculateLocation(role,releasedChild)
+            val targetRect = mapDraw.calculateLocation(releasedChild)
 
             when(role.location){
                 LOCATION_STORE -> {
@@ -88,26 +88,42 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
                         readyZone.addRole(role)
 
                         role.location = LOCATION_READY
+                        logE(TAG,"购买了:${role.name}")
                     }
                 }
                 LOCATION_READY -> {
                     //拖入商店 出售
                     if (mapDraw.belongStoreZone(targetRect)){
                         readyZone.removeRole(role)
-                        removeView(releasedChild)
+                        removeRoleView(releasedChild)
+                        logE(TAG,"出售了:${role.name}")
                     }else if (mapDraw.belongReadyZone(targetRect)){
                         //交换
+                        roleCoordinates[releasedChild] = targetRect
                     }else if (mapDraw.belongCombatZone(targetRect)){
                         readyZone.removeRole(role)
                         roleCoordinates[releasedChild] = targetRect
                         role.location = LOCATION_COMBAT
+                        logE(TAG,"${role.name} 进入战斗区")
                     }
                 }
                 LOCATION_COMBAT -> {
-                    //拖入商店 出售
-                    if (releasedChild.top>mapDraw.getStoreZone().top){
+                    if (mapDraw.belongStoreZone(targetRect)){
+                        //拖入商店 出售
                         rolesInMap.removeRole(role)
-                        removeView(releasedChild)
+                        removeRoleView(releasedChild)
+                        roleCoordinates.remove(releasedChild)
+                        logE(TAG,"出售了:${role.name}")
+                    }else if (mapDraw.belongReadyZone(targetRect)){
+                        //拖入准备区
+                        rolesInMap.removeRole(role)
+                        readyZone.addRole(role)
+
+                        roleCoordinates[releasedChild] = targetRect
+                        role.location = LOCATION_READY
+                        logE(TAG,"${role.name} 进入准备区")
+                    }else if (mapDraw.belongCombatZone(targetRect)){
+                        roleCoordinates[releasedChild] = targetRect
                     }
                 }
             }
@@ -131,7 +147,7 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
                     releasedChild.top = (targetTop + (curTop - targetTop)*scale).toInt()
                     releasedChild.right = (releasedChild.left + targetWidth + (curWith -targetWidth)*scale).toInt()
                     releasedChild.bottom = (releasedChild.top + targetHeight + (curHeight - targetHeight)*scale).toInt()
-                    logE(TAG,"l:${releasedChild.left} r:${releasedChild.right}")
+//                    logE(TAG,"l:${releasedChild.left} r:${releasedChild.right}")
                 }
                 animation.addListener(object : AnimatorListenerAdapter(){
                     override fun onAnimationEnd(animation: Animator?) {
@@ -142,15 +158,13 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
                         rolesViews[roleView] = role
                         addView(roleView)
 
-                        removeView(releasedChild)
-                        roleCoordinates.remove(releasedChild)
-                        rolesViews.remove(releasedChild)
+                        removeRoleView(releasedChild)
                     }
                 })
                 animation.duration = 200
                 animation.start()
             }
-            logE(TAG,"x:$curLeft y:$curTop")
+//            logE(TAG,"x:$curLeft y:$curTop")
 
         }
 
@@ -241,20 +255,10 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         return roleBinding.root
     }
 
-    fun addView(view:View,point:Point){
-//        if (point.x>=cellCols)
-//            throw RuntimeException("x must < $cellCols")
-//        if (point.y>=cellRows)
-//            throw RuntimeException("y must < $cellRows")
-        val cellWidth = mapDraw.getCombatCellWidth()
-        roleCoordinates[view] = RectF(
-                point.x*cellWidth, point.y*cellWidth,
-                (point.x+1)*cellWidth, (point.y+1)*cellWidth
-        )
-        addView(view)
-
-        rolesViews[view] = Role("")
-        logD(TAG,"add $view to:${point.x},${point.y}")
+    private fun removeRoleView(roleView: View){
+        removeView(roleView)
+        roleCoordinates.remove(roleView)
+        rolesViews.remove(roleView)
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
