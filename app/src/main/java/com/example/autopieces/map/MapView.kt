@@ -71,61 +71,18 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
 
         override fun onViewReleased(releasedChild: View, xvel: Float, yvel: Float) {
             val role = rolesViews[releasedChild]?:return
-
+            //松手后，目标的落点区域
             val targetRect = mapDraw.calculateLocation(releasedChild)
 
-            when(role.location){
-                LOCATION_STORE -> {
-                    //拖出了商店区域
-                    if (!mapDraw.belongStoreZone(targetRect)){
-                        //购买，加入预备区
-                        storeRoles.remove(role)
-                        //新的位置
-                        val firstEmptyIndex = readyZone.getFirstEmptyIndex()
-                        val readyZoneRect = mapDraw.getReadyItemZone(firstEmptyIndex)
-                        roleCoordinates[releasedChild] = readyZoneRect
+            //目标从一个区域转移到另一个区域的逻辑判断
+            val endFun : ()->Unit = when(role.location){
+                LOCATION_STORE -> fromStoreZone(releasedChild,targetRect)
 
-                        readyZone.addRole(role)
+                LOCATION_READY -> fromReadyZone(releasedChild,targetRect)
 
-                        role.location = LOCATION_READY
-                        logE(TAG,"购买了:${role.name}")
-                    }
-                }
-                LOCATION_READY -> {
-                    //拖入商店 出售
-                    if (mapDraw.belongStoreZone(targetRect)){
-                        readyZone.removeRole(role)
-                        removeRoleView(releasedChild)
-                        logE(TAG,"出售了:${role.name}")
-                    }else if (mapDraw.belongReadyZone(targetRect)){
-                        //交换
-                        roleCoordinates[releasedChild] = targetRect
-                    }else if (mapDraw.belongCombatZone(targetRect)){
-                        readyZone.removeRole(role)
-                        roleCoordinates[releasedChild] = targetRect
-                        role.location = LOCATION_COMBAT
-                        logE(TAG,"${role.name} 进入战斗区")
-                    }
-                }
-                LOCATION_COMBAT -> {
-                    if (mapDraw.belongStoreZone(targetRect)){
-                        //拖入商店 出售
-                        rolesInMap.removeRole(role)
-                        removeRoleView(releasedChild)
-                        roleCoordinates.remove(releasedChild)
-                        logE(TAG,"出售了:${role.name}")
-                    }else if (mapDraw.belongReadyZone(targetRect)){
-                        //拖入准备区
-                        rolesInMap.removeRole(role)
-                        readyZone.addRole(role)
+                LOCATION_COMBAT -> fromCombatZone(releasedChild,targetRect)
 
-                        roleCoordinates[releasedChild] = targetRect
-                        role.location = LOCATION_READY
-                        logE(TAG,"${role.name} 进入准备区")
-                    }else if (mapDraw.belongCombatZone(targetRect)){
-                        roleCoordinates[releasedChild] = targetRect
-                    }
-                }
+                else -> {{}}
             }
 
             //归位
@@ -152,13 +109,7 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
                 animation.addListener(object : AnimatorListenerAdapter(){
                     override fun onAnimationEnd(animation: Animator?) {
                         releasedChild.elevation = 3*density
-                        //商店的视图删除，由新的角色视图替换
-                        val roleView = createRoleView(role)
-                        roleCoordinates[roleView] = this@apply
-                        rolesViews[roleView] = role
-                        addView(roleView)
-
-                        removeRoleView(releasedChild)
+                        endFun.invoke()
                     }
                 })
                 animation.duration = 200
@@ -185,6 +136,77 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         }
 
     }
+
+    private fun fromCombatZone(releasedChild: View, targetRect: RectF): () -> Unit {
+        val role = rolesViews[releasedChild]?:return{}
+        if (mapDraw.belongStoreZone(targetRect)){
+            //拖入商店 出售
+            rolesInMap.removeRole(role)
+            removeRoleView(releasedChild)
+            roleCoordinates.remove(releasedChild)
+            logE(TAG,"出售了:${role.name}")
+        }else if (mapDraw.belongReadyZone(targetRect)){
+            //拖入准备区
+            rolesInMap.removeRole(role)
+            readyZone.addRole(role)
+
+            roleCoordinates[releasedChild] = targetRect
+            role.location = LOCATION_READY
+            logE(TAG,"${role.name} 进入准备区")
+        }else if (mapDraw.belongCombatZone(targetRect)){
+            roleCoordinates[releasedChild] = targetRect
+        }
+        return {}
+    }
+
+    private fun fromReadyZone(releasedChild: View, targetRect: RectF): () -> Unit {
+        val role = rolesViews[releasedChild]?:return{}
+        //拖入商店 出售
+        if (mapDraw.belongStoreZone(targetRect)){
+            readyZone.removeRole(role)
+            removeRoleView(releasedChild)
+            logE(TAG,"出售了:${role.name}")
+        }else if (mapDraw.belongReadyZone(targetRect)){
+            //交换
+            roleCoordinates[releasedChild] = targetRect
+            readyZone
+        }else if (mapDraw.belongCombatZone(targetRect)){
+            readyZone.removeRole(role)
+            roleCoordinates[releasedChild] = targetRect
+            role.location = LOCATION_COMBAT
+            logE(TAG,"${role.name} 进入战斗区")
+        }
+        return {}
+    }
+
+    private fun fromStoreZone(releasedChild: View, targetRect: RectF) : ()->Unit {
+        val role = rolesViews[releasedChild]?:return{}
+        //拖出了商店区域
+        if (!mapDraw.belongStoreZone(targetRect)){
+            //购买，加入预备区
+            storeRoles.remove(role)
+            //新的位置
+            val firstEmptyIndex = readyZone.getFirstEmptyIndex()
+            val readyZoneRect = mapDraw.getReadyItemZone(firstEmptyIndex)
+            roleCoordinates[releasedChild] = readyZoneRect
+
+            readyZone.addRole(role)
+
+            role.location = LOCATION_READY
+            logE(TAG,"购买了:${role.name}")
+
+            return {
+                //商店的视图删除，由新的角色视图替换
+                val roleView = createRoleView(role)
+                roleCoordinates[roleView] = readyZoneRect
+                rolesViews[roleView] = role
+                addView(roleView)
+                removeRoleView(releasedChild)
+            }
+        }else
+            return{}
+    }
+
     private val viewDragHelper = ViewDragHelper.create(this,dragCallback)
 
     init {
