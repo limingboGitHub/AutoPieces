@@ -228,7 +228,7 @@ class MapDraw {
     /**
      * 计算视图的位置
      */
-    fun calculateLocation(roleView:View):RectF{
+    fun calculateLocation(roleView:View):Cell{
         val roleViewCenterX = roleView.left + (roleView.right-roleView.left)/2
         val roleViewCenterY = roleView.top + (roleView.bottom - roleView.top)/2
 
@@ -246,12 +246,13 @@ class MapDraw {
             logE(TAG, "准备区第${index+1}格")
 
             val left = readyZoneRect.left+readyZoneCellWidth*index
-            return RectF(
+            val rect = RectF(
                     left,
                     readyZoneRect.top,
                     left+readyZoneCellWidth,
                     readyZoneRect.bottom
             )
+            return Cell(rect,index)
         }else if (roleViewCenterY>combatZoneRect.top && roleViewCenterY<combatZoneRect.bottom){
             var rowIndex = 0
             var centerY = roleViewCenterY - combatZoneRect.top
@@ -271,20 +272,22 @@ class MapDraw {
 
             val left = combatZoneRect.left+combatCellWidth*colIndex
             val top = combatZoneRect.top + combatCellWidth * rowIndex
-            return RectF(
-                left,
-                top,
-                left+combatCellWidth,
-                top+combatCellWidth
+            val rect = RectF(
+                    left,
+                    top,
+                    left+combatCellWidth,
+                    top+combatCellWidth
             )
+            return Cell(rect,rowIndex,colIndex)
         }else{
             logE(TAG, "其他区域")
         }
-        return RectF(
-            roleView.left.toFloat(),
-            roleView.top.toFloat(),
-            roleView.right.toFloat(),
-            roleView.bottom.toFloat()
+        val rect = RectF(
+                roleView.left.toFloat(),
+                roleView.top.toFloat(),
+                roleView.right.toFloat(),
+                roleView.bottom.toFloat()
         )
+        return Cell(rect)
     }
 }

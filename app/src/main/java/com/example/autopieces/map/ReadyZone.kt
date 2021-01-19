@@ -34,6 +34,16 @@ class ReadyZone {
     }
 
     /**
+     * 通过index查询对应位置的角色
+     */
+    fun getRoleByIndex(index:Int):Role?{
+        return if (index>=0 && index < readyRoles.size)
+            readyRoles[index]
+        else
+            null
+    }
+
+    /**
      * 获取第一个空位置的index
      * @see READY_ZONE_FULL 表示没有空位置
      */
@@ -43,6 +53,17 @@ class ReadyZone {
                 return index
         }
         return READY_ZONE_FULL
+    }
+
+    /**
+     * 找指定角色的位置
+     */
+    fun getRoleIndex(roleToFind:Role):Int{
+        readyRoles.forEachIndexed { index, role ->
+            if (roleToFind == role)
+                return index
+        }
+        return -1
     }
 
     fun getReadyRoleCount() = readyRoles.filterNotNull().sumBy { 1 }
