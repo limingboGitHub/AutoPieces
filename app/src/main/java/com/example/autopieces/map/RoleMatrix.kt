@@ -1,15 +1,14 @@
 package com.example.autopieces.map
 
-import com.example.autopieces.role.Role
 
 class RoleMatrix(row:Int,col:Int) {
 
 
-    private val rolesInMap : Array<Array<Role?>> = Array(row) {
-        arrayOfNulls<Role?>(col)
+    private val rolesInMap : Array<Array<MapRole?>> = Array(row) {
+        arrayOfNulls<MapRole?>(col)
     }
 
-    fun removeRole(roleToRemove: Role) {
+    fun removeRole(roleToRemove: MapRole) {
         rolesInMap.forEachIndexed { col, arrayOfRoles ->
             arrayOfRoles.forEachIndexed { row, role ->
                 if (role == roleToRemove){

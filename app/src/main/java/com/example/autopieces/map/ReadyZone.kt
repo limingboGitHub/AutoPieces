@@ -11,9 +11,9 @@ class ReadyZone {
         const val READY_ZONE_FULL = -1
     }
 
-    private val readyRoles = Array<Role?>(MapDraw.READY_ZONE_NUM) { null }
+    private val readyRoles = Array<MapRole?>(MapDraw.READY_ZONE_NUM) { null }
 
-    fun addRole(roleToAdd: Role):Boolean{
+    fun addRole(roleToAdd: MapRole):Boolean{
         //放入对应空位置
         readyRoles.forEachIndexed { index, role ->
             if (role==null){
@@ -24,7 +24,7 @@ class ReadyZone {
         return false
     }
 
-    fun removeRole(roleToRemove: Role) {
+    fun removeRole(roleToRemove: MapRole) {
         readyRoles.forEachIndexed { index, role ->
             if (role == roleToRemove){
                 readyRoles[index] = null
@@ -36,7 +36,7 @@ class ReadyZone {
     /**
      * 通过index查询对应位置的角色
      */
-    fun getRoleByIndex(index:Int):Role?{
+    fun getRoleByIndex(index:Int):MapRole?{
         return if (index>=0 && index < readyRoles.size)
             readyRoles[index]
         else
@@ -58,7 +58,7 @@ class ReadyZone {
     /**
      * 找指定角色的位置
      */
-    fun getRoleIndex(roleToFind:Role):Int{
+    fun getRoleIndex(roleToFind:MapRole):Int{
         readyRoles.forEachIndexed { index, role ->
             if (roleToFind == role)
                 return index
