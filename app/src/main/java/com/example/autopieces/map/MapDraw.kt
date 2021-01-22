@@ -16,7 +16,7 @@ import com.lmb.lmbkit.utils.getScreenWidth
  * 管理地图的绘制
  */
 class MapDraw {
-    val TAG = "MapDraw"
+    private val TAG = "MapDraw"
 
     companion object{
         /**

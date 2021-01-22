@@ -38,19 +38,19 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     private val density = getDensity()
 
     /**
-     * 地图相关参数
+     * 战斗区
      */
-    private val rolesInMap = RoleMatrix(MapDraw.COMBAT_ROW_NUM,MapDraw.COMBAT_COL_NUM)
-
-    /**
-     * 所有角色
-     */
-    private val roles = ArrayList<MapRole>()
+    private val combatZone = CombatZone(MapDraw.COMBAT_ROW_NUM,MapDraw.COMBAT_COL_NUM)
 
     /**
      * 预备区
      */
     private val readyZone = ReadyZone()
+
+    /**
+     * 商店区
+     */
+    private val storeZone = StoreZone()
 
     /**
      * 子View拖动
@@ -102,6 +102,17 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
 
     }
 
+    private fun roleMove(mapRole: MapRole){
+        val releasedChild = mapRole.roleView
+
+        mapRole.cell.rect.apply {
+            releasedChild.left = left.toInt()
+            releasedChild.top = top.toInt()
+            releasedChild.right = (left+width()).toInt()
+            releasedChild.bottom = (top + height()).toInt()
+        }
+    }
+
     private fun roleMoveAni(mapRole: MapRole, endFun: () -> Unit = {}) {
         val releasedChild = mapRole.roleView
         val curLeft = releasedChild.left
@@ -138,12 +149,12 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     private fun fromCombatZone(mapRole: MapRole, targetCell: Cell): () -> Unit {
         if (mapDraw.belongStoreZone(targetCell.rect)){
             //拖入商店 出售
-            rolesInMap.removeRole(mapRole)
+            combatZone.removeRole(mapRole)
             removeRoleView(mapRole.roleView)
             logE(TAG,"出售了:${mapRole.role.name}")
         }else if (mapDraw.belongReadyZone(targetCell.rect)){
             //拖入准备区
-            rolesInMap.removeRole(mapRole)
+            combatZone.removeRole(mapRole)
             readyZone.addRole(mapRole)
 
             mapRole.cell = targetCell
@@ -167,7 +178,8 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
             mapRole.cell = targetCell
             readyZone.getRoleByIndex(targetCell.x)?.apply {
                 cell = roleCell
-                roleMoveAni(this)
+
+                roleMove(this)
             }
         }else if (mapDraw.belongCombatZone(targetCell.rect)){
             readyZone.removeRole(mapRole)
@@ -216,12 +228,22 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
-        roles.forEach {
-            it.cell.rect.apply {
-                it.roleView.layout(left.toInt(), top.toInt(), right.toInt(), bottom.toInt())
-            }
-            logD(TAG,"onLayout ${it.roleView} to:${it.roleView.left}")
+        combatZone.forEachCell {
+            layoutChildView(it)
         }
+        readyZone.forEachCell{
+            layoutChildView(it)
+        }
+        storeZone.forEachCell {
+            layoutChildView(it)
+        }
+    }
+
+    private fun layoutChildView(mapRole: MapRole){
+        mapRole.cell.rect.apply {
+            mapRole.roleView.layout(left.toInt(), top.toInt(), right.toInt(), bottom.toInt())
+        }
+        logD(TAG,"onLayout ${mapRole.roleView} to:${mapRole.roleView.left}")
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -249,7 +271,7 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         }
 
         //计算每个卡片对应在商店区域的坐标
-        val x = mapDraw.getStoreZone().left + mapDraw.getStoreCellWith() * roles.size
+        val x = mapDraw.getStoreZone().left + mapDraw.getStoreCellWith() * storeZone.roleCount()
         val y = mapDraw.getStoreZone().top
 
         val mapRole = MapRole(
@@ -258,7 +280,7 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
                 Cell(RectF(x, y, (x+storeItemWidth), (y+storeItemWidth)))
         )
 
-        roles.add(mapRole)
+        storeZone.addRole(mapRole)
     }
 
     fun createRoleView(mapRole: MapRole):View{
@@ -287,26 +309,17 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     }
 
     private fun getMapRoleByView(view: View):MapRole?{
-        roles.forEach {
-            if (it.roleView == view)
-                return it
-        }
+
         return null
     }
 
     private fun getRoleByView(view:View):Role?{
-        roles.forEach {
-            if (it.roleView == view)
-                return it.role
-        }
+
         return null
     }
 
     private fun getViewByRole(role: Role):View?{
-        roles.forEach {
-            if (it.role == role)
-                return it.roleView
-        }
+
         return null
     }
 

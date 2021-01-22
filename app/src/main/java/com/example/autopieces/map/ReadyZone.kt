@@ -1,7 +1,5 @@
 package com.example.autopieces.map
 
-import com.example.autopieces.role.Role
-
 /**
  * 准备区
  */
@@ -11,13 +9,20 @@ class ReadyZone {
         const val READY_ZONE_FULL = -1
     }
 
-    private val readyRoles = Array<MapRole?>(MapDraw.READY_ZONE_NUM) { null }
+    private val cells = Array<MapRole?>(MapDraw.READY_ZONE_NUM) { null }
+
+    fun forEachCell(doSomeThing:(mapRole:MapRole)->Unit){
+        cells.forEachIndexed { index, mapRole ->
+            if (mapRole!=null)
+                doSomeThing.invoke(mapRole)
+        }
+    }
 
     fun addRole(roleToAdd: MapRole):Boolean{
         //放入对应空位置
-        readyRoles.forEachIndexed { index, role ->
+        cells.forEachIndexed { index, role ->
             if (role==null){
-                readyRoles[index] = roleToAdd
+                cells[index] = roleToAdd
                 return true
             }
         }
@@ -25,9 +30,9 @@ class ReadyZone {
     }
 
     fun removeRole(roleToRemove: MapRole) {
-        readyRoles.forEachIndexed { index, role ->
+        cells.forEachIndexed { index, role ->
             if (role == roleToRemove){
-                readyRoles[index] = null
+                cells[index] = null
                 return
             }
         }
@@ -37,8 +42,8 @@ class ReadyZone {
      * 通过index查询对应位置的角色
      */
     fun getRoleByIndex(index:Int):MapRole?{
-        return if (index>=0 && index < readyRoles.size)
-            readyRoles[index]
+        return if (index>=0 && index < cells.size)
+            cells[index]
         else
             null
     }
@@ -48,7 +53,7 @@ class ReadyZone {
      * @see READY_ZONE_FULL 表示没有空位置
      */
     fun getFirstEmptyIndex() : Int{
-        readyRoles.forEachIndexed { index, role ->
+        cells.forEachIndexed { index, role ->
             if (role == null)
                 return index
         }
@@ -59,14 +64,14 @@ class ReadyZone {
      * 找指定角色的位置
      */
     fun getRoleIndex(roleToFind:MapRole):Int{
-        readyRoles.forEachIndexed { index, role ->
+        cells.forEachIndexed { index, role ->
             if (roleToFind == role)
                 return index
         }
         return -1
     }
 
-    fun getReadyRoleCount() = readyRoles.filterNotNull().sumBy { 1 }
+    fun getReadyRoleCount() = cells.filterNotNull().sumBy { 1 }
 
 
 }
