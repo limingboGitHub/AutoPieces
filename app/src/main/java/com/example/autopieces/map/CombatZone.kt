@@ -1,7 +1,9 @@
 package com.example.autopieces.map
 
+import android.view.View
 
-class CombatZone(row:Int, col:Int) {
+
+class CombatZone(row:Int, col:Int){
 
     private val cells : Array<Array<MapRole?>> = Array(row) {
         arrayOfNulls<MapRole?>(col)
@@ -39,5 +41,15 @@ class CombatZone(row:Int, col:Int) {
                 }
             }
         }
+    }
+
+    fun getMapRoleByView(view:View):MapRole?{
+        cells.forEach { array->
+            array.filterNotNull().forEach {
+                if (it.roleView == view)
+                    return it
+            }
+        }
+        return null
     }
 }
