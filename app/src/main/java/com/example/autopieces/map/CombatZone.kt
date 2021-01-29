@@ -1,9 +1,11 @@
 package com.example.autopieces.map
 
 import android.view.View
+import com.example.autopieces.utils.logE
 
 
 class CombatZone(row:Int, col:Int){
+    val TAG = "CombatZone"
 
     private val cells : Array<Array<MapRole?>> = Array(row) {
         arrayOfNulls<MapRole?>(col)
@@ -28,7 +30,7 @@ class CombatZone(row:Int, col:Int){
             cells[x][y]
 
         cells[x][y] = mapRole
-
+        logE(TAG,"${Position.POSITION_COMBAT}区域 x:$x y:$y 添加了角色:${mapRole.role.name}")
         return oldRole
     }
 

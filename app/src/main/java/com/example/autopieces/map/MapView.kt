@@ -23,13 +23,6 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     companion object{
         val TYPE_STORE = "store"
         val TYPE_ROLE = "role"
-
-        /**
-         * 角色的位置
-         */
-        val LOCATION_STORE = "store"
-        val LOCATION_READY = "ready"
-        val LOCATION_COMBAT = "map"
     }
     private val mapDraw = MapDraw()
     /**
@@ -67,15 +60,15 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         override fun onViewReleased(releasedChild: View, xvel: Float, yvel: Float) {
             val mapRole = getMapRoleByView(releasedChild)?:return
             //松手后，目标的落点区域
-            val targetCell = mapDraw.calculateLocation(releasedChild)
+            val targetPosition = mapDraw.calculatePosition(releasedChild)
 
             //目标从一个区域转移到另一个区域的逻辑判断
-            val endFun : ()->Unit = when(mapRole.role.location){
-                LOCATION_STORE -> fromStoreZone(mapRole,targetCell)
+            val endFun : ()->Unit = when(mapRole.position.where){
+                Position.POSITION_STORE -> fromStoreZone(mapRole,targetPosition)
 
-                LOCATION_READY -> fromReadyZone(mapRole,targetCell)
+                Position.POSITION_READY -> fromReadyZone(mapRole,targetPosition)
 
-                LOCATION_COMBAT -> fromCombatZone(mapRole,targetCell)
+                Position.POSITION_COMBAT -> fromCombatZone(mapRole,targetPosition)
 
                 else -> {{}}
             }
@@ -105,7 +98,8 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     private fun roleMove(mapRole: MapRole){
         val releasedChild = mapRole.roleView
 
-        mapRole.cell.rect.apply {
+        val targetRect = mapDraw.getPhysicalRectByPosition(mapRole.position)
+        targetRect.apply {
             releasedChild.left = left.toInt()
             releasedChild.top = top.toInt()
             releasedChild.right = (left+width()).toInt()
@@ -120,7 +114,9 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         val curWith = releasedChild.width
         val curHeight = releasedChild.height
 
-        mapRole.cell.rect.apply {
+        val targetRect = mapDraw.getPhysicalRectByPosition(mapRole.position)
+
+        targetRect.apply {
             val targetLeft = left
             val targetTop = top
             val targetWidth = width()
@@ -146,64 +142,73 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         }
     }
 
-    private fun fromCombatZone(mapRole: MapRole, targetCell: Cell): () -> Unit {
-        if (mapDraw.belongStoreZone(targetCell.rect)){
-            //拖入商店 出售
-            combatZone.removeRole(mapRole)
-            removeRoleView(mapRole.roleView)
-            logE(TAG,"出售了:${mapRole.role.name}")
-        }else if (mapDraw.belongReadyZone(targetCell.rect)){
-            //拖入准备区
-            combatZone.removeRole(mapRole)
-            readyZone.addRoleToFirstNotNull(mapRole)
-
-            mapRole.cell = targetCell
-            mapRole.role.location = LOCATION_READY
-            logE(TAG,"${mapRole.role.name} 进入准备区")
-        }else if (mapDraw.belongCombatZone(targetCell.rect)){
-            mapRole.cell = targetCell
-        }
-        return {}
-    }
-
-    private fun fromReadyZone(mapRole: MapRole, targetCell: Cell): () -> Unit {
-        //拖入商店 出售
-        if (mapDraw.belongStoreZone(targetCell.rect)){
-            readyZone.removeRole(mapRole)
-            removeRoleView(mapRole.roleView)
-            logE(TAG,"出售了:${mapRole.role.name}")
-        }else if (mapDraw.belongReadyZone(targetCell.rect)){
-            val roleCell = mapRole.cell
-            logE(TAG, "原来的位置:$roleCell")
-            //交换
-            mapRole.cell = targetCell
-            readyZone.getRoleByIndex(targetCell.x)?.apply {
-                cell = roleCell
-
-                roleMove(this)
+    private fun fromCombatZone(mapRole: MapRole, targetPosition: Position): () -> Unit {
+        when (targetPosition.where) {
+            Position.POSITION_STORE -> {
+                //拖入商店 出售
+                combatZone.removeRole(mapRole)
+                removeRoleView(mapRole.roleView)
+                logE(TAG,"出售了:${mapRole.role.name}")
             }
-        }else if (mapDraw.belongCombatZone(targetCell.rect)){
-            readyZone.removeRole(mapRole)
-            mapRole.cell = targetCell
-            mapRole.role.location = LOCATION_COMBAT
-            logE(TAG,"${mapRole.role.name} 进入战斗区")
+            Position.POSITION_READY -> {
+                //拖入准备区
+                combatZone.removeRole(mapRole)
+                val oldMapRole = readyZone.addRole(mapRole,targetPosition.x)
+                oldMapRole?.apply {
+                    combatZone.addRole(oldMapRole,mapRole.position.x,mapRole.position.y)
+                }
+
+                logE(TAG,"${mapRole.role.name} 进入准备区")
+            }
+            Position.POSITION_COMBAT -> {
+                val oldMapRole = combatZone.addRole(mapRole,targetPosition.x,targetPosition.y)
+                oldMapRole?.apply {
+                    combatZone.addRole(oldMapRole,oldMapRole.position.x,oldMapRole.position.y)
+                }
+            }
         }
         return {}
     }
 
-    private fun fromStoreZone(mapRole: MapRole, targetCell: Cell) : ()->Unit {
+    private fun fromReadyZone(mapRole: MapRole, targetPosition: Position): () -> Unit {
+        targetPosition.apply {
+            //拖入商店 出售
+            when(where){
+                Position.POSITION_STORE ->{
+                    logE(TAG,"出售了:${mapRole.role.name}")
+                    readyZone.removeRole(mapRole)
+                    removeRoleView(mapRole.roleView)
+                }
+                Position.POSITION_READY->{
+                    val oldIndex = mapRole.position.x
+                    //放入准备区指定位置，如果有其他角色，则放到原来的位置
+                    val oldRole = readyZone.addRole(mapRole,x)?.apply {
+                        readyZone.addRole(this,oldIndex)
+                    }
+                    //交换
+                    readyZone.getRoleByIndex(x)?.apply {
+                        roleMove(this)
+                    }
+                }
+                Position.POSITION_COMBAT ->{
+                    readyZone.removeRole(mapRole)
+                    combatZone.addRole(mapRole,x,y)
+                }
+            }
+        }
+
+        return {}
+    }
+
+    private fun fromStoreZone(mapRole: MapRole, targetPosition: Position) : ()->Unit {
         //拖出了商店区域
-        if (!mapDraw.belongStoreZone(targetCell.rect)){
-            //购买，加入预备区
-//            roles.remove(role)
-            //新的位置
+        if (targetPosition.where != Position.POSITION_STORE){
+            logE(TAG,"购买了:${mapRole.role.name}")
+
             val firstEmptyIndex = readyZone.getFirstEmptyIndex()
             val readyZoneRect = mapDraw.getReadyItemZone(firstEmptyIndex)
-            mapRole.cell = Cell(readyZoneRect,firstEmptyIndex)
-            readyZone.addRoleToFirstNotNull(mapRole)
 
-            mapRole.role.location = LOCATION_READY
-            logE(TAG,"购买了:${mapRole.role.name}")
+            readyZone.addRoleToFirstNotNull(mapRole)
 
             return {
                 //商店的视图删除，由新的角色视图替换
@@ -241,9 +246,10 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     }
 
     private fun layoutChildView(mapRole: MapRole){
-        mapRole.cell.rect.apply {
-            mapRole.roleView.layout(left.toInt(), top.toInt(), right.toInt(), bottom.toInt())
-        }
+        mapDraw.getPhysicalRectByPosition(mapRole.position)
+                .apply {
+                    mapRole.roleView.layout(left.toInt(), top.toInt(), right.toInt(), bottom.toInt())
+                }
         logD(TAG,"onLayout ${mapRole.roleView} to:${mapRole.roleView.left}")
     }
 
@@ -277,8 +283,7 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
 
         val mapRole = MapRole(
                 role,
-                storeBinding.root,
-                Cell(RectF(x, y, (x+storeItemWidth), (y+storeItemWidth)))
+                storeBinding.root
         )
 
         storeZone.addRoleToFirstNotNull(mapRole)

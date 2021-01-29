@@ -1,15 +1,19 @@
 package com.example.autopieces.map
 
 import android.view.View
+import com.example.autopieces.utils.logE
 
 
 abstract class Zone(val cellNum:Int) {
+    val TAG = "Zone"
 
     companion object{
         const val INDEX_NONE = -1
     }
 
     protected val cells = Array<MapRole?>(cellNum) { null }
+
+    abstract fun zoneBelongWhere():String
 
     /**
      * 遍历每个格子
@@ -30,7 +34,11 @@ abstract class Zone(val cellNum:Int) {
         else
             cells[index]
 
-        cells[index] = mapRole
+        cells[index] = mapRole.apply {
+            position.where = zoneBelongWhere()
+            position.x = index
+            logE(TAG,"${zoneBelongWhere()}区域 x:$index 添加了角色:${role.name}")
+        }
         return oldRole
     }
 
@@ -39,6 +47,10 @@ abstract class Zone(val cellNum:Int) {
         if (index!= INDEX_NONE){
             addRole(mapRoleToAdd,index)
         }
+    }
+
+    fun removeRole(index: Int){
+        cells[index] = null
     }
 
     fun removeRole(roleToRemove: MapRole) {

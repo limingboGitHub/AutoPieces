@@ -5,5 +5,7 @@ package com.example.autopieces.map
  */
 class ReadyZone : Zone(MapDraw.READY_ZONE_NUM) {
 
-
+    override fun zoneBelongWhere(): String {
+        return Position.POSITION_READY
+    }
 }

@@ -217,6 +217,39 @@ class MapDraw {
     )
 
     /**
+     * 通过Position来获取地图中的物理位置
+     */
+    fun getPhysicalRectByPosition(position: Position):RectF{
+        return when(position.where){
+            Position.POSITION_STORE -> {
+                RectF(
+                        storeZoneRect.left + storeCellWidth*position.x,
+                        storeZoneRect.top,
+                        storeZoneRect.left + storeCellWidth*(position.x+1),
+                        storeZoneRect.bottom
+                )
+            }
+            Position.POSITION_READY -> {
+                RectF(
+                        readyZoneRect.left + readyZoneCellWidth*position.x,
+                        readyZoneRect.top,
+                        readyZoneRect.left + readyZoneCellWidth*(position.x+1),
+                        readyZoneRect.bottom
+                )
+            }
+            Position.POSITION_COMBAT -> {
+                RectF(
+                        combatZoneRect.left + combatCellWidth * position.x,
+                        combatZoneRect.top + combatCellWidth * position.y,
+                        combatZoneRect.left + combatCellWidth*(position.x+1),
+                        combatZoneRect.top + combatCellWidth * (position.y+1)
+                )
+            }
+            else -> RectF()
+        }
+    }
+
+    /**
      * 判断区域是否属于商店
      */
     fun belongStoreZone(zone:RectF) = zone.belongRect(storeZoneRect)
@@ -228,7 +261,7 @@ class MapDraw {
     /**
      * 计算视图的位置
      */
-    fun calculateLocation(roleView:View):Cell{
+    fun calculatePosition(roleView:View):Position{
         val roleViewCenterX = roleView.left + (roleView.right-roleView.left)/2
         val roleViewCenterY = roleView.top + (roleView.bottom - roleView.top)/2
 
@@ -245,14 +278,15 @@ class MapDraw {
             }
             logE(TAG, "准备区第${index+1}格")
 
-            val left = readyZoneRect.left+readyZoneCellWidth*index
-            val rect = RectF(
-                    left,
-                    readyZoneRect.top,
-                    left+readyZoneCellWidth,
-                    readyZoneRect.bottom
-            )
-            return Cell(rect,index)
+//            val left = readyZoneRect.left+readyZoneCellWidth*index
+//            val rect = RectF(
+//                    left,
+//                    readyZoneRect.top,
+//                    left+readyZoneCellWidth,
+//                    readyZoneRect.bottom
+//            )
+
+            return Position(Position.POSITION_READY,index)
         }else if (roleViewCenterY>combatZoneRect.top && roleViewCenterY<combatZoneRect.bottom){
             var rowIndex = 0
             var centerY = roleViewCenterY - combatZoneRect.top
@@ -270,24 +304,24 @@ class MapDraw {
             }
             logE(TAG, "战斗区第${colIndex+1}列")
 
-            val left = combatZoneRect.left+combatCellWidth*colIndex
-            val top = combatZoneRect.top + combatCellWidth * rowIndex
-            val rect = RectF(
-                    left,
-                    top,
-                    left+combatCellWidth,
-                    top+combatCellWidth
-            )
-            return Cell(rect,rowIndex,colIndex)
+//            val left = combatZoneRect.left+combatCellWidth*colIndex
+//            val top = combatZoneRect.top + combatCellWidth * rowIndex
+//            val rect = RectF(
+//                    left,
+//                    top,
+//                    left+combatCellWidth,
+//                    top+combatCellWidth
+//            )
+            return Position(Position.POSITION_COMBAT,colIndex,rowIndex)
         }else{
             logE(TAG, "其他区域")
         }
-        val rect = RectF(
-                roleView.left.toFloat(),
-                roleView.top.toFloat(),
-                roleView.right.toFloat(),
-                roleView.bottom.toFloat()
-        )
-        return Cell(rect)
+//        val rect = RectF(
+//                roleView.left.toFloat(),
+//                roleView.top.toFloat(),
+//                roleView.right.toFloat(),
+//                roleView.bottom.toFloat()
+//        )
+        return Position(Position.POSITION_OTHER)
     }
 }

@@ -8,12 +8,12 @@ import com.example.autopieces.role.Role
  * 包含
  * @param role 角色属性
  * @param roleView 角色视图
- * @param cell 角色的位置信息
+ * @param position 角色的位置信息
  */
 class MapRole(
     var role:Role,
     var roleView:View,
-    var cell:Cell
+    var position:Position = Position()
 ){
 
 }

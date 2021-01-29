@@ -9,4 +9,7 @@ class StoreZone : Zone(STORE_ITEM_NUM){
         const val STORE_ITEM_NUM = 5
     }
 
+    override fun zoneBelongWhere(): String {
+        return Position.POSITION_STORE
+    }
 }
