@@ -24,12 +24,18 @@ class CombatZone(row:Int, col:Int){
      * 战斗区域增加角色时，如果该区域有其他角色，则返回该角色
      */
     fun addRole(mapRole: MapRole,x:Int,y:Int):MapRole?{
-        val oldRole = if (cells[x][y] == null){
+        val oldRole = if (cells[y][x] == null){
             null
         }else
-            cells[x][y]
+            cells[y][x]
 
-        cells[x][y] = mapRole
+        cells[y][x] = mapRole
+        mapRole.position.apply {
+            where = Position.POSITION_COMBAT
+            this.x = x
+            this.y = y
+        }
+
         logE(TAG,"${Position.POSITION_COMBAT}区域 x:$x y:$y 添加了角色:${mapRole.role.name}")
         return oldRole
     }

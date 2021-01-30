@@ -161,9 +161,15 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
                 logE(TAG,"${mapRole.role.name} 进入准备区")
             }
             Position.POSITION_COMBAT -> {
+                combatZone.removeRole(mapRole)
+                //mapRole原本的位置
+                val oldPositionX = mapRole.position.x
+                val oldPositionY = mapRole.position.y
+
                 val oldMapRole = combatZone.addRole(mapRole,targetPosition.x,targetPosition.y)
                 oldMapRole?.apply {
-                    combatZone.addRole(oldMapRole,oldMapRole.position.x,oldMapRole.position.y)
+                    combatZone.addRole(oldMapRole,oldPositionX,oldPositionY)
+                    roleMove(this)
                 }
             }
         }
@@ -171,6 +177,8 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     }
 
     private fun fromReadyZone(mapRole: MapRole, targetPosition: Position): () -> Unit {
+
+
         targetPosition.apply {
             //拖入商店 出售
             when(where){
@@ -180,13 +188,12 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
                     removeRoleView(mapRole.roleView)
                 }
                 Position.POSITION_READY->{
+                    readyZone.removeRole(mapRole)
+
                     val oldIndex = mapRole.position.x
                     //放入准备区指定位置，如果有其他角色，则放到原来的位置
                     val oldRole = readyZone.addRole(mapRole,x)?.apply {
                         readyZone.addRole(this,oldIndex)
-                    }
-                    //交换
-                    readyZone.getRoleByIndex(x)?.apply {
                         roleMove(this)
                     }
                 }
@@ -204,9 +211,7 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         //拖出了商店区域
         if (targetPosition.where != Position.POSITION_STORE){
             logE(TAG,"购买了:${mapRole.role.name}")
-
-            val firstEmptyIndex = readyZone.getFirstEmptyIndex()
-            val readyZoneRect = mapDraw.getReadyItemZone(firstEmptyIndex)
+            storeZone.removeRole(mapRole)
 
             readyZone.addRoleToFirstNotNull(mapRole)
 
@@ -274,6 +279,9 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         storeBinding.apply {
             nameTv.text = role.name
             root.layoutParams = layoutParams
+            root.setOnClickListener {
+
+            }
             addView(root)
         }
 
@@ -310,7 +318,6 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         viewDragHelper.processTouchEvent(event)
-//        return super.onTouchEvent(event)
         return true
     }
 
@@ -324,16 +331,6 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         mapRole = combatZone.getMapRoleByView(view)
         if (mapRole!=null)
             return mapRole
-        return null
-    }
-
-    private fun getRoleByView(view:View):Role?{
-
-        return null
-    }
-
-    private fun getViewByRole(role: Role):View?{
-
         return null
     }
 

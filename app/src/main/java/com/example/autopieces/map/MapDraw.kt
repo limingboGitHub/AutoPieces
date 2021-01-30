@@ -268,6 +268,7 @@ class MapDraw {
         //判断是否进入各区域
         if (roleViewCenterY>storeZoneRect.top && roleViewCenterY<storeZoneRect.bottom){
             logE(TAG, "商店区")
+            return Position(Position.POSITION_STORE)
         }else if (roleViewCenterY>readyZoneRect.top && roleViewCenterY<readyZoneRect.bottom){
             //判断进入哪一个格子
             var index = 0
@@ -304,14 +305,6 @@ class MapDraw {
             }
             logE(TAG, "战斗区第${colIndex+1}列")
 
-//            val left = combatZoneRect.left+combatCellWidth*colIndex
-//            val top = combatZoneRect.top + combatCellWidth * rowIndex
-//            val rect = RectF(
-//                    left,
-//                    top,
-//                    left+combatCellWidth,
-//                    top+combatCellWidth
-//            )
             return Position(Position.POSITION_COMBAT,colIndex,rowIndex)
         }else{
             logE(TAG, "其他区域")
