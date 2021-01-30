@@ -4,7 +4,3 @@
 
 文档：【腾讯文档】火影之奕
 https://docs.qq.com/doc/DSUdDU0h0YUVIaVp3
-
-APK体验
-链接：https://pan.baidu.com/s/1Ffa40_A4EGyrFYr5aOwNFw
-提取码：auto
