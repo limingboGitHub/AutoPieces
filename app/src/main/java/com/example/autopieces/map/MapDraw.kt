@@ -43,7 +43,7 @@ class MapDraw {
      */
     private var combatZoneRect = RectF()
 
-    private val combatStartMargin = 5*density
+    private val combatStartMargin = 10*density
 
     private var combatCellWidth = 0f
 
@@ -73,8 +73,8 @@ class MapDraw {
     private var storeZoneRect = RectF()
 
     //margin边距
-    private var storeStartMargin = 5 * density
-    private var storeBottomMargin = 5 * density
+    private var storeStartMargin = 20 * density
+    private var storeBottomMargin = 50 * density
 
     private val storePaint = Paint()
 

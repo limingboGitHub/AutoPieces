@@ -43,5 +43,5 @@ dependencies {
 
     implementation 'com.github.CymChad:BaseRecyclerViewAdapterHelper:3.0.4'
 
-    implementation 'com.lmb.lmbkit:lmbkit:1.0.0'
+    implementation 'com.lmb.lmbkit:lmbkit:1.0.1'
 }

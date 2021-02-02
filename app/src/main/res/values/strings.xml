@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">AutoPieces</string>
+    <string name="refresh_store">刷新</string>
 </resources>

@@ -49,6 +49,12 @@ abstract class Zone(val cellNum:Int) {
         }
     }
 
+    fun clear(){
+        repeat(cells.size){
+            cells[it] = null
+        }
+    }
+
     fun removeRole(index: Int){
         cells[index] = null
     }

@@ -278,6 +278,17 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         mapDraw.drawStore(canvas)
     }
 
+    fun updateStore(roles:List<Role>){
+        storeZone.forEachCell {
+            removeRoleView(it.roleView)
+        }
+        storeZone.clear()
+
+        roles.forEach {
+            addStore(it)
+        }
+    }
+
     fun addStore(role: Role){
         val storeItemWidth = mapDraw.getStoreItemWidth()
 
