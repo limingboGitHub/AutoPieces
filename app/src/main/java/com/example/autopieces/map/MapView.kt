@@ -153,22 +153,28 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
             Position.POSITION_READY -> {
                 //拖入准备区
                 combatZone.removeRole(mapRole)
+                //mapRole原本的位置
+                val oldPositionX = mapRole.position.x
+                val oldPositionY = mapRole.position.y
+
                 val oldMapRole = readyZone.addRole(mapRole,targetPosition.x)
                 oldMapRole?.apply {
-                    combatZone.addRole(oldMapRole,mapRole.position.x,mapRole.position.y)
+                    combatZone.addRole(oldMapRole,oldPositionX,oldPositionY)
+                    roleMove(this)
                 }
 
                 logE(TAG,"${mapRole.role.name} 进入准备区")
             }
             Position.POSITION_COMBAT -> {
+                if (combatZone.isNotMyRoleCombatZone(targetPosition))
+                    return{}
                 combatZone.removeRole(mapRole)
                 //mapRole原本的位置
                 val oldPositionX = mapRole.position.x
                 val oldPositionY = mapRole.position.y
 
-                val oldMapRole = combatZone.addRole(mapRole,targetPosition.x,targetPosition.y)
-                oldMapRole?.apply {
-                    combatZone.addRole(oldMapRole,oldPositionX,oldPositionY)
+                val oldMapRole = combatZone.addRole(mapRole,targetPosition.x,targetPosition.y)?.apply {
+                    combatZone.addRole(this,oldPositionX,oldPositionY)
                     roleMove(this)
                 }
             }
@@ -177,8 +183,6 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     }
 
     private fun fromReadyZone(mapRole: MapRole, targetPosition: Position): () -> Unit {
-
-
         targetPosition.apply {
             //拖入商店 出售
             when(where){
@@ -198,8 +202,14 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
                     }
                 }
                 Position.POSITION_COMBAT ->{
+                    if (combatZone.isNotMyRoleCombatZone(targetPosition))
+                        return@apply
                     readyZone.removeRole(mapRole)
-                    combatZone.addRole(mapRole,x,y)
+                    val oldIndex = mapRole.position.x
+                    combatZone.addRole(mapRole,x,y)?.apply {
+                        readyZone.addRole(this,oldIndex)
+                        roleMove(this)
+                    }
                 }
             }
         }

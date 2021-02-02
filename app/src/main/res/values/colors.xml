@@ -8,4 +8,7 @@
     <color name="store_stroke_color">#999999</color>
     <color name="store_role_bg_color">#cccccc</color>
     <color name="role_bg_color">#0088ff</color>
+    <color name="map_draw_combat_zone_center_line">#000000</color>
+    <color name="map_draw_combat_zone_border_disable">#b2b2b2</color>
+    <color name="map_draw_combat_zone_border">#b2b2b2</color>
 </resources>

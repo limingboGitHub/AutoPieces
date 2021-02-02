@@ -110,7 +110,7 @@ class MapDraw {
 
         //战斗区域绘制相关参数
         combatZonePaint.strokeWidth = 2*density
-        combatZonePaint.color = Color.GRAY
+        combatZonePaint.color = getColor(R.color.map_draw_combat_zone_border)
 
         val combatWidth = screenWidth-2*combatStartMargin
         combatCellWidth = combatWidth/COMBAT_COL_NUM
@@ -188,6 +188,13 @@ class MapDraw {
         }
 
         repeat(COMBAT_ROW_NUM+1){
+            if (it == (COMBAT_ROW_NUM)/2){
+                combatZonePaint.color = getColor(R.color.map_draw_combat_zone_center_line)
+                combatZonePaint.strokeWidth = 3*density
+            } else {
+                combatZonePaint.color = getColor(R.color.map_draw_combat_zone_border)
+                combatZonePaint.strokeWidth = 2*density
+            }
             val startY = combatZoneRect.bottom - it*combatCellWidth
             canvas.drawLine(
                 combatZoneRect.left,

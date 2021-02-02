@@ -4,7 +4,7 @@ import android.view.View
 import com.example.autopieces.utils.logE
 
 
-class CombatZone(row:Int, col:Int){
+class CombatZone(private val row:Int,private val col:Int){
     val TAG = "CombatZone"
 
     private val cells : Array<Array<MapRole?>> = Array(row) {
@@ -59,5 +59,9 @@ class CombatZone(row:Int, col:Int){
             }
         }
         return null
+    }
+
+    fun isNotMyRoleCombatZone(position: Position):Boolean{
+        return position.y < row/2
     }
 }
