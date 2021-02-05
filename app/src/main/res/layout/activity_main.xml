@@ -79,6 +79,54 @@
                     app:layout_constraintBottom_toBottomOf="parent"/>
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+            <TextView
+                android:id="@+id/exp_progress_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text='@{player.currentExp+"/"+player.maxExp}'
+                android:textSize="12sp"
+                app:layout_constraintBottom_toTopOf="@id/exp_progress"
+                app:layout_constraintStart_toStartOf="@id/buy_exp_cl"
+                app:layout_constraintEnd_toEndOf="@id/buy_exp_cl"/>
+            <com.google.android.material.progressindicator.LinearProgressIndicator
+                android:id="@+id/exp_progress"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:progress="@{player.currentExp}"
+                android:max="@{player.maxExp}"
+                app:layout_constraintStart_toStartOf="@id/buy_exp_cl"
+                app:layout_constraintEnd_toEndOf="@id/buy_exp_cl"
+                app:layout_constraintBottom_toTopOf="@id/buy_exp_cl"/>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/buy_exp_cl"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="5dp"
+                style="@style/OperationButton"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
+                <TextView
+                    android:id="@+id/buy_exp_bt"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/buy_exp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+                <TextView
+                    android:id="@+id/exp_cost_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:drawableStart="@drawable/ic_gold"
+                    android:text="4"
+                    android:gravity="center"
+                    app:layout_constraintStart_toEndOf="@id/buy_exp_bt"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 

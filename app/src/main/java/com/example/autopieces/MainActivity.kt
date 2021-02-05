@@ -40,6 +40,16 @@ class MainActivity : AppCompatActivity() {
                 toast(R.string.your_money_is_not_enough)
             }
         }
+        //购买经验
+        binding.buyExpCl.setOnClickListener {
+            val money = player.money.value?:0
+            if (money>=4){
+                player.money.value = money-4
+                player.addExp(4)
+            }else{
+                toast(R.string.your_money_is_not_enough)
+            }
+        }
     }
 
 }

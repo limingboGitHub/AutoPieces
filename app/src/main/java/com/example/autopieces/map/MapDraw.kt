@@ -47,6 +47,8 @@ class MapDraw {
 
     private var combatCellWidth = 0f
 
+    private var combatCellPadding = 2*density
+
     private val combatZonePaint = Paint()
 
     /**
@@ -57,10 +59,10 @@ class MapDraw {
 
     private var readyZoneRect = RectF()
 
-    private var readyZoneStartY = 0
-
     private var readyStartMargin = 5 * density
     private var readyBottomMargin = 10 * density
+
+    private val readyCellPadding = 2*density
 
     private val readyPaint = Paint()
 
@@ -75,6 +77,8 @@ class MapDraw {
     //margin边距
     private var storeStartMargin = 20 * density
     private var storeBottomMargin = 50 * density
+
+    private val storeCellPadding = 3*density
 
     private val storePaint = Paint()
 
@@ -94,7 +98,7 @@ class MapDraw {
             screenHeight-storeBottomMargin
         )
         //商店角色宽高
-        storeItemWidth = storeCellWidth - 2 * MyContext.context.resources.getDimensionPixelOffset(R.dimen.store_item_padding)
+        storeItemWidth = storeCellWidth - 5 * MyContext.context.resources.getDimensionPixelOffset(R.dimen.store_item_padding)
 
         //准备区域相关参数
         readyPaint.strokeWidth = 1 * density
@@ -223,6 +227,7 @@ class MapDraw {
             readyZoneRect.bottom
     )
 
+
     /**
      * 通过Position来获取地图中的物理位置
      */
@@ -230,40 +235,31 @@ class MapDraw {
         return when(position.where){
             Position.POSITION_STORE -> {
                 RectF(
-                        storeZoneRect.left + storeCellWidth*position.x,
-                        storeZoneRect.top,
-                        storeZoneRect.left + storeCellWidth*(position.x+1),
-                        storeZoneRect.bottom
+                        storeZoneRect.left + storeCellWidth*position.x + storeCellPadding,
+                        storeZoneRect.top + storeCellPadding,
+                        storeZoneRect.left + storeCellWidth*(position.x+1) - storeCellPadding,
+                        storeZoneRect.bottom - storeCellPadding
                 )
             }
             Position.POSITION_READY -> {
                 RectF(
-                        readyZoneRect.left + readyZoneCellWidth*position.x,
-                        readyZoneRect.top,
-                        readyZoneRect.left + readyZoneCellWidth*(position.x+1),
-                        readyZoneRect.bottom
+                        readyZoneRect.left + readyZoneCellWidth*position.x + readyCellPadding,
+                        readyZoneRect.top + readyCellPadding,
+                        readyZoneRect.left + readyZoneCellWidth*(position.x+1) - readyCellPadding,
+                        readyZoneRect.bottom - readyCellPadding
                 )
             }
             Position.POSITION_COMBAT -> {
                 RectF(
-                        combatZoneRect.left + combatCellWidth * position.x,
-                        combatZoneRect.top + combatCellWidth * position.y,
-                        combatZoneRect.left + combatCellWidth*(position.x+1),
-                        combatZoneRect.top + combatCellWidth * (position.y+1)
+                        combatZoneRect.left + combatCellWidth * position.x + combatCellPadding,
+                        combatZoneRect.top + combatCellWidth * position.y + combatCellPadding,
+                        combatZoneRect.left + combatCellWidth*(position.x+1) - combatCellPadding,
+                        combatZoneRect.top + combatCellWidth * (position.y+1) - combatCellPadding
                 )
             }
             else -> RectF()
         }
     }
-
-    /**
-     * 判断区域是否属于商店
-     */
-    fun belongStoreZone(zone:RectF) = zone.belongRect(storeZoneRect)
-
-    fun belongReadyZone(zone:RectF) = zone.belongRect(readyZoneRect)
-
-    fun belongCombatZone(zone: RectF) = zone.belongRect(combatZoneRect)
 
     /**
      * 计算视图的位置

@@ -20,11 +20,11 @@ import com.lmb.lmbkit.utils.getDensity
 class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs) {
     private val TAG = "MapView"
 
-    companion object{
-        val TYPE_STORE = "store"
-        val TYPE_ROLE = "role"
-    }
+    /**
+     * 地图绘制
+     */
     private val mapDraw = MapDraw()
+
     /**
      * 系统参数
      */
@@ -220,6 +220,8 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     private fun fromStoreZone(mapRole: MapRole, targetPosition: Position) : ()->Unit {
         //拖出了商店区域
         if (targetPosition.where != Position.POSITION_STORE){
+            if (readyZone.isFull())
+                return{}
             logE(TAG,"购买了:${mapRole.role.name}")
             storeZone.removeRole(mapRole)
 
@@ -305,10 +307,6 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
             }
             addView(root)
         }
-
-        //计算每个卡片对应在商店区域的坐标
-        val x = mapDraw.getStoreZone().left + mapDraw.getStoreCellWith() * storeZone.roleNum()
-        val y = mapDraw.getStoreZone().top
 
         val mapRole = MapRole(
                 role,

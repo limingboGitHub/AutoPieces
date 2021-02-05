@@ -49,6 +49,12 @@ abstract class Zone(val cellNum:Int) {
         }
     }
 
+    fun isFull():Boolean{
+        return cells.filterNotNull().size == cellNum
+    }
+
+    fun isNotFull():Boolean = cells.filterNotNull().size < cellNum
+
     fun clear(){
         repeat(cells.size){
             cells[it] = null
