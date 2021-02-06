@@ -10,25 +10,25 @@ class Player{
     var maxExp = MutableLiveData<Int>()
 
     private val maxExpArray = arrayOf(
-        10,10,4,10,20,40,60,80
+        2,4,6,8,10,18,30,46,70
     )
 
     init {
-        level.value = 0
+        level.value = 1
         money.value = 0
         currentExp.value = 0
-        maxExp.value = 10
+        maxExp.value = maxExpArray[0]
     }
 
     fun addExp(exp:Int){
         val currentExp = currentExp.value?:0
         val maxExp = maxExp.value?:0
+        val level = level.value?:1
         if (currentExp+exp >= maxExp){
             val restExp = currentExp+exp - maxExp
-            val level = this.level.value?:0 +1
-            this.level.value = level
-            this.currentExp.value = restExp
-            this.maxExp.value = maxExpArray[level-1]
+            this.level.value = level + 1
+            this.maxExp.value = maxExpArray[level]
+            addExp(restExp)
         }else{
             this.currentExp.value = currentExp + exp
         }

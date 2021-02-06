@@ -80,13 +80,20 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <TextView
+                android:id="@+id/level_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text='@{"Lv "+player.level}'
+                android:textSize="12sp"
+                app:layout_constraintBottom_toTopOf="@id/exp_progress"
+                app:layout_constraintStart_toStartOf="@id/buy_exp_cl"/>
+            <TextView
                 android:id="@+id/exp_progress_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text='@{player.currentExp+"/"+player.maxExp}'
                 android:textSize="12sp"
                 app:layout_constraintBottom_toTopOf="@id/exp_progress"
-                app:layout_constraintStart_toStartOf="@id/buy_exp_cl"
                 app:layout_constraintEnd_toEndOf="@id/buy_exp_cl"/>
             <com.google.android.material.progressindicator.LinearProgressIndicator
                 android:id="@+id/exp_progress"

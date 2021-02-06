@@ -25,11 +25,21 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         transNavAndStatus()
 
-        binding.player = player
-        player.money.value = 5
+        initPlayer()
+
+        binding.mapView.setPlayer(player)
         //商店进货 5个角色
         binding.mapView.updateStore(randomCreateRoles(5))
 
+        initUIListener()
+    }
+
+    private fun initPlayer() {
+        binding.player = player
+        player.money.value = 5
+    }
+
+    private fun initUIListener() {
         //点击刷新
         binding.refreshStoreCl.setOnClickListener {
             val money = player.money.value?:0

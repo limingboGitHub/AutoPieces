@@ -11,6 +11,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.customview.widget.ViewDragHelper
+import com.example.autopieces.Player
 import com.example.autopieces.databinding.ItemRoleBinding
 import com.example.autopieces.databinding.ItemStoreBinding
 import com.example.autopieces.role.Role
@@ -44,6 +45,12 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
      * 商店区
      */
     private val storeZone = StoreZone()
+
+    private lateinit var player : Player
+
+    init {
+        setWillNotDraw(false)
+    }
 
     /**
      * 子View拖动
@@ -220,8 +227,11 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     private fun fromStoreZone(mapRole: MapRole, targetPosition: Position) : ()->Unit {
         //拖出了商店区域
         if (targetPosition.where != Position.POSITION_STORE){
-            if (readyZone.isFull())
+            val money = player.money.value?:0
+            if (readyZone.isFull() ||  money < mapRole.role.cost)
                 return{}
+            player.money.value = money - mapRole.role.cost
+
             logE(TAG,"购买了:${mapRole.role.name}")
             storeZone.removeRole(mapRole)
 
@@ -240,10 +250,6 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     }
 
     private val viewDragHelper = ViewDragHelper.create(this,dragCallback)
-
-    init {
-        setWillNotDraw(false)
-    }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
@@ -278,6 +284,10 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         mapDraw.drawReadyZone(canvas)
         //绘制商店区域
         mapDraw.drawStore(canvas)
+    }
+
+    fun setPlayer(player: Player){
+        this.player = player
     }
 
     fun updateStore(roles:List<Role>){
