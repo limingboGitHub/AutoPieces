@@ -20,6 +20,8 @@ class Player{
         maxExp.value = maxExpArray[0]
     }
 
+    fun getLevel() = level.value?:1
+
     fun addExp(exp:Int){
         val currentExp = currentExp.value?:0
         val maxExp = maxExp.value?:0
@@ -27,6 +29,7 @@ class Player{
         if (currentExp+exp >= maxExp){
             val restExp = currentExp+exp - maxExp
             this.level.value = level + 1
+            this.currentExp.value = 0
             this.maxExp.value = maxExpArray[level]
             addExp(restExp)
         }else{

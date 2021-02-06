@@ -29,14 +29,14 @@ class MainActivity : AppCompatActivity() {
 
         binding.mapView.setPlayer(player)
         //商店进货 5个角色
-        binding.mapView.updateStore(randomCreateRoles(5))
+        binding.mapView.updateStore(randomCreateRoles(player))
 
         initUIListener()
     }
 
     private fun initPlayer() {
         binding.player = player
-        player.money.value = 5
+        player.money.value = 1000
     }
 
     private fun initUIListener() {
@@ -45,7 +45,7 @@ class MainActivity : AppCompatActivity() {
             val money = player.money.value?:0
             if (money>=2){
                 player.money.value = money-2
-                binding.mapView.updateStore(randomCreateRoles(5))
+                binding.mapView.updateStore(randomCreateRoles(player))
             }else{
                 toast(R.string.your_money_is_not_enough)
             }
