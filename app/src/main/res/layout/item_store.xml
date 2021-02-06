@@ -6,7 +6,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="90dp"
         android:layout_height="90dp"
-        android:background="@drawable/store_role_bg"
+        android:background="@drawable/store_role_cost1_bg"
         android:elevation="3dp">
 
         <TextView
@@ -15,7 +15,6 @@
             android:layout_height="wrap_content"
             android:text="123"
             android:textSize="12sp"
-            android:background="@android:color/holo_red_light"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"/>
 

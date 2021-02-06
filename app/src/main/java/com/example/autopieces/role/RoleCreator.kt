@@ -9,7 +9,7 @@ fun randomCreateRoles(count:Int):List<Role>{
     val rolesToSelect = cost1Roles()
     repeat(count){
         val randomIndex = (0 until rolesToSelect.size).random()
-        val role = Role(rolesToSelect[randomIndex])
+        val role = Role(rolesToSelect[randomIndex],(1..5).random())
         roles.add(role)
         logE("RoleCreator","index:${role.name}")
     }

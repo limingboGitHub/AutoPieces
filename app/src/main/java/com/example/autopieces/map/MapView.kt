@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.customview.widget.ViewDragHelper
 import com.example.autopieces.Player
+import com.example.autopieces.R
 import com.example.autopieces.databinding.ItemRoleBinding
 import com.example.autopieces.databinding.ItemStoreBinding
 import com.example.autopieces.role.Role
@@ -308,9 +309,18 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         val layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT)
         layoutParams.width = storeItemWidth.toInt()
         layoutParams.height = storeItemWidth.toInt()
+        //背景
+        storeBinding.root.setBackgroundResource(when(role.cost){
+            2 -> R.drawable.store_role_cost2_bg
+            3 -> R.drawable.store_role_cost3_bg
+            4 -> R.drawable.store_role_cost4_bg
+            5 -> R.drawable.store_role_cost5_bg
+            else -> R.drawable.store_role_cost1_bg
+        })
 
         storeBinding.apply {
             nameTv.text = role.name
+            costTv.text = role.cost.toString()
             root.layoutParams = layoutParams
             root.setOnClickListener {
 
