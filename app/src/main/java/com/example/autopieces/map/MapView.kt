@@ -310,13 +310,7 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         layoutParams.width = storeItemWidth.toInt()
         layoutParams.height = storeItemWidth.toInt()
         //背景
-        storeBinding.root.setBackgroundResource(when(role.cost){
-            2 -> R.drawable.store_role_cost2_bg
-            3 -> R.drawable.store_role_cost3_bg
-            4 -> R.drawable.store_role_cost4_bg
-            5 -> R.drawable.store_role_cost5_bg
-            else -> R.drawable.store_role_cost1_bg
-        })
+        storeBinding.root.setBackgroundResource(backgroundRes(role.cost))
 
         storeBinding.apply {
             nameTv.text = role.name
@@ -344,7 +338,19 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         roleBinding.root.layoutParams = layoutParams
 
         roleBinding.nameTv.text = mapRole.role.name
+
+        roleBinding.root.setBackgroundResource(backgroundRes(mapRole.role.cost))
         return roleBinding.root
+    }
+
+    private fun backgroundRes(cost:Int):Int{
+        return when(cost){
+            2 -> R.drawable.store_role_cost2_bg
+            3 -> R.drawable.store_role_cost3_bg
+            4 -> R.drawable.store_role_cost4_bg
+            5 -> R.drawable.store_role_cost5_bg
+            else -> R.drawable.store_role_cost1_bg
+        }
     }
 
     private fun removeRoleView(roleView: View){

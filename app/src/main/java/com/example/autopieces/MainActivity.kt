@@ -52,6 +52,9 @@ class MainActivity : AppCompatActivity() {
         }
         //购买经验
         binding.buyExpCl.setOnClickListener {
+            val level = player.getLevel()
+            if (level>=9)
+                return@setOnClickListener
             val money = player.money.value?:0
             if (money>=4){
                 player.money.value = money-4
