@@ -51,6 +51,16 @@ class CombatZone(private val row:Int,private val col:Int){
         }
     }
 
+    fun getSampleLevelRoles(mapRole: MapRole):ArrayList<MapRole>{
+        val sampleLevelRoles = ArrayList<MapRole>()
+        forEachCell {
+            if (it.role.name == mapRole.role.name &&
+                    it.role.level == mapRole.role.level)
+                sampleLevelRoles.add(it)
+        }
+        return sampleLevelRoles
+    }
+
     fun getMapRoleByView(view:View):MapRole?{
         cells.forEach { array->
             array.filterNotNull().forEach {

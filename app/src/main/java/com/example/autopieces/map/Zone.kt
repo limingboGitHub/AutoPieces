@@ -55,6 +55,19 @@ abstract class Zone(val cellNum:Int) {
 
     fun isNotFull():Boolean = cells.filterNotNull().size < cellNum
 
+    /**
+     * 找到同名，同星级的角色
+     */
+    fun getSampleLevelRoles(mapRole: MapRole):ArrayList<MapRole>{
+        val sampleLevelRoles = ArrayList<MapRole>()
+        forEachCell {
+            if (it.role.name == mapRole.role.name &&
+                    it.role.level == mapRole.role.level)
+                sampleLevelRoles.add(it)
+        }
+        return sampleLevelRoles
+    }
+
     fun clear(){
         repeat(cells.size){
             cells[it] = null

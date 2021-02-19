@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.customview.widget.ViewDragHelper
 import com.example.autopieces.Player
 import com.example.autopieces.R
@@ -18,6 +19,7 @@ import com.example.autopieces.databinding.ItemStoreBinding
 import com.example.autopieces.role.Role
 import com.example.autopieces.utils.*
 import com.lmb.lmbkit.utils.getDensity
+import kotlin.text.StringBuilder
 
 class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs) {
     private val TAG = "MapView"
@@ -46,6 +48,12 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
      * 商店区
      */
     private val storeZone = StoreZone()
+
+    /**
+     * 角色暂时存放区
+     * 用于角色合成
+     */
+    private val tempMapRoles = ArrayList<MapRole>()
 
     private lateinit var player : Player
 
@@ -228,11 +236,28 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     private fun fromStoreZone(mapRole: MapRole, targetPosition: Position) : ()->Unit {
         //拖出了商店区域
         if (targetPosition.where != Position.POSITION_STORE){
-            val money = player.money.value?:0
-            if (readyZone.isFull() ||  money < mapRole.role.cost)
+            val money = player.getMoney()
+            if (money < mapRole.role.cost)
+                return{}
+            //是否可以合成
+            val sampleLevelRolesInReadyZone = readyZone.getSampleLevelRoles(mapRole)
+            val sampleLevelRolesInCombatZone = combatZone.getSampleLevelRoles(mapRole)
+            if (sampleLevelRolesInReadyZone.size + sampleLevelRolesInCombatZone.size >= 2){
+                //棋子购买
+                player.money.value = money - mapRole.role.cost
+                logE(TAG,"购买了:${mapRole.role.name}")
+                storeZone.removeRole(mapRole)
+
+                tempMapRoles.add(mapRole)
+                //升级
+                roleLevelUp(mapRole)
+
+                return{}
+            }
+
+            if (readyZone.isFull())
                 return{}
             player.money.value = money - mapRole.role.cost
-
             logE(TAG,"购买了:${mapRole.role.name}")
             storeZone.removeRole(mapRole)
 
@@ -248,6 +273,37 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
             }
         }else
             return{}
+    }
+
+    private fun roleLevelUp(mapRole: MapRole){
+        val sampleLevelRolesInReadyZone = readyZone.getSampleLevelRoles(mapRole)
+        val sampleLevelRolesInCombatZone = combatZone.getSampleLevelRoles(mapRole)
+        if (sampleLevelRolesInReadyZone.size + sampleLevelRolesInCombatZone.size + tempMapRoles.size >= 3){
+            //升级
+            val toLevelUpRole = if (sampleLevelRolesInCombatZone.isNotEmpty())
+                sampleLevelRolesInCombatZone.removeAt(0)
+            else
+                sampleLevelRolesInReadyZone.removeAt(0)
+            toLevelUpRole.role.levelUp()
+            toLevelUpRole.roleView.findViewById<TextView>(R.id.star_tv)?.apply {
+                text = roleLevelStar(toLevelUpRole.role)
+            }
+            //装备整合
+            //其他棋子移除
+            sampleLevelRolesInCombatZone.forEach {
+                combatZone.removeRole(it)
+                removeRoleView(it.roleView)
+            }
+            sampleLevelRolesInReadyZone.forEach {
+                readyZone.removeRole(it)
+                removeRoleView(it.roleView)
+            }
+            tempMapRoles.clear()
+            //商店的视图删除
+            removeRoleView(mapRole.roleView)
+            //继续升级判定
+            roleLevelUp(toLevelUpRole)
+        }
     }
 
     private val viewDragHelper = ViewDragHelper.create(this,dragCallback)
@@ -338,10 +394,14 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         roleBinding.root.layoutParams = layoutParams
 
         roleBinding.nameTv.text = mapRole.role.name
-
+        //角色星级
+        roleBinding.starTv.text = roleLevelStar(mapRole.role)
+        //显示背景
         roleBinding.root.setBackgroundResource(backgroundRes(mapRole.role.cost))
         return roleBinding.root
     }
+
+    private fun roleLevelStar(role: Role):String = StringBuilder().apply { repeat(role.level){append("★")} }.toString()
 
     private fun backgroundRes(cost:Int):Int{
         return when(cost){

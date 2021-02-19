@@ -22,6 +22,8 @@ class Player{
 
     fun getLevel() = level.value?:1
 
+    fun getMoney() = money.value?:0
+
     fun addExp(exp:Int){
         val level = getLevel()
         if (level == 9)
