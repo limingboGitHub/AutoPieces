@@ -9,7 +9,7 @@
         <import type="androidx.lifecycle.MutableLiveData"/>
         <variable
             name="player"
-            type="Player" />
+            type="MutableLiveData&lt;Player>" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

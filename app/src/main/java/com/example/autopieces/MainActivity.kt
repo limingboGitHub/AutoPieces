@@ -2,8 +2,10 @@ package com.example.autopieces
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import androidx.lifecycle.MutableLiveData
+import androidx.activity.viewModels
 import com.example.autopieces.databinding.ActivityMainBinding
+import com.example.autopieces.map.MapView
+import com.example.autopieces.role.RolePool
 import com.example.autopieces.role.randomCreateRoles
 import com.lmb.lmbkit.extend.toast
 import com.lmb.lmbkit.extend.transNavAndStatus
@@ -13,10 +15,7 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var binding : ActivityMainBinding
 
-    /**
-     * 玩家
-     */
-    private val player = Player()
+    val viewModel : MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,38 +26,49 @@ class MainActivity : AppCompatActivity() {
 
         initPlayer()
 
-        binding.mapView.setPlayer(player)
+        val player = viewModel.player.value?:return
+
+        initMapView()
+
+        RolePool.init()
         //商店进货 5个角色
-        binding.mapView.updateStore(randomCreateRoles(player))
+        binding.mapView.updateStore(randomCreateRoles(player.level))
 
         initUIListener()
     }
 
+    private fun initMapView() {
+        viewModel.player.value?.apply {
+            binding.mapView.setPlayer(this)
+            binding.mapView.playerUpdateListenerAdapter = object : MapView.PlayerUpdateListener{
+                override fun update(player: Player) {
+                    viewModel.player.value = player
+                }
+            }
+        }
+    }
+
     private fun initPlayer() {
-        binding.player = player
-        player.money.value = 1000
+        binding.player = viewModel.player
+        viewModel.addMoney(1000)
     }
 
     private fun initUIListener() {
         //点击刷新
         binding.refreshStoreCl.setOnClickListener {
-            val money = player.money.value?:0
-            if (money>=2){
-                player.money.value = money-2
-                binding.mapView.updateStore(randomCreateRoles(player))
+            if (viewModel.useMoney(2)){
+                binding.mapView.updateStore(randomCreateRoles(viewModel.getPlayer().level))
             }else{
                 toast(R.string.your_money_is_not_enough)
             }
         }
         //购买经验
         binding.buyExpCl.setOnClickListener {
-            val level = player.getLevel()
+            val level = viewModel.getPlayer().level
             if (level>=9)
                 return@setOnClickListener
-            val money = player.money.value?:0
-            if (money>=4){
-                player.money.value = money-4
-                player.addExp(4)
+            if (viewModel.useMoney(4)){
+                viewModel.addExp(4)
             }else{
                 toast(R.string.your_money_is_not_enough)
             }

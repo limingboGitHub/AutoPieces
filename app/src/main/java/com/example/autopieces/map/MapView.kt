@@ -57,6 +57,8 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
 
     private lateinit var player : Player
 
+    var playerUpdateListenerAdapter : PlayerUpdateListener? = null
+
     init {
         setWillNotDraw(false)
     }
@@ -236,7 +238,7 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     private fun fromStoreZone(mapRole: MapRole, targetPosition: Position) : ()->Unit {
         //拖出了商店区域
         if (targetPosition.where != Position.POSITION_STORE){
-            val money = player.getMoney()
+            val money = player.money
             if (money < mapRole.role.cost)
                 return{}
             //是否可以合成
@@ -244,7 +246,8 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
             val sampleLevelRolesInCombatZone = combatZone.getSampleLevelRoles(mapRole)
             if (sampleLevelRolesInReadyZone.size + sampleLevelRolesInCombatZone.size >= 2){
                 //棋子购买
-                player.money.value = money - mapRole.role.cost
+                player.money = money - mapRole.role.cost
+                playerUpdateListenerAdapter?.update(player)
                 logE(TAG,"购买了:${mapRole.role.name}")
                 storeZone.removeRole(mapRole)
 
@@ -257,7 +260,8 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
 
             if (readyZone.isFull())
                 return{}
-            player.money.value = money - mapRole.role.cost
+            player.money = money - mapRole.role.cost
+            playerUpdateListenerAdapter?.update(player)
             logE(TAG,"购买了:${mapRole.role.name}")
             storeZone.removeRole(mapRole)
 
@@ -439,4 +443,7 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         return null
     }
 
+    interface PlayerUpdateListener{
+        fun update(player: Player)
+    }
 }
