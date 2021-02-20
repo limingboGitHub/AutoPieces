@@ -1,8 +1,5 @@
 package com.example.autopieces
 
-import androidx.lifecycle.MutableLiveData
-import kotlin.math.max
-
 class Player{
     var level = 1
     var money = 0

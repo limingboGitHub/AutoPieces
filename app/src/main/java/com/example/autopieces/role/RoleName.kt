@@ -80,78 +80,94 @@ class RoleName {
         const val SAN_DAI_LEI_YING = "三代雷影"
         const val KAI = "凯"
         const val ZHU_JIAN = "千手柱间"
+
+        val cost1RolesArray = arrayOf(
+                RoleName.MING_REN,
+                RoleName.XIAO_YIN,
+                RoleName.CHU_TIAN,
+                RoleName.DING_CI,
+                RoleName.ZHONG_WU,
+                RoleName.XIE,
+                RoleName.KAN_JIU_LANG,
+                RoleName.CHI_TU,
+                RoleName.LI,
+                RoleName.YOU_LI,
+                RoleName.ER_REN,
+                RoleName.TIAN_TIAN,
+                RoleName.ZHI_NAI
+        )
+
+        val cost2RolesArray = arrayOf(
+                RoleName.ZUO_ZU,
+                RoleName.NING_CI,
+                RoleName.JING_YE,
+                RoleName.HE_TUN_GUI,
+                RoleName.SHEN_BA,
+                RoleName.CHUAN_WAN,
+                RoleName.CHANG_SHI_LANG,
+                RoleName.JIAO_DU,
+                RoleName.DOU,
+                RoleName.XIAO_NAN,
+                RoleName.SHOU_JU,
+                RoleName.YIN_JIAO,
+                RoleName.BAI
+        )
+
+        val cost3RolesArray = arrayOf(
+                RoleName.JIN_JIAO,
+                RoleName.ZAI_BU_ZHAN,
+                RoleName.ZUO_JIN,
+                RoleName.SHUI_YUE,
+                RoleName.JUN_MA_LV,
+                RoleName.DI_DA_LA,
+                RoleName.JUE,
+                RoleName.FEI_DUAN,
+                RoleName.DA_HE,
+                RoleName.LU_WAN,
+                RoleName.DA_LU_YI,
+                RoleName.XIANG_LIN,
+                RoleName.QI_LA_BI
+        )
+
+        val cost4RolesArray = arrayOf(
+                RoleName.GUI_JIAO,
+                RoleName.DA_YE_MU,
+                RoleName.SI_DAI_LEI_YING,
+                RoleName.KAKA_XI,
+                RoleName.TUAN_ZANG,
+                RoleName.GUI_DENG_MAN_YUE,
+                RoleName.ZHAO_MEI_MIN,
+                RoleName.SHI_CANG,
+                RoleName.WO_AI_LUO,
+                RoleName.PAIN,
+                RoleName.FEI_JIAN
+        )
+
+        val cost5RolesArray = arrayOf(
+                RoleName.BAN,
+                RoleName.ZI_LAI_YE,
+                RoleName.GANG_SHOU,
+                RoleName.DA_SHE_WAN,
+                RoleName.YOU,
+                RoleName.SAN_DAI_LEI_YING,
+                RoleName.KAI,
+                RoleName.ZHU_JIAN
+        )
+
+        val rolesArray = arrayOf(
+                cost1RolesArray,
+                cost2RolesArray,
+                cost3RolesArray,
+                cost4RolesArray,
+                cost5RolesArray
+        )
     }
 }
 
-fun cost1Roles() = arrayListOf(
-    RoleName.MING_REN,
-    RoleName.XIAO_YIN,
-    RoleName.CHU_TIAN,
-    RoleName.DING_CI,
-    RoleName.ZHONG_WU,
-    RoleName.XIE,
-    RoleName.KAN_JIU_LANG,
-    RoleName.CHI_TU,
-    RoleName.LI,
-    RoleName.YOU_LI,
-    RoleName.ER_REN,
-    RoleName.TIAN_TIAN,
-    RoleName.ZHI_NAI
-)
-
-fun cost2Roles() = arrayListOf(
-    RoleName.ZUO_ZU,
-    RoleName.NING_CI,
-    RoleName.JING_YE,
-    RoleName.HE_TUN_GUI,
-    RoleName.SHEN_BA,
-    RoleName.CHUAN_WAN,
-    RoleName.CHANG_SHI_LANG,
-    RoleName.JIAO_DU,
-    RoleName.DOU,
-    RoleName.XIAO_NAN,
-    RoleName.SHOU_JU,
-    RoleName.YIN_JIAO,
-    RoleName.BAI
-)
-
-fun cost3Roles() = arrayListOf(
-    RoleName.JIN_JIAO,
-    RoleName.ZAI_BU_ZHAN,
-    RoleName.ZUO_JIN,
-    RoleName.SHUI_YUE,
-    RoleName.JUN_MA_LV,
-    RoleName.DI_DA_LA,
-    RoleName.JUE,
-    RoleName.FEI_DUAN,
-    RoleName.DA_HE,
-    RoleName.LU_WAN,
-    RoleName.DA_LU_YI,
-    RoleName.XIANG_LIN,
-    RoleName.QI_LA_BI
-)
-
-fun cost4Roles() = arrayListOf(
-    RoleName.GUI_JIAO,
-    RoleName.DA_YE_MU,
-    RoleName.SI_DAI_LEI_YING,
-    RoleName.KAKA_XI,
-    RoleName.TUAN_ZANG,
-    RoleName.GUI_DENG_MAN_YUE,
-    RoleName.ZHAO_MEI_MIN,
-    RoleName.SHI_CANG,
-    RoleName.WO_AI_LUO,
-    RoleName.PAIN,
-    RoleName.FEI_JIAN
-)
-
-fun cost5Roles() = arrayListOf(
-    RoleName.BAN,
-    RoleName.ZI_LAI_YE,
-    RoleName.GANG_SHOU,
-    RoleName.DA_SHE_WAN,
-    RoleName.YOU,
-    RoleName.SAN_DAI_LEI_YING,
-    RoleName.KAI,
-    RoleName.ZHU_JIAN
-)
+fun roleCost(roleName:String):Int{
+    RoleName.rolesArray.forEachIndexed { index, roleNames ->
+        if (roleNames.contains(roleName))
+            return index+1
+    }
+    return 1
+}

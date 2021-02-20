@@ -15,6 +15,15 @@ class RolePoolTest {
         val player = Player()
 
         val roles = randomCreateRoles(player.level)
-        assertEquals(roles.size,4)
+        assertEquals(roles.size,5)
+        //检查卡池的数量是否正确减少
+        roles.forEach {
+            var roleAmount = 0
+            for (role in roles) {
+                if (role.name == it.name)
+                    roleAmount++
+            }
+            assertEquals(29-roleAmount,RolePool.getRoleAmount(it.name))
+        }
     }
 }
