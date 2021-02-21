@@ -1,4 +1,4 @@
-package com.example.autopieces.role
+package com.example.autopieces.logic.role
 
 class RoleRefreshRate {
 

@@ -16,4 +16,6 @@
     <color name="map_draw_combat_zone_border_disable">#b2b2b2</color>
     <color name="map_draw_combat_zone_border">#b2b2b2</color>
     <color name="operation_button_solid">#999999</color>
+    <color name="role_hp_color">#ff0000</color>
+    <color name="role_mp_color">#0000ff</color>
 </resources>

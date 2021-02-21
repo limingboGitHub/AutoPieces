@@ -1,10 +1,9 @@
-package com.example.autopieces.map
+package com.example.autopieces.view
 
 import android.graphics.*
 import android.view.View
 import com.example.autopieces.R
-import com.example.autopieces.extend.belongRect
-import com.example.autopieces.role.Role
+import com.example.autopieces.logic.map.Position
 import com.example.autopieces.utils.getColor
 import com.example.autopieces.utils.logE
 import com.lmb.lmbkit.MyContext
@@ -66,6 +65,9 @@ class MapDraw {
 
     private val readyPaint = Paint()
 
+    //棋子宽度
+    private var mapRoleWidth = 0f
+
     /**
      * 商店区域
      */
@@ -103,7 +105,8 @@ class MapDraw {
         //准备区域相关参数
         readyPaint.strokeWidth = 1 * density
         readyPaint.color = getColor(R.color.ready_zone_color)
-        readyZoneCellWidth = (screenWidth-2*readyStartMargin)/READY_ZONE_NUM
+        readyZoneCellWidth = (screenWidth-2*readyStartMargin)/ READY_ZONE_NUM
+        mapRoleWidth = readyZoneCellWidth - readyCellPadding * 2
 
         readyZoneRect = RectF(
             readyStartMargin,
@@ -117,7 +120,7 @@ class MapDraw {
         combatZonePaint.color = getColor(R.color.map_draw_combat_zone_border)
 
         val combatWidth = screenWidth-2*combatStartMargin
-        combatCellWidth = combatWidth/COMBAT_COL_NUM
+        combatCellWidth = combatWidth/ COMBAT_COL_NUM
         val combatZoneBottom = readyZoneRect.top - 10*density
 
         combatZoneRect = RectF(
@@ -169,7 +172,7 @@ class MapDraw {
             readyZoneRect.bottom,
             readyPaint
         )
-        repeat(READY_ZONE_NUM+1){
+        repeat(READY_ZONE_NUM +1){
             canvas.drawLine(
                 readyZoneRect.left + readyZoneCellWidth*it,
                 readyZoneRect.top,
@@ -181,7 +184,7 @@ class MapDraw {
     }
 
     fun drawCombat(canvas: Canvas) {
-        repeat(COMBAT_COL_NUM+1){
+        repeat(COMBAT_COL_NUM +1){
             val startX = combatStartMargin + it*combatCellWidth
             canvas.drawLine(
                 startX,
@@ -191,7 +194,7 @@ class MapDraw {
                 combatZonePaint)
         }
 
-        repeat(COMBAT_ROW_NUM+1){
+        repeat(COMBAT_ROW_NUM +1){
             if (it == (COMBAT_ROW_NUM)/2){
                 combatZonePaint.color = getColor(R.color.map_draw_combat_zone_center_line)
                 combatZonePaint.strokeWidth = 3*density
@@ -250,11 +253,12 @@ class MapDraw {
                 )
             }
             Position.POSITION_COMBAT -> {
+                val padding = (combatCellWidth - mapRoleWidth)/2
                 RectF(
-                        combatZoneRect.left + combatCellWidth * position.x + combatCellPadding,
-                        combatZoneRect.top + combatCellWidth * position.y + combatCellPadding,
-                        combatZoneRect.left + combatCellWidth*(position.x+1) - combatCellPadding,
-                        combatZoneRect.top + combatCellWidth * (position.y+1) - combatCellPadding
+                        combatZoneRect.left + combatCellWidth * position.x + padding,
+                        combatZoneRect.top + combatCellWidth * position.y + padding,
+                        combatZoneRect.left + combatCellWidth*(position.x+1) - padding,
+                        combatZoneRect.top + combatCellWidth * (position.y+1) - padding
                 )
             }
             else -> RectF()
@@ -264,7 +268,7 @@ class MapDraw {
     /**
      * 计算视图的位置
      */
-    fun calculatePosition(roleView:View):Position{
+    fun calculatePosition(roleView:View): Position {
         val roleViewCenterX = roleView.left + (roleView.right-roleView.left)/2
         val roleViewCenterY = roleView.top + (roleView.bottom - roleView.top)/2
 
@@ -277,7 +281,7 @@ class MapDraw {
             var index = 0
             var centerX = roleViewCenterX - readyZoneRect.left
             while(centerX>=readyZoneCellWidth){
-                index++.coerceAtMost(READY_ZONE_NUM-1)
+                index++.coerceAtMost(READY_ZONE_NUM -1)
                 centerX -=readyZoneCellWidth
             }
             logE(TAG, "准备区第${index+1}格")
@@ -295,7 +299,7 @@ class MapDraw {
             var rowIndex = 0
             var centerY = roleViewCenterY - combatZoneRect.top
             while(centerY>=combatCellWidth){
-                rowIndex++.coerceAtMost(READY_ZONE_NUM-1)
+                rowIndex++.coerceAtMost(READY_ZONE_NUM -1)
                 centerY -=combatCellWidth
             }
             logE(TAG, "战斗区第${rowIndex+1}行")
@@ -303,7 +307,7 @@ class MapDraw {
             var colIndex = 0
             var centerX = roleViewCenterX - combatZoneRect.left
             while(centerX>=combatCellWidth){
-                colIndex++.coerceAtMost(READY_ZONE_NUM-1)
+                colIndex++.coerceAtMost(READY_ZONE_NUM -1)
                 centerX -=combatCellWidth
             }
             logE(TAG, "战斗区第${colIndex+1}列")

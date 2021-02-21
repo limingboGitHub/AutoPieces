@@ -1,6 +1,5 @@
-package com.example.autopieces.role
+package com.example.autopieces.logic.role
 
-import com.example.autopieces.Player
 import org.junit.Test
 
 class RoleCreatorTest {

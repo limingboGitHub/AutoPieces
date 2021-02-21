@@ -1,4 +1,4 @@
-package com.example.autopieces.map
+package com.example.autopieces.logic.map
 
 //角色的位置
 class Position(

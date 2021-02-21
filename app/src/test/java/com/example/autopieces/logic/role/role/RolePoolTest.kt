@@ -1,8 +1,8 @@
-package com.example.autopieces.role.role
+package com.example.autopieces.logic.role.role
 
 import com.example.autopieces.Player
-import com.example.autopieces.role.RolePool
-import com.example.autopieces.role.randomCreateRoles
+import com.example.autopieces.logic.role.RolePool
+import com.example.autopieces.logic.role.randomCreateRoles
 import org.junit.Test
 import org.junit.Assert.*
 

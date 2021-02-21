@@ -1,6 +1,4 @@
-package com.example.autopieces.role
-
-import com.example.autopieces.map.MapView
+package com.example.autopieces.logic.role
 
 data class Role(
     var name:String,

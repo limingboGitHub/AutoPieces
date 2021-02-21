@@ -4,9 +4,12 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.activity.viewModels
 import com.example.autopieces.databinding.ActivityMainBinding
-import com.example.autopieces.map.MapView
-import com.example.autopieces.role.RolePool
-import com.example.autopieces.role.randomCreateRoles
+import com.example.autopieces.logic.map.GameMap
+import com.example.autopieces.logic.map.MapViewInterface
+import com.example.autopieces.logic.role.RoleName
+import com.example.autopieces.logic.role.RolePool
+import com.example.autopieces.logic.role.createSameRole
+import com.example.autopieces.logic.role.randomCreateRoles
 import com.lmb.lmbkit.extend.toast
 import com.lmb.lmbkit.extend.transNavAndStatus
 import kotlinx.android.synthetic.main.activity_main.*
@@ -32,20 +35,31 @@ class MainActivity : AppCompatActivity() {
 
         RolePool.init()
         //商店进货 5个角色
-        binding.mapView.updateStore(randomCreateRoles(player.level))
+//        binding.mapView.updateStore(randomCreateRoles(player.level))
+        binding.mapView.updateStore(createSameRole(RoleName.MING_REN))
 
         initUIListener()
     }
 
     private fun initMapView() {
-        viewModel.player.value?.apply {
-            binding.mapView.setPlayer(this)
-            binding.mapView.playerUpdateListenerAdapter = object : MapView.PlayerUpdateListener{
-                override fun update(player: Player) {
-                    viewModel.player.value = player
-                }
+        val gameMap = GameMap()
+        gameMap.player = viewModel.getPlayer()
+
+        binding.mapView.setGameMap(gameMap)
+
+        binding.mapView.setInterface(object : MapViewInterface{
+            override fun playerLevel(): Int {
+                return viewModel.getPlayer().level
             }
-        }
+
+            override fun isMoneyEnough(toUseMoney: Int): Boolean {
+                return viewModel.getPlayer().money >= toUseMoney
+            }
+
+            override fun useMoney(toUseMoney: Int) {
+                viewModel.useMoney(toUseMoney)
+            }
+        })
     }
 
     private fun initPlayer() {

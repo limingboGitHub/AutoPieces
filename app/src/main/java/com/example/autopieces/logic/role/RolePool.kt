@@ -1,7 +1,10 @@
-package com.example.autopieces.role
+package com.example.autopieces.logic.role
 
-import kotlin.math.cos
+import java.lang.RuntimeException
 
+/**
+ * 卡池
+ */
 object RolePool {
 
     private var costPool = arrayOf(
@@ -13,6 +16,10 @@ object RolePool {
     )
 
     private var roleMaxAmountArray = arrayOf(29,22,18,12,10)
+
+    init {
+        init()
+    }
 
     fun init(){
         //初始化卡池中棋子对应的数量
@@ -48,7 +55,7 @@ object RolePool {
                 return it
             }
         }
-        return Pair(roleName,-1)
+        throw RuntimeException("role pool not init")
     }
 
     class Pair(val name:String,var amount:Int)

@@ -1,9 +1,15 @@
-package com.example.autopieces.role
-
-import com.example.autopieces.utils.logE
+package com.example.autopieces.logic.role
 
 //import com.example.autopieces.utils.logD
 //import com.example.autopieces.utils.logE
+
+fun createSameRole(roleName: String):List<Role>{
+    return ArrayList<Role>().apply {
+        repeat(5){
+            add(Role(roleName))
+        }
+    }
+}
 
 fun randomCreateRoles(level:Int):List<Role>{
     val roles = ArrayList<Role>()
