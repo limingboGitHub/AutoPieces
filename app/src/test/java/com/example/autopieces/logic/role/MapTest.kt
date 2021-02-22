@@ -1,6 +1,6 @@
 package com.example.autopieces.logic.role
 
-import com.example.autopieces.Player
+import com.example.autopieces.logic.Player
 import com.example.autopieces.logic.map.GameMap
 import com.example.autopieces.logic.map.Position
 import org.junit.Test

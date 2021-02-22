@@ -273,7 +273,9 @@ class MapDraw {
         val roleViewCenterY = roleView.top + (roleView.bottom - roleView.top)/2
 
         //判断是否进入各区域
-        if (roleViewCenterY>storeZoneRect.top && roleViewCenterY<storeZoneRect.bottom){
+        if (roleViewCenterY>storeZoneRect.bottom){
+            return Position(Position.POSITION_STORE_DOWN)
+        }else if (roleViewCenterY>storeZoneRect.top && roleViewCenterY<storeZoneRect.bottom){
             logE(TAG, "商店区")
             return Position(Position.POSITION_STORE)
         }else if (roleViewCenterY>readyZoneRect.top && roleViewCenterY<readyZoneRect.bottom){

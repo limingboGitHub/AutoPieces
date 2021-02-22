@@ -1,4 +1,4 @@
-package com.example.autopieces
+package com.example.autopieces.logic
 
 class Player{
     var level = 1

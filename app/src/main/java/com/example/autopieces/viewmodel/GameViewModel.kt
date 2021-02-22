@@ -1,18 +1,19 @@
-package com.example.autopieces
+package com.example.autopieces.viewmodel
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.autopieces.Player.Companion.maxExpArray
+import com.example.autopieces.logic.Player
+import com.example.autopieces.logic.Player.Companion.maxExpArray
 
-class MainViewModel : ViewModel(){
+class GameViewModel : ViewModel(){
 
     /**
      * 玩家
      */
     val player = MutableLiveData<Player>()
 
-    fun getPlayer():Player{
-        return player.value?:Player()
+    fun getPlayer(): Player {
+        return player.value?: Player()
     }
 
     fun addMoney(toAddMoney:Int){

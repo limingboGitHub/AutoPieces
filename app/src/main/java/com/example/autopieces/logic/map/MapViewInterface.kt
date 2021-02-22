@@ -5,9 +5,5 @@ package com.example.autopieces.logic.map
  */
 interface MapViewInterface {
 
-    fun playerLevel():Int
-
-    fun isMoneyEnough(toUseMoney:Int):Boolean
-
-    fun useMoney(toUseMoney:Int)
+    fun update(gameMap: GameMap)
 }

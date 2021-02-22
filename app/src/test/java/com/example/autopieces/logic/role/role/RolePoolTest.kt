@@ -1,6 +1,6 @@
 package com.example.autopieces.logic.role.role
 
-import com.example.autopieces.Player
+import com.example.autopieces.logic.Player
 import com.example.autopieces.logic.role.RolePool
 import com.example.autopieces.logic.role.randomCreateRoles
 import org.junit.Test

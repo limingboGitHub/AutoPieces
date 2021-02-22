@@ -71,18 +71,7 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
             //松手后，目标的落点区域
             val targetPosition = mapDraw.calculatePosition(releasedChild)
 
-            val moveResult = gameMap.roleMove(mapRole,targetPosition)
-            when(moveResult.result){
-                GameMap.MoveResult.MONEY_NOT_ENOUGH -> context.toast(R.string.your_money_is_not_enough)
-            }
-            moveResult.removeRole.forEach {
-                removeRoleView(mapRoleViews.remove(it))
-            }
-            //归位
-            roleMoveAni(mapRole){
-                updateRoleView()
-            }
-            moveResult.exchangeRole?.apply { roleMoveAni(this) }
+            roleMove(mapRole, targetPosition)
         }
 
         override fun getViewHorizontalDragRange(view: View): Int {
@@ -103,13 +92,34 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
 
     }
 
+    private fun roleMove(
+        mapRole: MapRole,
+        targetPosition: Position
+    ) {
+        val moveResult = gameMap.roleMove(mapRole, targetPosition)
+        when (moveResult.result) {
+            GameMap.MoveResult.MONEY_NOT_ENOUGH -> context.toast(R.string.your_money_is_not_enough)
+        }
+        moveResult.removeRole.forEach {
+            removeRoleView(mapRoleViews.remove(it))
+        }
+        //归位
+        moveRoleViewAni(mapRole) {
+            updateRoleView()
+        }
+        moveResult.exchangeRole?.apply { moveRoleViewAni(this) }
+    }
+
     private fun updateRoleView() {
         mapRoleViews.forEach {
             it.value.findViewById<TextView>(R.id.star_tv)?.text = roleLevelStar(it.key.role)
+            logE(TAG,"role level:${it.key.role.level}")
         }
+
+        mapViewInterface.update(gameMap)
     }
 
-    private fun roleMove(mapRole: MapRole){
+    private fun moveRoleView(mapRole: MapRole){
         val releasedChild = mapRoleViews[mapRole]?:return
 
         val targetRect = mapDraw.getPhysicalRectByPosition(mapRole.position)
@@ -121,7 +131,11 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         }
     }
 
-    private fun roleMoveAni(mapRole: MapRole,endFun:()->Unit = {}) {
+    private fun moveRoleViewAni(mapRole: MapRole, endFun:()->Unit = {}) {
+        if (mapRoleViews[mapRole]==null){
+            endFun.invoke()
+            return
+        }
         var releasedChild = mapRoleViews[mapRole]?:return
 
         val curLeft = releasedChild.left
@@ -217,8 +231,12 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     }
 
     fun updateStore(roles:List<Role>){
+        //删除商店未购买的棋子View
+        gameMap.storeZone.forEachCell {
+            removeRoleView(mapRoleViews.remove(it))
+        }
+        //刷新商店
         gameMap.updateStore(roles)
-
         gameMap.storeZone.forEachCell {
             mapRoleViews[it] = createRoleView(it)
         }
@@ -239,7 +257,9 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
             costTv.text = mapRole.role.cost.toString()
             root.layoutParams = layoutParams
             root.setOnClickListener {
-
+                val mapRole = getMapRoleByView(it)?:return@setOnClickListener
+                val targetPosition = Position(Position.POSITION_READY,0)
+                roleMove(mapRole,targetPosition)
             }
             addView(root)
         }

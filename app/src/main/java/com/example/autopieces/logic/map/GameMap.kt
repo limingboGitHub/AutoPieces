@@ -1,9 +1,8 @@
 package com.example.autopieces.logic.map
 
-import com.example.autopieces.Player
+import com.example.autopieces.logic.Player
 import com.example.autopieces.logic.map.GameMap.MoveResult.Companion.SUCCESS
 import com.example.autopieces.logic.role.Role
-import com.lmb.lmbkit.utils.getString
 
 class GameMap {
 
@@ -77,7 +76,8 @@ class GameMap {
     }
 
     private fun fromStoreZone(mapRole: MapRole, targetPosition: Position):MoveResult{
-        if (targetPosition.where != Position.POSITION_STORE){
+        if (targetPosition.where != Position.POSITION_STORE
+            && targetPosition.where != Position.POSITION_STORE_DOWN){
             if (player.money<mapRole.role.cost)
                 return MoveResult(MoveResult.MONEY_NOT_ENOUGH)
             //是否可以合成

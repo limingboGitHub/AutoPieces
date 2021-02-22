@@ -4,4 +4,5 @@
     <string name="your_money_is_not_enough">没有足够的金币</string>
     <string name="buy_exp">买经验</string>
     <string name="combat_role_amount_to_max">参战角色已达到上限</string>
+    <string name="start_game">开始游戏</string>
 </resources>

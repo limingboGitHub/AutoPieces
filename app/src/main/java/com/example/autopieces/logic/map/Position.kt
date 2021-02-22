@@ -14,6 +14,7 @@ class Position(
         val POSITION_STORE = "store"
         val POSITION_READY = "ready"
         val POSITION_COMBAT = "combat"
+        val POSITION_STORE_DOWN = "storeDown"
         val POSITION_OTHER = "other"
     }
 }
