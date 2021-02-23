@@ -21,6 +21,7 @@ import com.example.autopieces.logic.map.MapViewInterface
 import com.example.autopieces.logic.map.Position
 import com.example.autopieces.logic.role.Role
 import com.example.autopieces.utils.*
+import com.example.autopieces.view.window.RoleInfoWindow
 import com.lmb.lmbkit.extend.toast
 import com.lmb.lmbkit.utils.getDensity
 import kotlin.text.StringBuilder
@@ -280,6 +281,10 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         //显示背景
         roleBinding.root.setBackgroundResource(backgroundRes(mapRole.role.cost))
         roleBinding.root.tag = mapRole.position.where
+
+        roleBinding.root.setOnClickListener {
+            mapViewInterface.roleClick(mapRole)
+        }
         return roleBinding.root
     }
 

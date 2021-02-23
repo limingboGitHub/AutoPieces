@@ -6,4 +6,6 @@ package com.example.autopieces.logic.map
 interface MapViewInterface {
 
     fun update(gameMap: GameMap)
+
+    fun roleClick(mapRole: MapRole)
 }

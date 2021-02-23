@@ -3,14 +3,17 @@ package com.example.autopieces
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.ViewGroup
 import androidx.activity.viewModels
 import com.example.autopieces.databinding.ActivityGameBinding
 import com.example.autopieces.logic.map.GameMap
+import com.example.autopieces.logic.map.MapRole
 import com.example.autopieces.logic.map.MapViewInterface
 import com.example.autopieces.logic.role.RoleName
 import com.example.autopieces.logic.role.RolePool
 import com.example.autopieces.logic.role.createSameRole
 import com.example.autopieces.logic.role.randomCreateRoles
+import com.example.autopieces.view.window.RoleInfoWindow
 import com.example.autopieces.viewmodel.GameViewModel
 import com.lmb.lmbkit.extend.toast
 import java.util.*
@@ -82,6 +85,10 @@ class GameActivity : BaseActivity() {
 
             override fun update(gameMap: GameMap) {
                 viewModel.player.value = gameMap.player
+            }
+
+            override fun roleClick(mapRole: MapRole) {
+                RoleInfoWindow(binding.root as ViewGroup).show(mapRole.role)
             }
         })
     }
