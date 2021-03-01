@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="com.example.autopieces.logic.role.Role"/>
+        <variable
+            name="role"
+            type="Role" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="@dimen/window_role_info_width"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:background="@drawable/window_background">
+        <TextView
+            android:id="@+id/role_name_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{role.name}"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <com.example.autopieces.view.widget.StarTextView
+            android:id="@+id/star_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="10dp"
+            android:gravity="center"
+            android:text="1"
+            android:textSize="14sp"
+            android:textColor="@android:color/holo_orange_light"
+            app:layout_constraintStart_toEndOf="@id/role_name_tv"
+            app:layout_constraintTop_toTopOf="@id/role_name_tv"
+            app:layout_constraintBottom_toBottomOf="@id/role_name_tv"/>
+
+<!--        血量-->
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/hp_progress"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
+            android:progress="@{role.curHP}"
+            android:max="@{role.maxHP}"
+            app:trackThickness="@dimen/window_role_info_hp_bar_height"
+            app:indicatorColor="@color/role_hp_color"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/role_name_tv"/>
+
+        <TextView
+            android:id="@+id/hp_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text='@{role.curHP + "/" + role.maxHP}'
+            app:layout_constraintTop_toTopOf="@id/hp_progress"
+            app:layout_constraintBottom_toBottomOf="@id/hp_progress"
+            app:layout_constraintStart_toStartOf="@id/hp_progress"
+            app:layout_constraintEnd_toEndOf="@id/hp_progress"/>
+<!--        蓝量-->
+        <com.google.android.material.progressindicator.LinearProgressIndicator
+            android:id="@+id/mp_progress"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginEnd="2dp"
+            android:progress="@{role.curMP}"
+            android:max="@{role.maxMP}"
+            app:trackThickness="@dimen/window_role_info_hp_bar_height"
+            app:indicatorColor="@color/role_mp_color"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/hp_progress"/>
+
+        <TextView
+            android:id="@+id/mp_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text='@{role.curMP + "/" + role.maxMP}'
+            app:layout_constraintTop_toTopOf="@id/mp_progress"
+            app:layout_constraintBottom_toBottomOf="@id/mp_progress"
+            app:layout_constraintStart_toStartOf="@id/mp_progress"
+            app:layout_constraintEnd_toEndOf="@id/mp_progress"/>
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/guideline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.5"/>
+
+<!--        攻击力-->
+        <TextView
+            android:id="@+id/phy_atk_title_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text='@string/physical_attack_mao'
+            app:layout_constraintTop_toBottomOf="@id/mp_progress"
+            app:layout_constraintStart_toStartOf="@id/hp_progress"/>
+
+        <TextView
+            android:id="@+id/physical_attack_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text='@{role.physicalAttack+""}'
+            app:layout_constraintTop_toTopOf="@id/phy_atk_title_tv"
+            app:layout_constraintStart_toEndOf="@id/phy_atk_title_tv"/>
+
+<!--        法强-->
+        <TextView
+            android:id="@+id/mag_atk_title_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text='@string/magic_attack_mao'
+            app:layout_constraintTop_toBottomOf="@id/mp_progress"
+            app:layout_constraintStart_toStartOf="@id/guideline"/>
+
+        <TextView
+            android:id="@+id/magic_attack_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text='@{role.magicValue+""}'
+            app:layout_constraintTop_toTopOf="@id/mag_atk_title_tv"
+            app:layout_constraintStart_toEndOf="@id/mag_atk_title_tv"/>
+
+<!--        攻速-->
+        <TextView
+            android:id="@+id/attack_speed_title_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text='@string/attack_speed_mao'
+            app:layout_constraintTop_toBottomOf="@id/phy_atk_title_tv"
+            app:layout_constraintStart_toStartOf="@id/hp_progress"/>
+
+        <TextView
+            android:id="@+id/attack_speed_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text='@{role.attackSpeed+""}'
+            app:layout_constraintTop_toTopOf="@id/attack_speed_title_tv"
+            app:layout_constraintStart_toEndOf="@id/attack_speed_title_tv"/>
+
+<!--        暴击率-->
+        <TextView
+            android:id="@+id/critical_rate_title_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text='@string/critical_rate_mao'
+            app:layout_constraintTop_toBottomOf="@id/mag_atk_title_tv"
+            app:layout_constraintStart_toStartOf="@id/guideline"/>
+
+        <TextView
+            android:id="@+id/critical_rate_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text='@{role.criticalRate+""}'
+            app:layout_constraintTop_toTopOf="@id/critical_rate_title_tv"
+            app:layout_constraintStart_toEndOf="@id/critical_rate_title_tv"/>
+
+<!--        暴击伤害-->
+        <TextView
+            android:id="@+id/critical_damage_title_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text='@string/critical_damage_mao'
+            app:layout_constraintTop_toBottomOf="@id/attack_speed_title_tv"
+            app:layout_constraintStart_toStartOf="@id/hp_progress"/>
+
+        <TextView
+            android:id="@+id/critical_damage_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text='@{role.criticalDamage+""}'
+            app:layout_constraintTop_toTopOf="@id/critical_damage_title_tv"
+            app:layout_constraintStart_toEndOf="@id/critical_damage_title_tv"/>
+
+<!--        护甲-->
+        <TextView
+            android:id="@+id/physical_defense_title_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text='@string/physical_defense_mao'
+            app:layout_constraintTop_toBottomOf="@id/critical_rate_title_tv"
+            app:layout_constraintStart_toStartOf="@id/guideline"/>
+
+        <TextView
+            android:id="@+id/physical_defense_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text='@{role.physicalDefense+""}'
+            app:layout_constraintTop_toTopOf="@id/physical_defense_title_tv"
+            app:layout_constraintStart_toEndOf="@id/physical_defense_title_tv"/>
+
+<!--        魔抗-->
+        <TextView
+            android:id="@+id/magic_defense_title_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text='@string/magic_defense_mao'
+            app:layout_constraintTop_toBottomOf="@id/critical_damage_title_tv"
+            app:layout_constraintStart_toStartOf="@id/hp_progress"/>
+
+        <TextView
+            android:id="@+id/magic_defense_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text='@{role.magicDefense+""}'
+            app:layout_constraintTop_toTopOf="@id/magic_defense_title_tv"
+            app:layout_constraintStart_toEndOf="@id/magic_defense_title_tv"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
