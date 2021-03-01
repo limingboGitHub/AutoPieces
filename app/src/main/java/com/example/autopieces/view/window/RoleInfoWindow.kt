@@ -24,6 +24,7 @@ class RoleInfoWindow(val attachView:ViewGroup) {
             isFocusable = true
             isOutsideTouchable = true
             elevation = 10 * getDensity()
+            animationStyle = R.style.WindowAniStyle
         }
     }
 

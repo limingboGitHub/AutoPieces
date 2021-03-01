@@ -212,6 +212,42 @@
             android:text='@{role.magicDefense+""}'
             app:layout_constraintTop_toTopOf="@id/magic_defense_title_tv"
             app:layout_constraintStart_toEndOf="@id/magic_defense_title_tv"/>
-
+        <TextView
+            android:id="@+id/equipment_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/equipment"
+            app:layout_constraintTop_toTopOf="@id/equipment_1_tv"
+            app:layout_constraintBottom_toBottomOf="@id/equipment_1_tv"
+            app:layout_constraintStart_toStartOf="parent"/>
+        <TextView
+            android:id="@+id/equipment_1_tv"
+            android:layout_width="@dimen/role_info_equipment_icon_width"
+            android:layout_height="@dimen/role_info_equipment_icon_width"
+            android:padding="3dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginStart="10dp"
+            android:text="忍者背心"
+            android:textSize="12sp"
+            android:gravity="center"
+            android:background="@drawable/role_info_equipment_bg"
+            app:layout_constraintTop_toBottomOf="@id/magic_defense_title_tv"
+            app:layout_constraintStart_toEndOf="@id/equipment_title"/>
+        <TextView
+            android:id="@+id/equipment_2_tv"
+            android:layout_width="@dimen/role_info_equipment_icon_width"
+            android:layout_height="@dimen/role_info_equipment_icon_width"
+            android:layout_marginStart="5dp"
+            android:background="@drawable/role_info_equipment_bg"
+            app:layout_constraintTop_toTopOf="@id/equipment_1_tv"
+            app:layout_constraintStart_toEndOf="@id/equipment_1_tv"/>
+        <TextView
+            android:id="@+id/equipment_3_tv"
+            android:layout_width="@dimen/role_info_equipment_icon_width"
+            android:layout_height="@dimen/role_info_equipment_icon_width"
+            android:layout_marginStart="5dp"
+            android:background="@drawable/role_info_equipment_bg"
+            app:layout_constraintTop_toTopOf="@id/equipment_2_tv"
+            app:layout_constraintStart_toEndOf="@id/equipment_2_tv"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

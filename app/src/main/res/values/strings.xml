@@ -12,4 +12,5 @@
     <string name="critical_damage_mao">暴伤：</string>
     <string name="physical_defense_mao">护甲：</string>
     <string name="magic_defense_mao">魔抗：</string>
+    <string name="equipment">装备</string>
 </resources>

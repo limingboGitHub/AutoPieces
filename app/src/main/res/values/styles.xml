@@ -13,4 +13,10 @@
         <item name="android:paddingEnd">10dp</item>
         <item name="android:background">@drawable/operation_button_bg</item>
     </style>
+
+    <style name="WindowAniStyle">
+        <item name="android:windowEnterAnimation">@anim/window_show_ani</item>
+        <item name="android:windowExitAnimation">@anim/window_hide_ani</item>
+    </style>
+
 </resources>
