@@ -5,7 +5,7 @@ class RoleRefreshRate {
     companion object{
 
         /**
-         * 角色刷新概率表
+         * 角色（卡片）刷新概率表
          */
         val refreshRate = arrayOf(
             arrayOf(100,0,0,0,0),
