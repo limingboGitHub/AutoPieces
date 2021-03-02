@@ -227,7 +227,6 @@
             android:padding="3dp"
             android:layout_marginTop="5dp"
             android:layout_marginStart="10dp"
-            android:text="忍者背心"
             android:textSize="12sp"
             android:gravity="center"
             android:background="@drawable/role_info_equipment_bg"

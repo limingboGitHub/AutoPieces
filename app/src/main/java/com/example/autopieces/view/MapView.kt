@@ -21,7 +21,6 @@ import com.example.autopieces.logic.map.MapViewInterface
 import com.example.autopieces.logic.map.Position
 import com.example.autopieces.logic.role.Role
 import com.example.autopieces.utils.*
-import com.example.autopieces.view.window.RoleInfoWindow
 import com.lmb.lmbkit.extend.toast
 import com.lmb.lmbkit.utils.getDensity
 import kotlin.text.StringBuilder
@@ -199,6 +198,7 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+        mapDraw.initLayout(width,height)
         gameMap.combatZone.forEachCell {
             layoutChildView(it)
         }

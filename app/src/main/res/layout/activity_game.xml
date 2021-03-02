@@ -14,20 +14,19 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-<!--        游戏地图-->
-        <com.example.autopieces.view.MapView
-            android:id="@+id/map_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/gray"/>
+        android:layout_height="match_parent"
+        android:background="@color/gray">
 
 <!--        游戏UI-->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true">
+            <!--        游戏地图-->
+            <com.example.autopieces.view.MapView
+                android:id="@+id/map_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
 
             <com.google.android.material.progressindicator.LinearProgressIndicator
                 android:id="@+id/ready_time_progress"
@@ -130,7 +129,7 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/buy_exp_cl"
-                android:layout_width="wrap_content"
+                android:layout_width="80dp"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="10dp"
                 android:layout_marginBottom="5dp"
@@ -142,19 +141,21 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/buy_exp"
+                    android:textSize="12sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"/>
                 <TextView
                     android:id="@+id/exp_cost_tv"
                     android:layout_width="wrap_content"
-                    android:layout_height="24dp"
-                    android:drawableStart="@drawable/ic_gold"
+                    android:layout_height="16dp"
                     android:text="4"
+                    android:textSize="12sp"
                     android:gravity="center"
                     app:layout_constraintStart_toEndOf="@id/buy_exp_bt"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"/>
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:drawableStartCompat="@drawable/ic_gold" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>

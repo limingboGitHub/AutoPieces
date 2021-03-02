@@ -33,8 +33,8 @@ class MapDraw {
     /**
      * 系统参数
      */
-    private val screenWidth = getScreenWidth()
-    private val screenHeight = getScreenHeight()
+    private var screenWidth = 0
+    private var screenHeight = 0
     private val density = getDensity()
 
     /**
@@ -77,8 +77,9 @@ class MapDraw {
     private var storeZoneRect = RectF()
 
     //margin边距
-    private var storeStartMargin = 20 * density
-    private var storeBottomMargin = 50 * density
+    private var storeStartMargin = 10 * density
+    private var storeEndMargin = 100*density
+    private var storeBottomMargin = 60 * density
 
     private val storeCellPadding = 3*density
 
@@ -87,25 +88,29 @@ class MapDraw {
     //商店角色宽度
     private var storeItemWidth = 0f
 
-    init {
+
+    fun initLayout(screenWidth:Int, screenHeight:Int) {
+        this.screenWidth = screenWidth
+        this.screenHeight = screenHeight
         //商店区域
         storePaint.strokeWidth = 3 * density
         storePaint.color = getColor(R.color.store_stroke_color)
-        storeCellWidth = (screenWidth-storeStartMargin*2)/storeNum
+        storeCellWidth = (screenWidth - storeStartMargin - storeEndMargin) / storeNum
 
         storeZoneRect = RectF(
             storeStartMargin,
-            screenHeight-storeBottomMargin-storeCellWidth,
-            screenWidth-storeStartMargin,
-            screenHeight-storeBottomMargin
+            screenHeight - storeBottomMargin - storeCellWidth,
+            screenWidth - storeEndMargin,
+            screenHeight - storeBottomMargin
         )
         //商店角色宽高
-        storeItemWidth = storeCellWidth - 5 * MyContext.context.resources.getDimensionPixelOffset(R.dimen.store_item_padding)
+        storeItemWidth =
+            storeCellWidth - 5 * MyContext.context.resources.getDimensionPixelOffset(R.dimen.store_item_padding)
 
         //准备区域相关参数
         readyPaint.strokeWidth = 1 * density
         readyPaint.color = getColor(R.color.ready_zone_color)
-        readyZoneCellWidth = (screenWidth-2*readyStartMargin)/ READY_ZONE_NUM
+        readyZoneCellWidth = (screenWidth - 2 * readyStartMargin) / READY_ZONE_NUM
         mapRoleWidth = readyZoneCellWidth - readyCellPadding * 2
 
         readyZoneRect = RectF(
@@ -116,17 +121,17 @@ class MapDraw {
         )
 
         //战斗区域绘制相关参数
-        combatZonePaint.strokeWidth = 2*density
+        combatZonePaint.strokeWidth = 2 * density
         combatZonePaint.color = getColor(R.color.map_draw_combat_zone_border)
 
-        val combatWidth = screenWidth-2*combatStartMargin
-        combatCellWidth = combatWidth/ COMBAT_COL_NUM
-        val combatZoneBottom = readyZoneRect.top - 10*density
+        val combatWidth = screenWidth - 2 * combatStartMargin
+        combatCellWidth = combatWidth / COMBAT_COL_NUM
+        val combatZoneBottom = readyZoneRect.top - 10 * density
 
         combatZoneRect = RectF(
             combatStartMargin,
-            combatZoneBottom - combatCellWidth* COMBAT_ROW_NUM,
-            combatStartMargin+combatWidth,
+            combatZoneBottom - combatCellWidth * COMBAT_ROW_NUM,
+            combatStartMargin + combatWidth,
             combatZoneBottom
         )
     }
