@@ -6,4 +6,5 @@
     <dimen name="window_role_info_hp_bar_height">20dp</dimen>
     <dimen name="window_role_info_width">250dp</dimen>
     <dimen name="role_info_equipment_icon_width">50dp</dimen>
+    <dimen name="operation_buy_exp_width">80dp</dimen>
 </resources>
