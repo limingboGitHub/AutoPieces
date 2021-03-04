@@ -60,16 +60,15 @@
 
             <TextView
                 android:id="@+id/player_money_tv"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
                 android:layout_marginBottom="5dp"
                 android:text="@{String.valueOf(player.money)}"
                 android:gravity="center_vertical"
                 style="@style/OperationButton"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="@id/refresh_store_cl"
+                app:layout_constraintEnd_toEndOf="@id/refresh_store_cl"
+                app:layout_constraintBottom_toTopOf="@id/refresh_store_cl"
                 app:drawableStartCompat="@drawable/ic_gold" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -160,6 +159,15 @@
                     app:drawableStartCompat="@drawable/ic_gold" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/equipment_rv"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:layout_margin="5dp"
+                android:background="@android:color/holo_green_dark"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/buy_exp_cl"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
 
 

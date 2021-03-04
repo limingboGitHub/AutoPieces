@@ -5,7 +5,10 @@ import android.os.Handler
 import android.os.Looper
 import android.view.ViewGroup
 import androidx.activity.viewModels
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.autopieces.databinding.ActivityGameBinding
+import com.example.autopieces.logic.Equipment
 import com.example.autopieces.logic.map.GameMap
 import com.example.autopieces.logic.map.MapRole
 import com.example.autopieces.logic.map.MapViewInterface
@@ -13,6 +16,7 @@ import com.example.autopieces.logic.role.RoleName
 import com.example.autopieces.logic.role.RolePool
 import com.example.autopieces.logic.role.createSameRole
 import com.example.autopieces.logic.role.randomCreateRoles
+import com.example.autopieces.view.adapter.EquipmentAdapter
 import com.example.autopieces.view.window.RoleInfoWindow
 import com.example.autopieces.viewmodel.GameViewModel
 import com.lmb.lmbkit.extend.toast
@@ -43,7 +47,29 @@ class GameActivity : BaseActivity() {
 
         initUIListener()
 
+        initEquipment()
+
         setTimer()
+    }
+
+    private fun initEquipment() {
+        val equipmentList = listOf(
+                Equipment(Equipment.KUWU),
+                Equipment(Equipment.KUWU),
+                Equipment(Equipment.KUWU),
+                Equipment(Equipment.KUWU),
+                Equipment(Equipment.KUWU),
+                Equipment(Equipment.KUWU),
+                Equipment(Equipment.KUWU),
+                Equipment(Equipment.KUWU),
+                Equipment(Equipment.KUWU)
+        )
+        binding.equipmentRv.apply {
+            layoutManager = LinearLayoutManager(this@GameActivity,RecyclerView.HORIZONTAL,false)
+            val mAdapter = EquipmentAdapter()
+            adapter = mAdapter
+            mAdapter.setList(equipmentList)
+        }
     }
 
     private var restTime = 10*1000
