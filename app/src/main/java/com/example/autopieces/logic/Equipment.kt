@@ -5,6 +5,7 @@ data class Equipment(
 ) {
 
     companion object{
+        val EMPTY = ""
         val KUWU = "苦无"
         val SHOULIJIAN = "手里剑"
         val RENZHEZUJU = "忍者足具"
