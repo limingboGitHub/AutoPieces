@@ -8,8 +8,6 @@ import com.example.autopieces.utils.getColor
 import com.example.autopieces.utils.logE
 import com.lmb.lmbkit.MyContext
 import com.lmb.lmbkit.utils.getDensity
-import com.lmb.lmbkit.utils.getScreenHeight
-import com.lmb.lmbkit.utils.getScreenWidth
 
 /**
  * 管理地图的绘制
@@ -79,7 +77,7 @@ class MapDraw {
     //margin边距
     private var storeStartMargin = 10 * density
     private var storeEndMargin = 100*density
-    private var storeBottomMargin = 60 * density
+    private var storeBottomMargin = 5 * density
 
     private val storeCellPadding = 3*density
 
@@ -88,45 +86,47 @@ class MapDraw {
     //商店角色宽度
     private var storeItemWidth = 0f
 
+    /**
+     * 装备区域
+     */
+    private val equipmentNum = 10
+
+    private var equipmentCellWidth = 0f
+    private var equipmentZoneRect = RectF()
+
+    private var equipmentStartMargin = 5*density
+    private var equipmentEndMargin = 5*density
+    private var equipmentBottomMargin = 10*density
+
+    private var equipmentCellPadding = 2*density
+    private var equipmentItemWidth = 0f
+
+    private val equipmentPaint = Paint()
 
     fun initLayout(screenWidth:Int, screenHeight:Int) {
         this.screenWidth = screenWidth
         this.screenHeight = screenHeight
-        //商店区域
-        storePaint.strokeWidth = 3 * density
-        storePaint.color = getColor(R.color.store_stroke_color)
-        storeCellWidth = (screenWidth - storeStartMargin - storeEndMargin) / storeNum
 
-        storeZoneRect = RectF(
-            storeStartMargin,
-            screenHeight - storeBottomMargin - storeCellWidth,
-            screenWidth - storeEndMargin,
-            screenHeight - storeBottomMargin
-        )
-        //商店角色宽高
-        storeItemWidth =
-            storeCellWidth - 5 * MyContext.context.resources.getDimensionPixelOffset(R.dimen.store_item_padding)
+        //商店区域
+        initStoreZoneParam(screenWidth,screenHeight)
+
+        //装备区域
+        initEquipmentZoneParam(screenWidth, storeZoneRect.top.toInt())
 
         //准备区域相关参数
-        readyPaint.strokeWidth = 1 * density
-        readyPaint.color = getColor(R.color.ready_zone_color)
-        readyZoneCellWidth = (screenWidth - 2 * readyStartMargin) / READY_ZONE_NUM
-        mapRoleWidth = readyZoneCellWidth - readyCellPadding * 2
-
-        readyZoneRect = RectF(
-            readyStartMargin,
-            storeZoneRect.top - readyBottomMargin - readyZoneCellWidth,
-            screenWidth - readyStartMargin,
-            storeZoneRect.top - readyBottomMargin
-        )
+        initReadyZoneParam(screenWidth,equipmentZoneRect.top.toInt())
 
         //战斗区域绘制相关参数
+        initCombatZoneParam(screenWidth,readyZoneRect.top.toInt())
+    }
+
+    private fun initCombatZoneParam(zoneWidth: Int, zoneBottom: Int) {
         combatZonePaint.strokeWidth = 2 * density
         combatZonePaint.color = getColor(R.color.map_draw_combat_zone_border)
 
-        val combatWidth = screenWidth - 2 * combatStartMargin
+        val combatWidth = zoneWidth - 2 * combatStartMargin
         combatCellWidth = combatWidth / COMBAT_COL_NUM
-        val combatZoneBottom = readyZoneRect.top - 10 * density
+        val combatZoneBottom = zoneBottom - 10 * density
 
         combatZoneRect = RectF(
             combatStartMargin,
@@ -134,6 +134,76 @@ class MapDraw {
             combatStartMargin + combatWidth,
             combatZoneBottom
         )
+    }
+
+    private fun initReadyZoneParam(zoneWidth: Int, zoneBottom: Int) {
+        readyPaint.strokeWidth = 1 * density
+        readyPaint.color = getColor(R.color.ready_zone_color)
+        readyZoneCellWidth = (zoneWidth - 2 * readyStartMargin) / READY_ZONE_NUM
+        mapRoleWidth = readyZoneCellWidth - readyCellPadding * 2
+
+        readyZoneRect = RectF(
+            readyStartMargin,
+            zoneBottom - readyBottomMargin - readyZoneCellWidth,
+            zoneWidth - readyStartMargin,
+            zoneBottom - readyBottomMargin
+        )
+    }
+
+    private fun initEquipmentZoneParam(zoneWidth: Int,zoneBottom:Int) {
+        equipmentPaint.apply {
+            strokeWidth = 1 * density
+            color = getColor(R.color.equipment_stroke_color)
+        }
+        equipmentCellWidth =
+            (zoneWidth - equipmentStartMargin - equipmentEndMargin) / equipmentNum
+
+        equipmentZoneRect = RectF(
+            equipmentStartMargin,
+            zoneBottom - equipmentBottomMargin - equipmentCellWidth,
+            zoneWidth - equipmentEndMargin,
+            zoneBottom - equipmentBottomMargin
+        )
+        equipmentItemWidth = equipmentCellWidth - equipmentCellPadding * 2
+    }
+
+    private fun initStoreZoneParam(zoneWidth: Int,zoneBottom:Int) {
+        storePaint.strokeWidth = 3 * density
+        storePaint.color = getColor(R.color.store_stroke_color)
+        storeCellWidth = (zoneWidth - storeStartMargin - storeEndMargin) / storeNum
+
+        storeZoneRect = RectF(
+            storeStartMargin,
+            zoneBottom - storeBottomMargin - storeCellWidth,
+            zoneWidth - storeEndMargin,
+            zoneBottom - storeBottomMargin
+        )
+        //商店角色宽高
+        storeItemWidth =
+            storeCellWidth - 5 * MyContext.context.resources.getDimensionPixelOffset(R.dimen.store_item_padding)
+    }
+
+    fun drawAll(canvas: Canvas){
+        drawStore(canvas)
+        drawEquipment(canvas)
+        drawReadyZone(canvas)
+        drawCombat(canvas)
+    }
+
+    private fun drawEquipment(canvas: Canvas){
+        equipmentZoneRect.apply {
+            canvas.drawLine(left, top, right, top, equipmentPaint)
+            canvas.drawLine(left, bottom, right, bottom, equipmentPaint)
+            repeat(equipmentNum){
+                canvas.drawLine(
+                    left + equipmentCellWidth * it,
+                    top,
+                    left + equipmentCellWidth * it,
+                    bottom,
+                    equipmentPaint
+                )
+            }
+        }
     }
 
     fun drawStore(canvas: Canvas) {

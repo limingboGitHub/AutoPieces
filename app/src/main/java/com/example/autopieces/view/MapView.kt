@@ -219,12 +219,7 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        //绘制地图
-        mapDraw.drawCombat(canvas)
-        //绘制棋子准备区域
-        mapDraw.drawReadyZone(canvas)
-        //绘制商店区域
-        mapDraw.drawStore(canvas)
+        mapDraw.drawAll(canvas)
     }
 
     fun setInterface(mapViewInterface: MapViewInterface){

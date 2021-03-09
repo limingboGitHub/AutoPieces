@@ -18,4 +18,5 @@
     <color name="operation_button_solid">#999999</color>
     <color name="role_hp_color">#32CD32</color>
     <color name="role_mp_color">#1E90FF</color>
+    <color name="equipment_stroke_color">#1E90FF</color>
 </resources>

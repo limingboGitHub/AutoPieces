@@ -3,12 +3,9 @@ package com.example.autopieces
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.MotionEvent
+import android.view.View
 import android.view.ViewGroup
 import androidx.activity.viewModels
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.autopieces.databinding.ActivityGameBinding
 import com.example.autopieces.logic.Equipment
 import com.example.autopieces.logic.map.GameMap
@@ -19,7 +16,6 @@ import com.example.autopieces.logic.role.RolePool
 import com.example.autopieces.logic.role.createSameRole
 import com.example.autopieces.logic.role.randomCreateRoles
 import com.example.autopieces.utils.logE
-import com.example.autopieces.view.adapter.EquipmentAdapter
 import com.example.autopieces.view.window.RoleInfoWindow
 import com.example.autopieces.viewmodel.GameViewModel
 import com.lmb.lmbkit.extend.toast
@@ -33,6 +29,8 @@ class GameActivity : BaseActivity() {
     val viewModel : GameViewModel by viewModels()
 
     var timer = Timer()
+
+    var equipmentView:View? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,7 +55,6 @@ class GameActivity : BaseActivity() {
     }
 
     private fun initEquipment() {
-        val mAdapter = EquipmentAdapter()
 
         val equipmentList = listOf(
                 Equipment(Equipment.KUWU),
@@ -70,16 +67,6 @@ class GameActivity : BaseActivity() {
                 Equipment(Equipment.EMPTY),
                 Equipment(Equipment.EMPTY)
         )
-        binding.equipmentRv.apply {
-            layoutManager = LinearLayoutManager(this@GameActivity,RecyclerView.HORIZONTAL,false)
-            adapter = mAdapter
-        }
-        mAdapter.setList(equipmentList)
-        mAdapter.scrollUpListener = object : EquipmentAdapter.ScrollUpListener{
-            override fun scrollUp(x: Float, y: Float) {
-                logE(TAG,"x:$x y:$y")
-            }
-        }
     }
 
     private var restTime = 10*1000
@@ -154,21 +141,5 @@ class GameActivity : BaseActivity() {
                 toast(R.string.your_money_is_not_enough)
             }
         }
-    }
-
-    inner class ItemTouchHelperCallback : ItemTouchHelper.Callback() {
-        override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
-            val dragFlags = ItemTouchHelper.UP or ItemTouchHelper.DOWN or ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT
-            return makeMovementFlags(dragFlags,0)
-        }
-
-        override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
-            return true
-        }
-
-        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-
-        }
-
     }
 }

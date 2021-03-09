@@ -8,9 +8,7 @@
     </style>
 
     <style name="OperationButton">
-        <item name="android:padding">5dp</item>
-        <item name="android:paddingStart">10dp</item>
-        <item name="android:paddingEnd">10dp</item>
+        <item name="android:padding">3dp</item>
         <item name="android:background">@drawable/operation_button_bg</item>
     </style>
 
