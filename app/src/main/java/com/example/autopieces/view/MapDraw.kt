@@ -3,6 +3,7 @@ package com.example.autopieces.view
 import android.graphics.*
 import android.view.View
 import com.example.autopieces.R
+import com.example.autopieces.logic.map.GameMap
 import com.example.autopieces.logic.map.Position
 import com.example.autopieces.utils.getColor
 import com.example.autopieces.utils.logE
@@ -89,8 +90,6 @@ class MapDraw {
     /**
      * 装备区域
      */
-    private val equipmentNum = 10
-
     private var equipmentCellWidth = 0f
     private var equipmentZoneRect = RectF()
 
@@ -156,7 +155,7 @@ class MapDraw {
             color = getColor(R.color.equipment_stroke_color)
         }
         equipmentCellWidth =
-            (zoneWidth - equipmentStartMargin - equipmentEndMargin) / equipmentNum
+            (zoneWidth - equipmentStartMargin - equipmentEndMargin) / GameMap.EQUIPMENT_ZONE_NUM
 
         equipmentZoneRect = RectF(
             equipmentStartMargin,
@@ -194,7 +193,7 @@ class MapDraw {
         equipmentZoneRect.apply {
             canvas.drawLine(left, top, right, top, equipmentPaint)
             canvas.drawLine(left, bottom, right, bottom, equipmentPaint)
-            repeat(equipmentNum){
+            repeat(GameMap.EQUIPMENT_ZONE_NUM+1){
                 canvas.drawLine(
                     left + equipmentCellWidth * it,
                     top,
@@ -287,6 +286,7 @@ class MapDraw {
         }
     }
 
+    fun getEquipmentItemWidth() = equipmentItemWidth
 
     fun getStoreItemWidth() = storeItemWidth
 
@@ -327,6 +327,9 @@ class MapDraw {
                         readyZoneRect.bottom - readyCellPadding
                 )
             }
+            Position.POSITION_EQUIPMENT ->{
+                getZoneItemRectF(equipmentZoneRect,equipmentCellWidth,equipmentCellPadding,position)
+            }
             Position.POSITION_COMBAT -> {
                 val padding = (combatCellWidth - mapRoleWidth)/2
                 RectF(
@@ -336,8 +339,18 @@ class MapDraw {
                         combatZoneRect.top + combatCellWidth * (position.y+1) - padding
                 )
             }
+
             else -> RectF()
         }
+    }
+
+    private fun getZoneItemRectF(zone:RectF,cellWidth:Float,padding:Float,position: Position):RectF{
+        return  RectF(
+            zone.left + cellWidth * position.x + padding,
+            zone.top,
+            zone.left + cellWidth * (position.x+1) - padding,
+            zone.bottom - padding
+        )
     }
 
     /**
@@ -350,6 +363,8 @@ class MapDraw {
         //判断是否进入各区域
         if (roleViewCenterY>storeZoneRect.bottom){
             return Position(Position.POSITION_STORE_DOWN)
+        }else if (roleViewCenterY>equipmentZoneRect.top && roleViewCenterY<equipmentZoneRect.bottom){
+            return Position(Position.POSITION_EQUIPMENT)
         }else if (roleViewCenterY>storeZoneRect.top && roleViewCenterY<storeZoneRect.bottom){
             logE(TAG, "商店区")
             return Position(Position.POSITION_STORE)
@@ -362,14 +377,6 @@ class MapDraw {
                 centerX -=readyZoneCellWidth
             }
             logE(TAG, "准备区第${index+1}格")
-
-//            val left = readyZoneRect.left+readyZoneCellWidth*index
-//            val rect = RectF(
-//                    left,
-//                    readyZoneRect.top,
-//                    left+readyZoneCellWidth,
-//                    readyZoneRect.bottom
-//            )
 
             return Position(Position.POSITION_READY,index)
         }else if (roleViewCenterY>combatZoneRect.top && roleViewCenterY<combatZoneRect.bottom){

@@ -1,8 +1,6 @@
 package com.example.autopieces.logic
 
-data class Equipment(
-    val name:String
-) {
+class Equipment{
 
     companion object{
         val EMPTY = ""

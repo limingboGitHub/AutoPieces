@@ -1,6 +1,5 @@
 package com.example.autopieces.logic.map
 
-import com.example.autopieces.logic.Equipment
 import com.example.autopieces.logic.role.Role
 
 /**
@@ -11,8 +10,7 @@ import com.example.autopieces.logic.role.Role
  */
 class MapRole(
     var role:Role,
-    var position:Position = Position(),
-    var equipments : List<Equipment> = ArrayList()
+    var position:Position = Position()
 ){
 
 }

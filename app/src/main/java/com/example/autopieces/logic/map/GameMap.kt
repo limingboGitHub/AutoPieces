@@ -1,6 +1,7 @@
 package com.example.autopieces.logic.map
 
 import com.example.autopieces.logic.Player
+import com.example.autopieces.logic.map.GameMap.MoveResult.Companion.NO_CHANGE
 import com.example.autopieces.logic.map.GameMap.MoveResult.Companion.SUCCESS
 import com.example.autopieces.logic.role.Role
 
@@ -17,6 +18,10 @@ class GameMap {
          * 准备区数量
          */
         const val READY_ZONE_NUM = 9
+        /**
+         * 装备区数量
+         */
+        const val EQUIPMENT_ZONE_NUM = 10
 
         /**
          * 商店区数量
@@ -33,6 +38,11 @@ class GameMap {
      * 预备区
      */
     val readyZone = ReadyZone(READY_ZONE_NUM)
+
+    /**
+     * 装备区
+     */
+    val equipmentZone = EquipmentZone(EQUIPMENT_ZONE_NUM)
 
     /**
      * 商店区
@@ -58,6 +68,12 @@ class GameMap {
         }
     }
 
+    /**
+     * 添加装备
+     */
+    fun addEquipment(role:Role){
+        equipmentZone.addRoleToFirstNotNull(MapRole(role,Position(Position.POSITION_EQUIPMENT)))
+    }
 
     /**
      * 棋子移动
@@ -71,9 +87,35 @@ class GameMap {
 
             Position.POSITION_COMBAT -> fromCombatZone(mapRole,targetPosition)
 
+            Position.POSITION_COMBAT -> fromEquipmentZone(mapRole,targetPosition)
+
             else -> MoveResult()
         }
     }
+
+    private fun fromEquipmentZone(mapRole: MapRole, targetPosition: Position): MoveResult {
+        return if (targetPosition.where == Position.POSITION_COMBAT){
+            if (combatZone.getRoleByIndex(targetPosition.x,targetPosition.y) != null){
+                MoveResult(SUCCESS).apply { removeRole.add(mapRole) }
+            }else
+                MoveResult(NO_CHANGE)
+        }else if (targetPosition.where == Position.POSITION_READY){
+            if (readyZone.getRoleByIndex(targetPosition.x) != null){
+                MoveResult(SUCCESS).apply { removeRole.add(mapRole) }
+            }else
+                MoveResult(NO_CHANGE)
+        }else if (targetPosition.where == Position.POSITION_EQUIPMENT){
+            equipmentZone.removeRole(mapRole)
+
+            val oldIndex = mapRole.position.x
+            val oldRole = equipmentZone.addRole(mapRole,targetPosition.x)?.apply {
+                equipmentZone.addRole(this,oldIndex)
+            }
+            MoveResult(SUCCESS,oldRole)
+        }else
+             MoveResult(NO_CHANGE)
+    }
+
 
     private fun fromStoreZone(mapRole: MapRole, targetPosition: Position):MoveResult{
         if (targetPosition.where != Position.POSITION_STORE

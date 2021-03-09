@@ -12,6 +12,7 @@ class Position(
          * 角色的位置
          */
         val POSITION_STORE = "store"
+        val POSITION_EQUIPMENT = "equipment"
         val POSITION_READY = "ready"
         val POSITION_COMBAT = "combat"
         val POSITION_STORE_DOWN = "storeDown"

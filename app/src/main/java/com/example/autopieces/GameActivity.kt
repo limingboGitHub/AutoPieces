@@ -11,10 +11,7 @@ import com.example.autopieces.logic.Equipment
 import com.example.autopieces.logic.map.GameMap
 import com.example.autopieces.logic.map.MapRole
 import com.example.autopieces.logic.map.MapViewInterface
-import com.example.autopieces.logic.role.RoleName
-import com.example.autopieces.logic.role.RolePool
-import com.example.autopieces.logic.role.createSameRole
-import com.example.autopieces.logic.role.randomCreateRoles
+import com.example.autopieces.logic.role.*
 import com.example.autopieces.utils.logE
 import com.example.autopieces.view.window.RoleInfoWindow
 import com.example.autopieces.viewmodel.GameViewModel
@@ -54,19 +51,15 @@ class GameActivity : BaseActivity() {
         setTimer()
     }
 
-    private fun initEquipment() {
 
-        val equipmentList = listOf(
-                Equipment(Equipment.KUWU),
-                Equipment(Equipment.SHOULIJIAN),
-                Equipment(Equipment.EMPTY),
-                Equipment(Equipment.EMPTY),
-                Equipment(Equipment.EMPTY),
-                Equipment(Equipment.EMPTY),
-                Equipment(Equipment.EMPTY),
-                Equipment(Equipment.EMPTY),
-                Equipment(Equipment.EMPTY)
-        )
+    private fun initEquipment() {
+        binding.mapView.postDelayed({
+            val equipments = listOf(
+                Role(Equipment.KUWU),
+                Role(Equipment.SHOULIJIAN)
+            )
+            binding.mapView.addEquipment(equipments)
+        },200)
     }
 
     private var restTime = 10*1000

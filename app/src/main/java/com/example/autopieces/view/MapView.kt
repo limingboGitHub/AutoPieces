@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.customview.widget.ViewDragHelper
 import com.example.autopieces.R
+import com.example.autopieces.databinding.ItemEquipmentBinding
 import com.example.autopieces.databinding.ItemReadyRoleBinding
 import com.example.autopieces.databinding.ItemStoreBinding
 import com.example.autopieces.logic.map.GameMap
@@ -205,6 +206,9 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         gameMap.readyZone.forEachCell{
             layoutChildView(it)
         }
+        gameMap.equipmentZone.forEachCell {
+            layoutChildView(it)
+        }
         gameMap.storeZone.forEachCell {
             layoutChildView(it)
         }
@@ -236,6 +240,35 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         gameMap.storeZone.forEachCell {
             mapRoleViews[it] = createRoleView(it)
         }
+    }
+
+    fun addEquipment(roles:List<Role>){
+        roles.forEach {
+            gameMap.addEquipment(it)
+        }
+        gameMap.equipmentZone.forEachCell {
+            mapRoleViews[it] = createEquipmentView(it)
+        }
+    }
+
+    private fun createEquipmentView(mapRole: MapRole): View {
+        val equipmentItemWidth = mapDraw.getEquipmentItemWidth()
+
+        val equipBinding = ItemEquipmentBinding.inflate(LayoutInflater.from(context),this,false)
+        val layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT)
+        layoutParams.width = equipmentItemWidth.toInt()
+        layoutParams.height = equipmentItemWidth.toInt()
+
+        equipBinding.apply {
+            nameTv.text = mapRole.role.name
+            root.layoutParams = layoutParams
+//            root.setOnClickListener {
+//
+//            }
+            addView(root)
+        }
+        equipBinding.root.tag = mapRole.position.where
+        return equipBinding.root
     }
 
     private fun createRoleView(mapRole: MapRole):View{
