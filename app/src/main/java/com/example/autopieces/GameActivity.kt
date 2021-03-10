@@ -104,7 +104,7 @@ class GameActivity : BaseActivity() {
             }
 
             override fun roleClick(mapRole: MapRole) {
-                RoleInfoWindow(binding.root as ViewGroup).show(mapRole.role)
+                RoleInfoWindow(binding.root as ViewGroup).show(mapRole)
             }
         })
     }

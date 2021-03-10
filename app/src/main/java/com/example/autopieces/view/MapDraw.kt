@@ -290,21 +290,7 @@ class MapDraw {
 
     fun getStoreItemWidth() = storeItemWidth
 
-    fun getStoreCellWith() = storeCellWidth
-
-    fun getStoreZone() = storeZoneRect
-
-    fun getCombatCellWidth() = combatCellWidth
-
     fun getReadyCellWidth() = readyZoneCellWidth
-
-    fun getReadyItemZone(index:Int) = RectF(
-            readyZoneRect.left + readyZoneCellWidth*index,
-            readyZoneRect.top,
-            readyZoneRect.left + readyZoneCellWidth*(index+1),
-            readyZoneRect.bottom
-    )
-
 
     /**
      * 通过Position来获取地图中的物理位置
@@ -347,7 +333,7 @@ class MapDraw {
     private fun getZoneItemRectF(zone:RectF,cellWidth:Float,padding:Float,position: Position):RectF{
         return  RectF(
             zone.left + cellWidth * position.x + padding,
-            zone.top,
+            zone.top + padding,
             zone.left + cellWidth * (position.x+1) - padding,
             zone.bottom - padding
         )
@@ -364,48 +350,40 @@ class MapDraw {
         if (roleViewCenterY>storeZoneRect.bottom){
             return Position(Position.POSITION_STORE_DOWN)
         }else if (roleViewCenterY>equipmentZoneRect.top && roleViewCenterY<equipmentZoneRect.bottom){
-            return Position(Position.POSITION_EQUIPMENT)
+            //判断列
+            val index = calculateColIndex(roleViewCenterX - equipmentZoneRect.left,equipmentCellWidth,GameMap.EQUIPMENT_ZONE_NUM)
+            return Position(Position.POSITION_EQUIPMENT,index)
         }else if (roleViewCenterY>storeZoneRect.top && roleViewCenterY<storeZoneRect.bottom){
             logE(TAG, "商店区")
             return Position(Position.POSITION_STORE)
         }else if (roleViewCenterY>readyZoneRect.top && roleViewCenterY<readyZoneRect.bottom){
             //判断进入哪一个格子
-            var index = 0
-            var centerX = roleViewCenterX - readyZoneRect.left
-            while(centerX>=readyZoneCellWidth){
-                index++.coerceAtMost(READY_ZONE_NUM -1)
-                centerX -=readyZoneCellWidth
-            }
+            val index = calculateColIndex(roleViewCenterX-readyZoneRect.left,readyZoneCellWidth, READY_ZONE_NUM)
             logE(TAG, "准备区第${index+1}格")
 
             return Position(Position.POSITION_READY,index)
         }else if (roleViewCenterY>combatZoneRect.top && roleViewCenterY<combatZoneRect.bottom){
-            var rowIndex = 0
-            var centerY = roleViewCenterY - combatZoneRect.top
-            while(centerY>=combatCellWidth){
-                rowIndex++.coerceAtMost(READY_ZONE_NUM -1)
-                centerY -=combatCellWidth
-            }
+            val rowIndex = calculateColIndex(roleViewCenterY-combatZoneRect.top,combatCellWidth, READY_ZONE_NUM)
             logE(TAG, "战斗区第${rowIndex+1}行")
 
-            var colIndex = 0
-            var centerX = roleViewCenterX - combatZoneRect.left
-            while(centerX>=combatCellWidth){
-                colIndex++.coerceAtMost(READY_ZONE_NUM -1)
-                centerX -=combatCellWidth
-            }
+            val colIndex = calculateColIndex(roleViewCenterX-combatZoneRect.left,combatCellWidth, READY_ZONE_NUM)
             logE(TAG, "战斗区第${colIndex+1}列")
 
             return Position(Position.POSITION_COMBAT,colIndex,rowIndex)
         }else{
             logE(TAG, "其他区域")
         }
-//        val rect = RectF(
-//                roleView.left.toFloat(),
-//                roleView.top.toFloat(),
-//                roleView.right.toFloat(),
-//                roleView.bottom.toFloat()
-//        )
         return Position(Position.POSITION_OTHER)
+    }
+
+    private fun calculateColIndex(centerX:Float,cellWidth:Float,cellNum:Int):Int{
+        //判断进入哪一个格子
+        var index = 0
+        var curCenterX = centerX
+        while(curCenterX>=cellWidth){
+            index++.coerceAtMost(cellNum -1)
+            curCenterX -=cellWidth
+        }
+        return index
     }
 }

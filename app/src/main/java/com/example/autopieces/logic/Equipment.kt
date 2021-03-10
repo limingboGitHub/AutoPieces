@@ -3,6 +3,8 @@ package com.example.autopieces.logic
 class Equipment{
 
     companion object{
+        const val EQUIP_MAX_NUM = 3
+
         val EMPTY = ""
         val KUWU = "苦无"
         val SHOULIJIAN = "手里剑"

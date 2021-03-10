@@ -237,6 +237,8 @@
             android:layout_width="@dimen/role_info_equipment_icon_width"
             android:layout_height="@dimen/role_info_equipment_icon_width"
             android:layout_marginStart="5dp"
+            android:textSize="12sp"
+            android:gravity="center"
             android:background="@drawable/role_info_equipment_bg"
             app:layout_constraintTop_toTopOf="@id/equipment_1_tv"
             app:layout_constraintStart_toEndOf="@id/equipment_1_tv"/>
@@ -245,6 +247,8 @@
             android:layout_width="@dimen/role_info_equipment_icon_width"
             android:layout_height="@dimen/role_info_equipment_icon_width"
             android:layout_marginStart="5dp"
+            android:textSize="12sp"
+            android:gravity="center"
             android:background="@drawable/role_info_equipment_bg"
             app:layout_constraintTop_toTopOf="@id/equipment_2_tv"
             app:layout_constraintStart_toEndOf="@id/equipment_2_tv"/>

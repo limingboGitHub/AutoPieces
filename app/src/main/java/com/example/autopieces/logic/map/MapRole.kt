@@ -10,7 +10,8 @@ import com.example.autopieces.logic.role.Role
  */
 class MapRole(
     var role:Role,
-    var position:Position = Position()
+    var position:Position = Position(),
+    var equipment:ArrayList<Role> = ArrayList()
 ){
 
 }
