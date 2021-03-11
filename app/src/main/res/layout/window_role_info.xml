@@ -141,7 +141,7 @@
             android:id="@+id/attack_speed_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text='@{role.attackSpeed+""}'
+            android:text='@{role.beforeAttackTime+role.afterAttackTime+""}'
             app:layout_constraintTop_toTopOf="@id/attack_speed_title_tv"
             app:layout_constraintStart_toEndOf="@id/attack_speed_title_tv"/>
 

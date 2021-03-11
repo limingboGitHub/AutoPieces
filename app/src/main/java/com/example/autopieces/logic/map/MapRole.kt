@@ -11,7 +11,24 @@ import com.example.autopieces.logic.role.Role
 class MapRole(
     var role:Role,
     var position:Position = Position(),
-    var equipment:ArrayList<Role> = ArrayList()
+    var equipment:ArrayList<Role> = ArrayList(),
+
+    /**
+     * 所属阵营
+     */
+    var belongTeam:Int = 0,
+
+    /**
+     * 攻击状态
+     * -1   前摇中
+     * 1    后摇中
+     */
+    var attackState : Int = -1,
+
+    /**
+     * 攻击状态剩余时间
+     */
+    var attackStateRestTime : Int = role.beforeAttackTime
 ){
 
 }

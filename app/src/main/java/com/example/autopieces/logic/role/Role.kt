@@ -14,8 +14,14 @@ data class Role(
     var physicalAttack : Int = 50,
     //法强
     var magicValue : Int = 100,
-    //攻击速度 次/ms
-    var attackSpeed : Int = 500,
+
+    /**
+     * 攻击时间间隔 = 攻击前摇 + 攻击后摇
+     */
+    //攻击前摇 单位:ms
+    var beforeAttackTime : Int = 250,
+    //攻击后摇 单位:ms
+    var afterAttackTime : Int = 250,
     //暴击率
     var criticalRate : Int = 25,
     //暴击伤害
@@ -23,7 +29,9 @@ data class Role(
     //护甲
     var physicalDefense : Int = 20,
     //魔抗
-    var magicDefense : Int = 20
+    var magicDefense : Int = 20,
+    //攻击距离
+    var attackDistance : Int = 1
 ){
 
     fun levelUp(){

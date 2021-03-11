@@ -6,11 +6,7 @@ package com.example.autopieces.logic.map
 abstract class TwoDimensionalZone(val row:Int, val col:Int) {
     val TAG = "Zone"
 
-//    private val cel : Array<T> = Array<T>(row){}
-
     protected val cells : Array<Array<MapRole?>> = Array(row) {
-//        arrayOfNulls<MapRole?>(col)
-//        arrayOf<MapRole?>(col)
         Array<MapRole?>(col){null}
     }
 

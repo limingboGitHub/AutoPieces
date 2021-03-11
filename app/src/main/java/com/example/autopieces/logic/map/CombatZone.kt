@@ -18,4 +18,12 @@ class CombatZone(row:Int,col:Int) : TwoDimensionalZone(row,col){
      * 角色数量是否达到上限
      */
     fun isRoleAmountToMax(roleLevel:Int):Boolean = roleAmount()>=roleLevel
+
+    /**
+     * 开始行动
+     */
+    fun action(){
+        forEachCell {
+        }
+    }
 }
