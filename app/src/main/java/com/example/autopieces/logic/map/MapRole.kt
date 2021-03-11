@@ -20,15 +20,16 @@ class MapRole(
 
     /**
      * 攻击状态
-     * -1   前摇中
-     * 1    后摇中
+     * 0    静止
+     * 1    前摇中
+     * 2    后摇中
      */
-    var attackState : Int = -1,
+    var attackState : Int = 0,
 
     /**
      * 攻击状态剩余时间
      */
-    var attackStateRestTime : Int = role.beforeAttackTime
+    var attackStateRestTime : Int = 0
 ){
 
 }

@@ -14,16 +14,10 @@ import java.util.*
 class ExampleUnitTest {
     @Test
     fun addition_isCorrect() {
-        assertEquals(4, 2 + 2)
-
-        runBlocking(Dispatchers.Main) {
-            val result = getData()
-            assertEquals(1,result)
-        }
+        val pair = Pair(1,1)
+        assertEquals(1, pair.first)
 
     }
 
-    suspend fun getData():Int = withContext(Dispatchers.IO){
-        1
-    }
+
 }
