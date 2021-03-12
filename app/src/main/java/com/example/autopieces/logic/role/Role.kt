@@ -30,8 +30,21 @@ data class Role(
     var physicalDefense : Int = 20,
     //魔抗
     var magicDefense : Int = 20,
-    //攻击距离
-    var attackDistance : Int = 1
+
+    /**
+     * 攻击距离
+     */
+    var attackScope : Int = 1,
+
+    /**
+     * 可同时攻击目标的数量
+     */
+    var attackAmount : Int = 1,
+
+    /**
+     * 移动速度  ms/格
+     */
+    var moveSpeed : Int = 300
 ){
 
     fun levelUp(){
