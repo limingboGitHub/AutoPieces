@@ -1,5 +1,7 @@
 package com.example.autopieces.logic.map
 
+import com.example.autopieces.logic.role.Role
+import com.example.autopieces.logic.role.RoleName
 import org.junit.Test
 import org.junit.Assert.*
 
@@ -19,5 +21,34 @@ class CombatZoneTest {
 
         val result4 = calculateAttackScopeAll(4)
         assertEquals(40,result4.size)
+    }
+
+
+    @Test
+    fun moveTest(){
+        val combatZone = CombatZone(GameMap.COMBAT_ROW_NUM,GameMap.COMBAT_COL_NUM)
+
+        val mapRole = MapRole(
+            Role(RoleName.MING_REN))
+        val mapRole2 = MapRole(
+            Role(RoleName.ZUO_ZU))
+
+        combatZone.addRole(mapRole,0,0)
+        combatZone.addRole(mapRole2,6,0)
+
+        assert(combatZone.getRoleByIndex(0,0)!=null)
+        assert(combatZone.getRoleByIndex(6,0)!=null)
+
+        var toMovePosition = combatZone.findRoleToMove(mapRole)
+        assert(toMovePosition!=null)
+        assertEquals(1,toMovePosition!!.first)
+        assertEquals(0,toMovePosition.second)
+
+        combatZone.removeRole(mapRole2)
+        combatZone.addRole(mapRole2,0,7)
+
+        toMovePosition = combatZone.findRoleToMove(mapRole)
+        assertEquals(0,toMovePosition!!.first)
+        assertEquals(1,toMovePosition.second)
     }
 }

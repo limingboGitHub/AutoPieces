@@ -1,5 +1,7 @@
 package com.example.autopieces.logic.map
 
+import kotlin.math.abs
+
 
 class CombatZone(row:Int,col:Int) : TwoDimensionalZone(row,col){
 
@@ -75,20 +77,68 @@ class CombatZone(row:Int,col:Int) : TwoDimensionalZone(row,col){
         return false
     }
 
-    private fun findRoleToMove(mapRole: MapRole){
+    fun findRoleToMove(mapRole: MapRole):Pair<Int,Int>?{
+        val targetPosition = searchClosetTarget(mapRole)
+        if (targetPosition!=null){
+            var toMovePosition : Pair<Int,Int>? = null
+            var minDistance = 0;
+            //角色只能朝上下左右4个方向移动，计算那种移动距离目标最近
+            listOf(
+                Pair(0,-1),
+                Pair(0,1),
+                Pair(-1,0),
+                Pair(1,0)
+            ).forEach {
+                val toMoveX = mapRole.position.x+it.first
+                val toMoveY = mapRole.position.y+it.second
+                if (toMoveX in 0 until col &&
+                    toMoveY in 0 until row &&
+                    cells[toMoveY][toMoveX]==null){
+                    //计算移动后的坐标到目标的距离
+                    val distance = abs(targetPosition.first-toMoveX) + abs(targetPosition.second-toMoveY)
+                    //找到距离目标最近的移动方式
+                    if (toMovePosition==null){
+                        toMovePosition = Pair(toMoveX,toMoveY)
+                        minDistance = distance
+                    }
+                    if (distance<minDistance){
+                        toMovePosition = Pair(toMoveX,toMoveY)
+                        minDistance = distance
+                    }
+                }
+            }
+            //找到移动方式
+            if (toMovePosition!=null){
+                
+            }
+            return toMovePosition
+        }
+        return null
+    }
+
+    /**
+     * 寻找距离最近的目标
+     */
+    private fun searchClosetTarget(mapRole: MapRole):Pair<Int,Int>?{
         val roleX = mapRole.position.x
         val roleY = mapRole.position.y
-        val offsetList = ArrayList<Pair<Int,Int>>().apply {
-            var scope = mapRole.role.attackScope+1
-            while (scope<row+col){
-                calculateAttackScopeN(scope,this)
-                if (this.isNotEmpty()){
-
+        val offsetList = ArrayList<Pair<Int,Int>>()
+        var scope = mapRole.role.attackScope+1
+        while (scope<row+col){
+            calculateAttackScopeN(scope,offsetList)
+            offsetList.forEach {
+                //在地图范围内,且有目标
+                val x = roleX + it.first
+                val y = roleY + it.second
+                if (x in 0 until col &&
+                    y in 0 until row &&
+                    cells[y][x]!=null){
+                    return Pair(x,y)
                 }
-
-                scope++
             }
+            scope++
         }
+        return null
     }
 
     private fun calculateCellIndex(x:Int,y:Int,offsetList: List<Pair<Int, Int>>) =
@@ -100,8 +150,6 @@ class CombatZone(row:Int,col:Int) : TwoDimensionalZone(row,col){
                     add(Pair(x+it.first,y+it.second))
             }
         }
-
-
 
 }
 

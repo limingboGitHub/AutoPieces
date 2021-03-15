@@ -37,6 +37,9 @@ class MapRole(
      */
     var attackRoles : ArrayList<MapRole> = ArrayList(),
 
+    /**
+     *
+     */
 
     /**
      * 存活状态
