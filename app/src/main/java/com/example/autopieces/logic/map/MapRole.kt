@@ -20,22 +20,23 @@ class MapRole(
     var belongTeam:Int = 0,
 
     /**
-     * 攻击状态
+     * 状态
      * 0    静止
      * 1    前摇中
      * 2    后摇中
      */
-    var attackState : Int = ATTACK_STATE_IDLE,
+    var state : Int = STATE_IDLE,
 
     /**
-     * 攻击状态剩余时间
+     * 状态持续剩余时间
      */
-    var attackStateRestTime : Int = 0,
+    var stateRestTime : Int = 0,
 
     /**
      * 攻击目标
      */
     var attackRoles : ArrayList<MapRole> = ArrayList(),
+
 
     /**
      * 存活状态
@@ -45,19 +46,24 @@ class MapRole(
 
     companion object{
         /**
-         * 攻击状态 静止
+         * 状态 静止
          */
-        const val ATTACK_STATE_IDLE = 0
+        const val STATE_IDLE = 0
 
         /**
-         * 攻击状态 前摇
+         * 状态 攻击前摇
          */
-        const val ATTACK_STATE_BEFORE = 1
+        const val STATE_BEFORE_ATTACK = 1
 
         /**
-         * 攻击状态 后摇
+         * 状态 攻击后摇
          */
-        const val ATTACK_STATE_AFTER = 2
+        const val STATE_AFTER_ATTACK = 2
+
+        /**
+         * 状态 移动
+         */
+        const val STATE_MOVING = 3
     }
 
     fun hurtRole(){
@@ -74,14 +80,17 @@ class MapRole(
         }
     }
 
-    fun changeAttackState(attackState:Int){
-        this.attackState = attackState
+    fun changeState(attackState:Int){
+        this.state = attackState
         when(attackState){
-            ATTACK_STATE_BEFORE -> {
-                this.attackStateRestTime = role.beforeAttackTime
+            STATE_BEFORE_ATTACK -> {
+                this.stateRestTime = role.beforeAttackTime
             }
-            ATTACK_STATE_AFTER -> {
-                this.attackStateRestTime = role.afterAttackTime
+            STATE_AFTER_ATTACK -> {
+                this.stateRestTime = role.afterAttackTime
+            }
+            STATE_MOVING ->{
+                this.stateRestTime = role.moveSpeed
             }
         }
     }

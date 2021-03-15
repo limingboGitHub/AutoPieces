@@ -8,16 +8,16 @@ class CombatZoneTest {
     @Test
     fun calculateAttackScope(){
 
-        val result1 = calculateAttackScope(1)
+        val result1 = calculateAttackScopeAll(1)
         assertEquals(4,result1.size)
 
-        val result2 = calculateAttackScope(2)
+        val result2 = calculateAttackScopeAll(2)
         assertEquals(12,result2.size)
 
-        val result3 = calculateAttackScope(3)
+        val result3 = calculateAttackScopeAll(3)
         assertEquals(24,result3.size)
 
-        val result4 = calculateAttackScope(4)
+        val result4 = calculateAttackScopeAll(4)
         assertEquals(40,result4.size)
     }
 }
