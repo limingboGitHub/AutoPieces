@@ -25,6 +25,17 @@ abstract class TwoDimensionalZone(val row:Int, val col:Int) {
     }
 
     /**
+     * 找到所有角色
+     */
+    fun getAllRole():List<MapRole>{
+        return ArrayList<MapRole>().apply {
+            forEachCell {
+                add(it)
+            }
+        }
+    }
+
+    /**
      * 添加角色，如果指定的位置有其他角色，则返回该角色
      */
     fun addRole(mapRole: MapRole,x:Int,y:Int):MapRole?{

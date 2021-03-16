@@ -2,6 +2,8 @@ package com.example.autopieces.logic.map
 
 import com.example.autopieces.logic.combat.Damage
 import com.example.autopieces.logic.role.Role
+import com.example.autopieces.utils.logD
+import com.example.autopieces.utils.logE
 
 /**
  * 地图中一个角色
@@ -17,7 +19,7 @@ class MapRole(
     /**
      * 所属阵营
      */
-    var belongTeam:Int = 0,
+    var belongTeam:Int = 1,
 
     /**
      * 状态
@@ -38,8 +40,9 @@ class MapRole(
     var attackRoles : ArrayList<MapRole> = ArrayList(),
 
     /**
-     *
+     * 移动目标位置
      */
+    var moveTarget : Pair<Int,Int>? = null,
 
     /**
      * 存活状态
@@ -68,11 +71,13 @@ class MapRole(
          */
         const val STATE_MOVING = 3
     }
+    val TAG = "MapRole"
 
     fun hurtRole(){
         attackRoles.forEach {
             val damageValue = role.physicalAttack - it.role.physicalDefense
             it.beHurt(Damage(damageValue))
+            logD(TAG,"${role.name}攻击了 ${it.role.name},造成${damageValue}点伤害")
         }
     }
 

@@ -1,5 +1,7 @@
 package com.example.autopieces.logic.role
 
+import com.example.autopieces.logic.map.MapRole
+
 //import com.example.autopieces.utils.logD
 //import com.example.autopieces.utils.logE
 

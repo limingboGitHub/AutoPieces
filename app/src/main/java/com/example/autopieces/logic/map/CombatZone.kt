@@ -1,9 +1,17 @@
 package com.example.autopieces.logic.map
 
+import com.example.autopieces.utils.logD
+import com.example.autopieces.utils.logE
 import kotlin.math.abs
 
 
 class CombatZone(row:Int,col:Int) : TwoDimensionalZone(row,col){
+
+    /**
+     * 占位坐标
+     * 角色移动过程中，需要先占据目的地坐标
+     */
+    val placeHolderPositions = ArrayList<Pair<Int,Int>>()
 
     override fun zoneBelongWhere(): String {
         return Position.POSITION_COMBAT
@@ -25,7 +33,7 @@ class CombatZone(row:Int,col:Int) : TwoDimensionalZone(row,col){
      * 开始行动
      */
     fun action(){
-        forEachCell {
+        getAllRole().forEach {
             //当前攻击状态
             when(it.state){
                 MapRole.STATE_IDLE->{
@@ -35,8 +43,11 @@ class CombatZone(row:Int,col:Int) : TwoDimensionalZone(row,col){
                         it.changeState(MapRole.STATE_BEFORE_ATTACK)
                     }else{
                         //进入移动状态
-                        findRoleToMove(it)
-                        it.changeState(MapRole.STATE_MOVING)
+                        findRoleToMove(it)?.apply {
+                            placeHolderPositions.add(this)
+                            it.moveTarget = this
+                            it.changeState(MapRole.STATE_MOVING)
+                        }
                     }
                 }
                 MapRole.STATE_BEFORE_ATTACK->{
@@ -50,6 +61,19 @@ class CombatZone(row:Int,col:Int) : TwoDimensionalZone(row,col){
                 MapRole.STATE_AFTER_ATTACK->{
                     if (it.stateRestTime<=0)
                         it.changeState(MapRole.STATE_IDLE)
+                }
+                MapRole.STATE_MOVING ->{
+                    if (it.stateRestTime<=0){
+                        it.moveTarget?.apply {
+                            placeHolderPositions.remove(this)
+                            //从区域中旧位置删除，添加到新位置
+                            removeRole(it)
+                            addRole(it,this.first,this.second)
+                        }
+                        it.moveTarget = null
+                        it.changeState(MapRole.STATE_IDLE)
+                        logD(TAG,"${it.role.name}移动到了(${it.position.x},${it.position.y})")
+                    }
                 }
             }
         }
@@ -66,7 +90,7 @@ class CombatZone(row:Int,col:Int) : TwoDimensionalZone(row,col){
         //在攻击范围内寻找目标
         val offsetList = calculateAttackScopeAll(mapRole.role.attackScope)
         calculateCellIndex(roleX,roleY,offsetList).forEach {
-            val toBeAttackedMapRole = cells[it.first][it.second]
+            val toBeAttackedMapRole = cells[it.second][it.first]
             if (toBeAttackedMapRole!=null){
                 mapRole.attackRoles.add(toBeAttackedMapRole)
                 //攻击目标超过攻击数量上限，则寻找过程结束

@@ -5,6 +5,7 @@ import com.example.autopieces.logic.Player
 import com.example.autopieces.logic.map.GameMap.MoveResult.Companion.NO_CHANGE
 import com.example.autopieces.logic.map.GameMap.MoveResult.Companion.SUCCESS
 import com.example.autopieces.logic.role.Role
+import com.example.autopieces.logic.role.RoleName
 
 class GameMap {
 
@@ -74,6 +75,17 @@ class GameMap {
      */
     fun addEquipment(role:Role){
         equipmentZone.addRoleToFirstNotNull(MapRole(role,Position(Position.POSITION_EQUIPMENT)))
+    }
+
+    /**
+     * 添加敌人
+     */
+    fun addEnemy(){
+        val enemy = MapRole(
+            Role(RoleName.MINIONS),
+            belongTeam = 2
+        )
+        combatZone.addRole(enemy,4,1)
     }
 
     /**

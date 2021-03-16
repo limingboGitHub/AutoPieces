@@ -251,6 +251,13 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         }
     }
 
+    fun addEnemy(){
+        gameMap.addEnemy()
+        gameMap.combatZone.forEachCell {
+            mapRoleViews[it] = createReadyRoleView(it)
+        }
+    }
+
     private fun createEquipmentView(mapRole: MapRole): View {
         val equipmentItemWidth = mapDraw.getEquipmentItemWidth()
 

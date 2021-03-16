@@ -3,6 +3,8 @@ package com.example.autopieces.logic.role
 class RoleName {
     companion object{
 
+        const val MINIONS = "杂兵"
+
         /**
          * 1费 13张
          */

@@ -49,6 +49,14 @@ class GameActivity : BaseActivity() {
         initEquipment()
 
         setTimer()
+
+        initEnemy()
+    }
+
+    private fun initEnemy() {
+        binding.mapView.postDelayed({
+            binding.mapView.addEnemy()
+        },200)
     }
 
 
