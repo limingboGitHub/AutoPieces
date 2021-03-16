@@ -193,7 +193,7 @@ class GameMap {
                     return MoveResult()
                 //参战棋子已达上限
                 if (combatZone.getRoleByIndex(targetPosition.x,targetPosition.y)==null
-                    && combatZone.isRoleAmountToMax(player.level)){
+                    && combatZone.isTeamAmountToMax(player.level)){
                     return MoveResult()
                 }
                 readyZone.removeRole(mapRole)

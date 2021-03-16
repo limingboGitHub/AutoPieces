@@ -77,7 +77,7 @@ class MapRole(
         attackRoles.forEach {
             val damageValue = role.physicalAttack - it.role.physicalDefense
             it.beHurt(Damage(damageValue))
-            logD(TAG,"${role.name}攻击了 ${it.role.name},造成${damageValue}点伤害")
+            logE(TAG,"${role.name}攻击了 ${it.role.name},造成${damageValue}点伤害")
         }
     }
 

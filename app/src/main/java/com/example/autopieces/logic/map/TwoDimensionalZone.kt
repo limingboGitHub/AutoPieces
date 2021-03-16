@@ -114,4 +114,6 @@ abstract class TwoDimensionalZone(val row:Int, val col:Int) {
      * 角色数量
      */
     fun roleAmount():Int = cells.sumBy { it -> it.sumBy { if (it==null) 0 else 1 } }
+
+    fun teamOneAmount():Int = cells.sumBy { it -> it.sumBy { if (it==null ||it.belongTeam == 2) 0 else 1 } }
 }

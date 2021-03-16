@@ -48,9 +48,13 @@ class GameActivity : BaseActivity() {
 
         initEquipment()
 
+        initEnemy()
+
         setTimer()
 
-        initEnemy()
+        binding.startGameBt.setOnClickListener {
+            binding.mapView.startCombat()
+        }
     }
 
     private fun initEnemy() {

@@ -16,6 +16,7 @@ import com.example.autopieces.R
 import com.example.autopieces.databinding.ItemEquipmentBinding
 import com.example.autopieces.databinding.ItemReadyRoleBinding
 import com.example.autopieces.databinding.ItemStoreBinding
+import com.example.autopieces.logic.combat.Combat
 import com.example.autopieces.logic.map.GameMap
 import com.example.autopieces.logic.map.MapRole
 import com.example.autopieces.logic.map.MapViewInterface
@@ -254,8 +255,20 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     fun addEnemy(){
         gameMap.addEnemy()
         gameMap.combatZone.forEachCell {
-            mapRoleViews[it] = createReadyRoleView(it)
+            mapRoleViews[it] = createReadyRoleView(it).apply {
+                val rect = mapDraw.getPhysicalRectByPosition(it.position)
+                left = rect.left.toInt()
+                top = rect.top.toInt()
+                right = rect.right.toInt()
+                bottom = rect.bottom.toInt()
+                addView(this)
+            }
         }
+    }
+
+    fun startCombat(){
+        val combat = Combat(gameMap.combatZone)
+        combat.start()
     }
 
     private fun createEquipmentView(mapRole: MapRole): View {

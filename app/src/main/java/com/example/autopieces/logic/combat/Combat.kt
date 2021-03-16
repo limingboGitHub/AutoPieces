@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.autopieces.logic.map.CombatZone
 import com.example.autopieces.logic.map.MapRole
 import com.example.autopieces.utils.logD
+import com.example.autopieces.utils.logE
 
 class Combat(
         val combatZone : CombatZone
@@ -13,7 +14,7 @@ class Combat(
     /**
      * 战斗时间30秒
      */
-    var combatTime : Long = 30 * 1000
+    var combatTime : Long = 10 * 1000
 
     /**
      * 加时时长
@@ -30,15 +31,17 @@ class Combat(
      */
     private val combatThread = Thread({
         val startTime = System.currentTimeMillis()
-        //每10ms更新一次战斗
+
+        var actionTime = 0L
         while (combatTime > 0) {
             lastActionTime = System.currentTimeMillis()
-            combatZone.action()
+            combatZone.action(actionTime.toInt())
 
-            val costTime = System.currentTimeMillis() - lastActionTime
-            combatTime -= costTime
-            logD(TAG,"战斗剩余时间:${combatTime/1000}")
+            actionTime = System.currentTimeMillis() - lastActionTime
+            combatTime -= actionTime
+            logE(TAG,"战斗剩余时间:${combatTime/1000}")
         }
+        logE(TAG,"战斗时间结束")
     }, "combatThread")
 
     /**

@@ -1,8 +1,8 @@
 package com.example.autopieces.logic.map
 
-import com.example.autopieces.utils.logD
 import com.example.autopieces.utils.logE
 import kotlin.math.abs
+import kotlin.math.max
 
 
 class CombatZone(row:Int,col:Int) : TwoDimensionalZone(row,col){
@@ -27,13 +27,14 @@ class CombatZone(row:Int,col:Int) : TwoDimensionalZone(row,col){
     /**
      * 角色数量是否达到上限
      */
-    fun isRoleAmountToMax(roleLevel:Int):Boolean = roleAmount()>=roleLevel
+    fun isTeamAmountToMax(roleLevel:Int):Boolean = teamOneAmount()>=roleLevel
 
     /**
      * 开始行动
      */
-    fun action(){
+    fun action(time:Int){
         getAllRole().forEach {
+            it.stateRestTime = (it.stateRestTime-time).coerceAtLeast(0)
             //当前攻击状态
             when(it.state){
                 MapRole.STATE_IDLE->{
@@ -72,7 +73,7 @@ class CombatZone(row:Int,col:Int) : TwoDimensionalZone(row,col){
                         }
                         it.moveTarget = null
                         it.changeState(MapRole.STATE_IDLE)
-                        logD(TAG,"${it.role.name}移动到了(${it.position.x},${it.position.y})")
+                        logE(TAG,"${it.role.name}移动到了(${it.position.x},${it.position.y})")
                     }
                 }
             }
@@ -106,6 +107,7 @@ class CombatZone(row:Int,col:Int) : TwoDimensionalZone(row,col){
         if (targetPosition!=null){
             var toMovePosition : Pair<Int,Int>? = null
             var minDistance = 0;
+            var minLongerSide = 0;
             //角色只能朝上下左右4个方向移动，计算那种移动距离目标最近
             listOf(
                 Pair(0,-1),
@@ -119,13 +121,18 @@ class CombatZone(row:Int,col:Int) : TwoDimensionalZone(row,col){
                     toMoveY in 0 until row &&
                     cells[toMoveY][toMoveX]==null){
                     //计算移动后的坐标到目标的距离
-                    val distance = abs(targetPosition.first-toMoveX) + abs(targetPosition.second-toMoveY)
+                    val xDistance = abs(targetPosition.first-toMoveX)
+                    val yDistance = abs(targetPosition.second-toMoveY)
+                    val distance = xDistance + yDistance
+                    val longerSide = max(xDistance,yDistance)
                     //找到距离目标最近的移动方式
                     if (toMovePosition==null){
                         toMovePosition = Pair(toMoveX,toMoveY)
                         minDistance = distance
+                        minLongerSide = longerSide
                     }
-                    if (distance<minDistance){
+                    if (distance<minDistance ||
+                        (distance == minDistance && longerSide < minLongerSide)){
                         toMovePosition = Pair(toMoveX,toMoveY)
                         minDistance = distance
                     }
