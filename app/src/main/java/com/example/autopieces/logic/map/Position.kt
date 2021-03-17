@@ -1,7 +1,9 @@
 package com.example.autopieces.logic.map
 
+import java.io.Closeable
+
 //角色的位置
-class Position(
+data class Position(
         var where : String = POSITION_STORE,
         var x:Int = 0,
         var y:Int = 0

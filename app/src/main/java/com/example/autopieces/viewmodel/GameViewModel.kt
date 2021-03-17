@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.autopieces.logic.Player
 import com.example.autopieces.logic.Player.Companion.maxExpArray
+import com.example.autopieces.logic.map.GameMap
 
 class GameViewModel : ViewModel(){
 
@@ -11,6 +12,8 @@ class GameViewModel : ViewModel(){
      * 玩家
      */
     val player = MutableLiveData<Player>()
+
+    val gameMap = GameMap()
 
     fun getPlayer(): Player {
         return player.value?: Player()

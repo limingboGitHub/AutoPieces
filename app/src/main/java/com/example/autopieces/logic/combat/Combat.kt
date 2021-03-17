@@ -30,8 +30,6 @@ class Combat(
      * 战斗线程
      */
     private val combatThread = Thread({
-        val startTime = System.currentTimeMillis()
-
         var actionTime = 0L
         while (combatTime > 0
             &&!combatZone.isCombatEnd()) {
@@ -39,7 +37,7 @@ class Combat(
             combatZone.action(actionTime.toInt())
 
             actionTime = System.currentTimeMillis() - lastActionTime
-            combatTime -= actionTime
+            combatTime = (combatTime - actionTime).coerceAtLeast(0)
 //            logE(TAG,"战斗剩余时间:${combatTime/1000}")
         }
         logE(TAG,"战斗时间结束")
@@ -51,4 +49,9 @@ class Combat(
     fun start(){
         combatThread.start()
     }
+
+    /**
+     * 战斗是否结束
+     */
+    fun isEnd() = combatTime <=0 || combatZone.isCombatEnd()
 }

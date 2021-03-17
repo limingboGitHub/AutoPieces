@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.activity.viewModels
 import com.example.autopieces.databinding.ActivityGameBinding
 import com.example.autopieces.logic.Equipment
+import com.example.autopieces.logic.combat.Combat
 import com.example.autopieces.logic.map.GameMap
 import com.example.autopieces.logic.map.MapRole
 import com.example.autopieces.logic.map.MapViewInterface
@@ -50,10 +51,28 @@ class GameActivity : BaseActivity() {
 
         initEnemy()
 
-        setTimer()
-
         binding.startGameBt.setOnClickListener {
-            binding.mapView.startCombat()
+            val combat = Combat(viewModel.gameMap.combatZone)
+            combat.start()
+            //开启一个定时器，每隔33ms获取一次战斗状况，刷新UI
+            val handler = Handler(Looper.getMainLooper())
+
+            binding.readyTimeProgress.max = combat.combatTime.toInt()
+            binding.readyTimeProgress.progress = combat.combatTime.toInt()
+            timer.schedule(object: TimerTask(){
+                override fun run() {
+
+                    handler.post {
+                        binding.readyTimeProgress.progress = combat.combatTime.toInt()
+
+                        binding.mapView.update()
+                    }
+                    if (combat.isEnd()){
+                        timer.cancel()
+                        timer.purge()
+                    }
+                }
+            },0,33)
         }
     }
 
@@ -74,41 +93,12 @@ class GameActivity : BaseActivity() {
         },200)
     }
 
-    private var restTime = 10*1000
-    private var lastTime = 0L
-    private fun setTimer() {
-        val handler = Handler(Looper.getMainLooper())
-        restTime = 10*1000
-        lastTime = System.currentTimeMillis()
-
-        binding.readyTimeProgress.max = restTime
-        binding.readyTimeProgress.progress = restTime
-
-        timer.schedule(object: TimerTask(){
-            override fun run() {
-                val curTime = System.currentTimeMillis()
-                val timeSub = curTime - lastTime
-                lastTime = curTime
-                restTime = (restTime-timeSub.toInt())
-                    .coerceAtLeast(0)
-                handler.post {
-                    binding.readyTimeProgress.progress = restTime
-                }
-                if (restTime == 0){
-                    timer.cancel()
-                    timer.purge()
-                }
-            }
-        },0,16)
-    }
-
 
     private fun initMapView() {
-        val gameMap = GameMap()
-        gameMap.player = viewModel.getPlayer()
 
-        binding.mapView.setGameMap(gameMap)
+        viewModel.gameMap.player = viewModel.getPlayer()
 
+        binding.mapView.setGameMap(viewModel.gameMap)
         binding.mapView.setInterface(object : MapViewInterface {
 
             override fun update(gameMap: GameMap) {
