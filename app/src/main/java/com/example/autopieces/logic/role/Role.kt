@@ -44,7 +44,7 @@ data class Role(
     /**
      * 移动速度  ms/格
      */
-    var moveSpeed : Int = 300
+    var moveSpeed : Int = 500
 ){
 
     fun levelUp(){

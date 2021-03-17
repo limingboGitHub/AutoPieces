@@ -2,7 +2,6 @@ package com.example.autopieces.logic.map
 
 import com.example.autopieces.logic.combat.Damage
 import com.example.autopieces.logic.role.Role
-import com.example.autopieces.utils.logD
 import com.example.autopieces.utils.logE
 
 /**
@@ -11,7 +10,7 @@ import com.example.autopieces.utils.logE
  * @param role 角色属性
  * @param position 角色的位置信息
  */
-class MapRole(
+open class MapRole(
     var role:Role,
     var position:Position = Position(),
     var equipment:ArrayList<Role> = ArrayList(),

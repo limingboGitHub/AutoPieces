@@ -33,13 +33,14 @@ class Combat(
         val startTime = System.currentTimeMillis()
 
         var actionTime = 0L
-        while (combatTime > 0) {
+        while (combatTime > 0
+            &&!combatZone.isCombatEnd()) {
             lastActionTime = System.currentTimeMillis()
             combatZone.action(actionTime.toInt())
 
             actionTime = System.currentTimeMillis() - lastActionTime
             combatTime -= actionTime
-            logE(TAG,"战斗剩余时间:${combatTime/1000}")
+//            logE(TAG,"战斗剩余时间:${combatTime/1000}")
         }
         logE(TAG,"战斗时间结束")
     }, "combatThread")

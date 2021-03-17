@@ -81,7 +81,7 @@ class CombatZoneTest {
         combatZone.addRole(teamTwoRole,4,1)
 
         combatZone.action(0)
-        combatZone.action(300)
+        combatZone.action(teamOneRole.role.moveSpeed)
         assertEquals(2,teamOneRole.position.x)
         assertEquals(5,teamOneRole.position.y)
         assertEquals(MapRole.STATE_IDLE,teamOneRole.state)
@@ -91,7 +91,7 @@ class CombatZoneTest {
         assertEquals(MapRole.STATE_IDLE,teamTwoRole.state)
 
         combatZone.action(0)
-        combatZone.action(300)
+        combatZone.action(teamOneRole.role.moveSpeed)
         assertEquals(2,teamOneRole.position.x)
         assertEquals(4,teamOneRole.position.y)
         assertEquals(MapRole.STATE_IDLE,teamOneRole.state)
@@ -102,13 +102,50 @@ class CombatZoneTest {
 
         combatZone.action(0)
 
-        combatZone.action(300)
+        combatZone.action(teamOneRole.role.moveSpeed)
         assertEquals(3,teamOneRole.position.x)
-        assertEquals(3,teamOneRole.position.y)
+        assertEquals(4,teamOneRole.position.y)
         assertEquals(MapRole.STATE_IDLE,teamOneRole.state)
 
-        assertEquals(4,teamTwoRole.position.x)
-        assertEquals(4,teamTwoRole.position.y)
+        assertEquals(3,teamTwoRole.position.x)
+        assertEquals(3,teamTwoRole.position.y)
         assertEquals(MapRole.STATE_IDLE,teamTwoRole.state)
+
+        combatZone.action(0)
+        //两个角色开始相互攻击
+        assertEquals(MapRole.STATE_BEFORE_ATTACK,teamOneRole.state)
+        assertEquals(MapRole.STATE_BEFORE_ATTACK,teamTwoRole.state)
+        combatZone.action(teamOneRole.role.beforeAttackTime)
+        assertEquals(70,teamOneRole.role.curHP)
+        assertEquals(70,teamTwoRole.role.curHP)
+        assertEquals(MapRole.STATE_AFTER_ATTACK,teamOneRole.state)
+        assertEquals(MapRole.STATE_AFTER_ATTACK,teamTwoRole.state)
+
+        combatZone.action(teamOneRole.role.afterAttackTime)
+        assertEquals(MapRole.STATE_IDLE,teamOneRole.state)
+        assertEquals(MapRole.STATE_IDLE,teamTwoRole.state)
+
+        combatZone.action(0)
+        assertEquals(MapRole.STATE_BEFORE_ATTACK,teamOneRole.state)
+        assertEquals(MapRole.STATE_BEFORE_ATTACK,teamTwoRole.state)
+        combatZone.action(teamOneRole.role.beforeAttackTime)
+        assertEquals(40,teamOneRole.role.curHP)
+        assertEquals(40,teamTwoRole.role.curHP)
+
+        combatZone.action(teamOneRole.role.afterAttackTime)
+        combatZone.action(0)
+        combatZone.action(teamOneRole.role.beforeAttackTime)
+        assertEquals(10,teamOneRole.role.curHP)
+        assertEquals(10,teamTwoRole.role.curHP)
+
+        combatZone.action(teamOneRole.role.afterAttackTime)
+        combatZone.action(0)
+        combatZone.action(teamOneRole.role.beforeAttackTime)
+        assert(!teamOneRole.isAlive)
+        assert(teamTwoRole.isAlive)
+        assertEquals(0,teamOneRole.role.curHP)
+        assertEquals(10,teamTwoRole.role.curHP)
+
+        assert(combatZone.isCombatEnd())
     }
 }

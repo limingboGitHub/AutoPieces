@@ -99,6 +99,10 @@ abstract class TwoDimensionalZone(val row:Int, val col:Int) {
         }
     }
 
+    fun removeRoleByIndex(x:Int,y:Int){
+        cells[y][x] = null
+    }
+
     /**
      * 通过index查询对应位置的角色
      */
