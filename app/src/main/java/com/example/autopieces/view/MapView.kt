@@ -193,7 +193,7 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
 
     private fun roleViewMoveAni(releasedChild:View,targetPosition: Position,endFun: () -> Unit = {}){
         //view对应的tag的position需要更新
-        releasedChild.tag = MapRole.STATE_MOVING
+
 
         val curLeft = releasedChild.left
         val curTop = releasedChild.top
@@ -415,13 +415,21 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
                 val viewState = it.value.tag as Int
                 if (viewState == MapRole.STATE_IDLE){
                     it.key.moveTarget?.apply {
-                        roleViewMoveAni(it.value,Position(Position.POSITION_COMBAT,first,second))
+                        it.value.tag = MapRole.STATE_MOVING
+                        roleViewMoveAni(it.value,Position(Position.POSITION_COMBAT,first,second)){
+                            it.value.tag = MapRole.STATE_IDLE
+                        }
                     }
                 }
-            }else if (it.key.state == MapRole.STATE_BEFORE_ATTACK){
+            }
+            else if (it.key.state == MapRole.STATE_BEFORE_ATTACK){
                 val viewState = it.value.tag as Int
                 if (viewState == MapRole.STATE_IDLE){
-                    it.value.attackAni(mapRoleViews[it.key.attackRoles[0]])
+                    it.value.tag = MapRole.STATE_BEFORE_ATTACK
+                    logE(TAG,"${it.key.role.name} 攻击动画")
+                    it.value.attackAni(mapRoleViews[it.key.attackRoles[0]]){
+                        it.value.tag = MapRole.STATE_IDLE
+                    }
                 }
             }
             if (!it.key.isAlive){
