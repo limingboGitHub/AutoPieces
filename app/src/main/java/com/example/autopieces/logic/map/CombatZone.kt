@@ -1,5 +1,6 @@
 package com.example.autopieces.logic.map
 
+import com.example.autopieces.logic.role.createMovePlaceholder
 import com.example.autopieces.utils.logE
 import kotlin.math.abs
 import kotlin.math.max
@@ -34,17 +35,19 @@ class CombatZone(row:Int,col:Int) : TwoDimensionalZone(row,col){
             it.stateRestTime = (it.stateRestTime-time).coerceAtLeast(0)
             //当前攻击状态
             when(it.state){
-                MapRole.STATE_IDLE->{
+                MapRole.STATE_IDLE -> {
                     val isFindRole = findRoleToAttack(it)
-                    if (isFindRole){
+                    if (isFindRole) {
                         //进入前摇状态
                         it.changeState(MapRole.STATE_BEFORE_ATTACK)
-                    }else{
+                    } else {
                         //进入移动状态
                         findRoleToMove(it)?.apply {
-//                            addRole(placeholderMapRole(),first,second)
-                            it.moveTarget = this
-                            it.changeState(MapRole.STATE_MOVING)
+                            if (cells[second][first] == null) {
+                                addRole(createMovePlaceholder(), first, second)
+                                it.moveTarget = this
+                                it.changeState(MapRole.STATE_MOVING)
+                            }
                         }
                     }
                 }
@@ -97,7 +100,8 @@ class CombatZone(row:Int,col:Int) : TwoDimensionalZone(row,col){
             val toBeAttackedMapRole = cells[it.second][it.first]
             if (toBeAttackedMapRole!=null){
                 //攻击目标超过攻击数量上限，则寻找过程结束
-                if (mapRole.attackRoles.size>=mapRole.role.attackAmount)
+                if (mapRole.attackRoles.size>=mapRole.role.attackAmount ||
+                    mapRole.flag == MapRole.FLAG_MOVE_PLACEHOLDER)
                     return true
                 mapRole.attackRoles.add(toBeAttackedMapRole)
                 if (mapRole.attackRoles.size>=mapRole.role.attackAmount)
@@ -161,12 +165,15 @@ class CombatZone(row:Int,col:Int) : TwoDimensionalZone(row,col){
         while (scope<row+col){
             calculateAttackScopeN(scope,offsetList)
             offsetList.forEach {
-                //在地图范围内,且有目标
+                //在地图范围内
                 val x = roleX + it.first
                 val y = roleY + it.second
-                if (x in 0 until col &&
-                    y in 0 until row &&
-                    cells[y][x]!=null){
+                if (x in 0 until col
+                    && y in 0 until row){
+                    //有目标，且是一个棋子角色
+                    val targetMapRole = cells[y][x]
+                    if (targetMapRole!=null
+                        && targetMapRole.flag == MapRole.FLAG_ROLE)
                     return Pair(x,y)
                 }
             }

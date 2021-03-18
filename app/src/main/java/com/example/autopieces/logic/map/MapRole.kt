@@ -46,7 +46,12 @@ open class MapRole(
     /**
      * 存活状态
      */
-    var isAlive : Boolean = true
+    var isAlive : Boolean = true,
+
+    /**
+     * 标识
+     */
+    var flag : Int = FLAG_ROLE
 ){
 
     companion object{
@@ -69,7 +74,18 @@ open class MapRole(
          * 状态 移动
          */
         const val STATE_MOVING = 3
+
+        /**
+         * 标识 普通角色，棋子
+         */
+        const val FLAG_ROLE = 0
+
+        /**
+         * 标识 角色移动占位符
+         */
+        const val FLAG_MOVE_PLACEHOLDER = 1
     }
+
     val TAG = "MapRole"
 
     fun hurtRole(){

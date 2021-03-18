@@ -33,10 +33,7 @@ class CombatZoneTest {
         assertEquals(MapRole.STATE_MOVING,teamTwoRole.state)
 
         //模拟过了300ms
-//        teamOneRole.stateRestTime = 0
-//        teamTwoRole.stateRestTime = 0
-
-        combatZone.action(300)
+        combatZone.action(teamOneRole.role.moveSpeed)
 
         assertEquals(0,teamOneRole.position.x)
         assertEquals(3,teamOneRole.position.y)

@@ -30,7 +30,8 @@ abstract class TwoDimensionalZone(val row:Int, val col:Int) {
     fun getAllRole():List<MapRole>{
         return ArrayList<MapRole>().apply {
             forEachCell {
-                add(it)
+                if (it.flag == MapRole.FLAG_ROLE)
+                    add(it)
             }
         }
     }

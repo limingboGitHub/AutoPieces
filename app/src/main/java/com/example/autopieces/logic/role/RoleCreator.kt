@@ -1,7 +1,6 @@
 package com.example.autopieces.logic.role
 
 import com.example.autopieces.logic.map.MapRole
-import com.example.autopieces.logic.map.PlaceholderMapRole
 
 //import com.example.autopieces.utils.logD
 //import com.example.autopieces.utils.logE
@@ -53,6 +52,6 @@ private fun randomCreateRole(level:Int):Role{
     return roleFromPool ?: randomCreateRole(level)
 }
 
-fun placeholderMapRole():PlaceholderMapRole{
-    return PlaceholderMapRole(Role(""))
+fun createMovePlaceholder():MapRole{
+    return MapRole(Role(""),flag = MapRole.FLAG_MOVE_PLACEHOLDER)
 }
