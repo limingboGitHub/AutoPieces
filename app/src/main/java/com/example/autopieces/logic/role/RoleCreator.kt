@@ -13,11 +13,8 @@ fun createSameRole(roleName: String):List<Role>{
     }
 }
 
-fun randomCreateRoles(level:Int):List<Role>{
+fun createRandomRoles(level:Int):List<Role>{
     val roles = ArrayList<Role>()
-
-
-
     repeat(5){
         roles.add(randomCreateRole(level))
     }
@@ -25,15 +22,11 @@ fun randomCreateRoles(level:Int):List<Role>{
 }
 
 private fun randomCreateRole(level:Int):Role{
+    //获取棋子的刷新概率表
     val roleRefreshRate = RoleRefreshRate.refreshRate[level-1]
 
-//    logD("refreshRole","lv ${player.getLevel()} 刷新概率:")
-    roleRefreshRate.forEachIndexed { index, i ->
-//        logD("refreshRole","${index+1} 费:$i %")
-    }
     //先决定卡的费用
     val randomRateNum = (1..100).random()
-//        logD("refreshRole","随机数:$randomRateNum")
     var roleCost = 0
     var rateSum = 0
     roleRefreshRate.forEachIndexed { index, rateNum ->
@@ -41,7 +34,6 @@ private fun randomCreateRole(level:Int):Role{
             roleCost = index+1
         rateSum +=rateNum
     }
-//        logD("refreshRole","此次费率:${roleCost+1}")
 
     //从对应费用卡组中随机选卡
     val rolesToSelect = RoleName.rolesArray[roleCost-1]

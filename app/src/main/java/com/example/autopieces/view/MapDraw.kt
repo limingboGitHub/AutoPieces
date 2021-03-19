@@ -78,7 +78,7 @@ class MapDraw {
     //margin边距
     private var storeStartMargin = 10 * density
     private var storeEndMargin = 100*density
-    private var storeBottomMargin = 5 * density
+    private var storeBottomMargin = 10 * density
 
     private val storeCellPadding = 3*density
 

@@ -17,7 +17,7 @@ class MapTest {
 
         //商店更新
         assertEquals(0,gameMap.storeZone.roleAmount())
-        gameMap.updateStore(randomCreateRoles(player.level))
+        gameMap.updateStore(createRandomRoles(player.level))
         assertEquals(5,gameMap.storeZone.roleAmount())
 
         //商店区第一个角色加入准备区

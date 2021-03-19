@@ -43,6 +43,9 @@ object RolePool {
             null
     }
 
+    /**
+     * 获取对应棋子的剩余数量
+     */
     fun getRoleAmount(roleName: String):Int{
         return findRole(roleName).amount
     }

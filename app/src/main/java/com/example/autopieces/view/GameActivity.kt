@@ -1,11 +1,11 @@
-package com.example.autopieces
+package com.example.autopieces.view
 
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.View
 import android.view.ViewGroup
 import androidx.activity.viewModels
+import com.example.autopieces.R
 import com.example.autopieces.databinding.ActivityGameBinding
 import com.example.autopieces.logic.Equipment
 import com.example.autopieces.logic.combat.Combat
@@ -24,10 +24,6 @@ class GameActivity : BaseActivity() {
     lateinit var binding : ActivityGameBinding
 
     val viewModel : GameViewModel by viewModels()
-
-    var timer = Timer()
-
-    var equipmentView:View? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,11 +49,13 @@ class GameActivity : BaseActivity() {
 
             binding.readyTimeProgress.max = combat.combatTime.toInt()
             binding.readyTimeProgress.progress = combat.combatTime.toInt()
+            val timer = Timer()
             timer.schedule(object: TimerTask(){
                 override fun run() {
 
                     handler.post {
                         binding.readyTimeProgress.progress = combat.combatTime.toInt()
+                        binding.readyTimeTv.text = (combat.combatTime/1000).toString()
 
                         binding.mapView.update()
                     }
@@ -72,17 +70,18 @@ class GameActivity : BaseActivity() {
 
 
     private fun initElement() {
+        //MapView在onCreate里还未初始化完成，需要delay
         binding.mapView.postDelayed({
 
             //商店进货 5个角色
-            binding.mapView.updateStore(createSameRole(RoleName.MING_REN))
-
+            binding.mapView.updateStore(createRandomRoles(1))
+            //添加两件装备在装备栏
             val equipments = listOf(
                 Role(Equipment.KUWU),
                 Role(Equipment.SHOULIJIAN)
             )
             binding.mapView.addEquipment(equipments)
-
+            //添加一个杂兵
             binding.mapView.addEnemy()
         },200)
     }
@@ -113,7 +112,7 @@ class GameActivity : BaseActivity() {
         //点击刷新
         binding.refreshStoreCl.setOnClickListener {
             if (viewModel.useMoney(2)){
-                binding.mapView.updateStore(randomCreateRoles(viewModel.getPlayer().level))
+                binding.mapView.updateStore(createRandomRoles(viewModel.getPlayer().level))
             }else{
                 toast(R.string.your_money_is_not_enough)
             }

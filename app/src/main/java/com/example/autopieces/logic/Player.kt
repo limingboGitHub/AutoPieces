@@ -8,7 +8,7 @@ class Player{
 
     companion object{
         val maxExpArray = arrayOf(
-            2,4,6,10,18,30,46,70,9999
+            2,4,6,10,18,30,46,70,999
         )
     }
 }

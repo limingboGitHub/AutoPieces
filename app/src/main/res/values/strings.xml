@@ -13,4 +13,5 @@
     <string name="physical_defense_mao">护甲：</string>
     <string name="magic_defense_mao">魔抗：</string>
     <string name="equipment">装备</string>
+    <string name="start_combat">开始战斗</string>
 </resources>

@@ -10,7 +10,7 @@ import com.example.autopieces.utils.logE
  * @param role 角色属性
  * @param position 角色的位置信息
  */
-open class MapRole(
+class MapRole(
     var role:Role,
     var position:Position = Position(),
     var equipment:ArrayList<Role> = ArrayList(),
@@ -21,15 +21,12 @@ open class MapRole(
     var belongTeam:Int = 1,
 
     /**
-     * 状态
-     * 0    静止
-     * 1    前摇中
-     * 2    后摇中
+     * 行动状态
      */
     var state : Int = STATE_IDLE,
 
     /**
-     * 状态持续剩余时间
+     * 行动状态持续剩余时间
      */
     var stateRestTime : Int = 0,
 

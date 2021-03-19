@@ -2,7 +2,7 @@ package com.example.autopieces.logic.role.role
 
 import com.example.autopieces.logic.Player
 import com.example.autopieces.logic.role.RolePool
-import com.example.autopieces.logic.role.randomCreateRoles
+import com.example.autopieces.logic.role.createRandomRoles
 import org.junit.Test
 import org.junit.Assert.*
 
@@ -14,7 +14,7 @@ class RolePoolTest {
 
         val player = Player()
 
-        val roles = randomCreateRoles(player.level)
+        val roles = createRandomRoles(player.level)
         assertEquals(roles.size,5)
         //检查卡池的数量是否正确减少
         roles.forEach {

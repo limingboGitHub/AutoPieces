@@ -1,4 +1,4 @@
-package com.example.autopieces
+package com.example.autopieces.view
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
