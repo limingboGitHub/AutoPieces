@@ -3,7 +3,32 @@ package com.example.autopieces.extend
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ValueAnimator
+import android.graphics.Rect
+import android.graphics.RectF
 import android.view.View
+
+fun View.transAni(targetRect: RectF, endFun: () -> Unit = {}){
+    val curLeft = left
+    val curTop = top
+    val curWith = width
+    val curHeight = height
+
+    val animation = ValueAnimator.ofFloat(1f, 0f)
+    animation.addUpdateListener {
+        val scale = it.animatedValue as Float
+        left = (targetRect.left + (curLeft - targetRect.left) * scale).toInt()
+        top = (targetRect.top + (curTop - targetRect.top) * scale).toInt()
+        right = (left + targetRect.width() + (curWith - targetRect.width()) * scale).toInt()
+        bottom = (top + targetRect.height() + (curHeight - targetRect.height()) * scale).toInt()
+    }
+    animation.addListener(object : AnimatorListenerAdapter() {
+        override fun onAnimationEnd(animation: Animator?) {
+            endFun.invoke()
+        }
+    })
+    animation.duration = 200
+    animation.start()
+}
 
 fun View.attackAni(targetView:View?,endFun:()->Unit = {}){
     targetView?:return

@@ -292,6 +292,25 @@ class MapDraw {
 
     fun getReadyCellWidth() = readyZoneCellWidth
 
+    fun getPhysicalPointByPosition(position: Position):Pair<Float,Float>{
+        return when(position.where){
+            Position.POSITION_STORE -> {
+                getZoneItemPoint(storeZoneRect,storeCellWidth,position)
+            }
+            Position.POSITION_READY -> {
+                getZoneItemPoint(readyZoneRect,readyZoneCellWidth,position)
+            }
+            Position.POSITION_EQUIPMENT ->{
+                getZoneItemPoint(equipmentZoneRect,equipmentCellWidth,position)
+            }
+            Position.POSITION_COMBAT -> {
+                getZoneItemPoint(combatZoneRect,combatCellWidth,position)
+            }
+
+            else -> Pair(0f,0f)
+        }
+    }
+
     /**
      * 通过Position来获取地图中的物理位置
      */
@@ -328,6 +347,13 @@ class MapDraw {
 
             else -> RectF()
         }
+    }
+
+    private fun getZoneItemPoint(zone:RectF,cellWidth: Float,position: Position):Pair<Float,Float>{
+        return Pair(
+            zone.left + cellWidth*position.x + cellWidth/2,
+            zone.top + cellWidth*position.y + cellWidth/2
+        )
     }
 
     private fun getZoneItemRectF(zone:RectF,cellWidth:Float,padding:Float,position: Position):RectF{

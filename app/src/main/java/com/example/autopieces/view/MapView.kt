@@ -17,7 +17,7 @@ import com.example.autopieces.databinding.ItemEquipmentBinding
 import com.example.autopieces.databinding.ItemReadyRoleBinding
 import com.example.autopieces.databinding.ItemStoreBinding
 import com.example.autopieces.extend.attackAni
-import com.example.autopieces.logic.combat.Combat
+import com.example.autopieces.extend.transAni
 import com.example.autopieces.logic.map.GameMap
 import com.example.autopieces.logic.map.MapRole
 import com.example.autopieces.logic.map.MapViewInterface
@@ -100,14 +100,24 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         targetPosition: Position
     ) {
         val moveResult = gameMap.roleMove(mapRole, targetPosition)
+        //分析移动结果
         when (moveResult.result) {
             GameMap.MoveResult.MONEY_NOT_ENOUGH -> context.toast(R.string.your_money_is_not_enough)
         }
+        //需要删除的角色
         moveResult.removeRole.forEach {
             removeRoleView(mapRoleViews.remove(it))
         }
         //归位
         moveRoleViewAni(mapRole) {
+            moveResult.oldPosition?.apply {
+                if (where == Position.POSITION_STORE &&
+                    mapRole.position.where != Position.POSITION_STORE){
+                    val oldView = mapRoleViews[mapRole]?:return@apply
+                    mapRoleViews[mapRole] = createReadyRoleView(mapRole)
+                    removeView(oldView)
+                }
+            }
             updateRoleView()
         }
         moveResult.exchangeRole?.apply { moveRoleViewAni(this) }
@@ -122,111 +132,24 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         mapViewInterface.update(gameMap)
     }
 
-    private fun moveRoleView(mapRole: MapRole){
-        val releasedChild = mapRoleViews[mapRole]?:return
-
-        val targetRect = mapDraw.getPhysicalRectByPosition(mapRole.position)
-        targetRect.apply {
-            releasedChild.left = left.toInt()
-            releasedChild.top = top.toInt()
-            releasedChild.right = (left+width()).toInt()
-            releasedChild.bottom = (top + height()).toInt()
-        }
-    }
-
-    private fun moveRoleViewAni(mapRole: MapRole, endFun:()->Unit = {}) {
+    private fun moveRoleViewAni(mapRole: MapRole,endFun:()->Unit = {}) {
         if (mapRoleViews[mapRole]==null){
             endFun.invoke()
             return
         }
-        var releasedChild = mapRoleViews[mapRole]?:return
+        val releasedChild = mapRoleViews[mapRole]?:return
 
         releasedChild.tag = MapRole.STATE_MOVING
 
-        val curLeft = releasedChild.left
-        val curTop = releasedChild.top
-        val curWith = releasedChild.width
-        val curHeight = releasedChild.height
-
         val targetRect = mapDraw.getPhysicalRectByPosition(mapRole.position)
-
-        targetRect.apply {
-            val targetLeft = left
-            val targetTop = top
-            val targetWidth = width()
-            val targetHeight = height()
-
-            val animation = ValueAnimator.ofFloat(1f, 0f)
-            animation.addUpdateListener {
-                val scale = it.animatedValue as Float
-                releasedChild.left = (targetLeft + (curLeft - targetLeft) * scale).toInt()
-                releasedChild.top = (targetTop + (curTop - targetTop) * scale).toInt()
-                releasedChild.right = (releasedChild.left + targetWidth + (curWith - targetWidth) * scale).toInt()
-                releasedChild.bottom = (releasedChild.top + targetHeight + (curHeight - targetHeight) * scale).toInt()
-    //                    logE(TAG,"l:${releasedChild.left} r:${releasedChild.right}")
-            }
-            animation.addListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator?) {
-                    releasedChild.elevation = 3 * density
-
-//                    if (oldPosition.where == Position.POSITION_STORE &&
-//                        mapRole.position.where != Position.POSITION_STORE){
-//
-//                        releasedChild = createReadyRoleView(mapRole).apply {
-//                            left = releasedChild.left
-//                            top = releasedChild.top
-//                            right = releasedChild.right
-//                            bottom = releasedChild.bottom
-//                            addView(this)
-//                            removeView(releasedChild)
-//                            mapRoleViews[mapRole] = this
-//                        }
-//                        endFun.invoke()
-//                    }
-                    releasedChild.tag = MapRole.STATE_IDLE
-                }
-            })
-            animation.duration = 200
-            animation.start()
+        releasedChild.transAni(targetRect){
+            releasedChild.elevation = 3 * density
+            endFun.invoke()
+            releasedChild.tag = MapRole.STATE_IDLE
         }
     }
 
-    private fun roleViewMoveAni(releasedChild:View,targetPosition: Position,endFun: () -> Unit = {}){
-        //view对应的tag的position需要更新
-
-
-        val curLeft = releasedChild.left
-        val curTop = releasedChild.top
-        val curWith = releasedChild.width
-        val curHeight = releasedChild.height
-
-        val targetRect = mapDraw.getPhysicalRectByPosition(targetPosition)
-
-        targetRect.apply {
-            val targetLeft = left
-            val targetTop = top
-            val targetWidth = width()
-            val targetHeight = height()
-
-            val animation = ValueAnimator.ofFloat(1f, 0f)
-            animation.addUpdateListener {
-                val scale = it.animatedValue as Float
-                releasedChild.left = (targetLeft + (curLeft - targetLeft) * scale).toInt()
-                releasedChild.top = (targetTop + (curTop - targetTop) * scale).toInt()
-                releasedChild.right = (releasedChild.left + targetWidth + (curWith - targetWidth) * scale).toInt()
-                releasedChild.bottom = (releasedChild.top + targetHeight + (curHeight - targetHeight) * scale).toInt()
-            }
-            animation.addListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator?) {
-                    endFun.invoke()
-                }
-            })
-            animation.duration = 200
-            animation.start()
-        }
-    }
-
-    private val viewDragHelper = ViewDragHelper.create(this,dragCallback)
+    private val viewDragHelper = ViewDragHelper.create(this,2.0f,dragCallback)
 
     fun setGameMap(gameMap: GameMap){
         this.gameMap = gameMap
@@ -239,6 +162,7 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         mapDraw.initLayout(width,height)
+
         gameMap.combatZone.forEachCell {
             layoutChildView(it)
         }
@@ -254,6 +178,12 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     }
 
     private fun layoutChildView(mapRole: MapRole){
+//        mapDraw.getPhysicalPointByPosition(mapRole.position).apply {
+//            mapRoleViews[mapRole]?.apply {
+//                this.x
+//            }
+//        }
+
         mapDraw.getPhysicalRectByPosition(mapRole.position)
                 .apply {
                     mapRoleViews[mapRole]?.layout(left.toInt(), top.toInt(), right.toInt(), bottom.toInt())
@@ -293,14 +223,7 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     fun addEnemy(){
         gameMap.addEnemy()
         gameMap.combatZone.forEachCell {
-            mapRoleViews[it] = createReadyRoleView(it).apply {
-                val rect = mapDraw.getPhysicalRectByPosition(it.position)
-                left = rect.left.toInt()
-                top = rect.top.toInt()
-                right = rect.right.toInt()
-                bottom = rect.bottom.toInt()
-                addView(this)
-            }
+            mapRoleViews[it] = createReadyRoleView(it)
         }
     }
 
@@ -339,9 +262,9 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
             costTv.text = mapRole.role.cost.toString()
             root.layoutParams = layoutParams
             root.setOnClickListener {
-                val mapRole = getMapRoleByView(it)?:return@setOnClickListener
+                val clickMapRole = getMapRoleByView(it)?:return@setOnClickListener
                 val targetPosition = Position(Position.POSITION_READY,0)
-                roleMove(mapRole,targetPosition)
+                roleMove(clickMapRole,targetPosition)
             }
             addView(root)
         }
@@ -365,6 +288,15 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
 
         roleBinding.root.setOnClickListener {
             mapViewInterface.roleClick(mapRole)
+        }
+
+        val rect = mapDraw.getPhysicalRectByPosition(mapRole.position)
+        roleBinding.root.apply {
+            left = rect.left.toInt()
+            top = rect.top.toInt()
+            right = rect.right.toInt()
+            bottom = rect.bottom.toInt()
+            addView(this)
         }
         return roleBinding.root
     }
@@ -416,7 +348,8 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
                 if (viewState == MapRole.STATE_IDLE){
                     it.key.moveTarget?.apply {
                         it.value.tag = MapRole.STATE_MOVING
-                        roleViewMoveAni(it.value,Position(Position.POSITION_COMBAT,first,second)){
+                        val targetRect = mapDraw.getPhysicalRectByPosition(Position(Position.POSITION_COMBAT,first,second))
+                        it.value.transAni(targetRect){
                             it.value.tag = MapRole.STATE_IDLE
                         }
                     }

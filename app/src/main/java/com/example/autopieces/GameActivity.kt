@@ -13,7 +13,6 @@ import com.example.autopieces.logic.map.GameMap
 import com.example.autopieces.logic.map.MapRole
 import com.example.autopieces.logic.map.MapViewInterface
 import com.example.autopieces.logic.role.*
-import com.example.autopieces.utils.logE
 import com.example.autopieces.view.window.RoleInfoWindow
 import com.example.autopieces.viewmodel.GameViewModel
 import com.lmb.lmbkit.extend.toast
@@ -41,15 +40,10 @@ class GameActivity : BaseActivity() {
         initMapView()
 
         RolePool.init()
-        //商店进货 5个角色
-//        binding.mapView.updateStore(randomCreateRoles(player.level))
-        binding.mapView.updateStore(createSameRole(RoleName.MING_REN))
 
         initUIListener()
 
-        initEquipment()
-
-        initEnemy()
+        initElement()
 
         binding.startGameBt.setOnClickListener {
             val combat = Combat(viewModel.gameMap.combatZone)
@@ -76,26 +70,25 @@ class GameActivity : BaseActivity() {
         }
     }
 
-    private fun initEnemy() {
-        binding.mapView.postDelayed({
-            binding.mapView.addEnemy()
-        },200)
-    }
 
-
-    private fun initEquipment() {
+    private fun initElement() {
         binding.mapView.postDelayed({
+
+            //商店进货 5个角色
+            binding.mapView.updateStore(createSameRole(RoleName.MING_REN))
+
             val equipments = listOf(
                 Role(Equipment.KUWU),
                 Role(Equipment.SHOULIJIAN)
             )
             binding.mapView.addEquipment(equipments)
+
+            binding.mapView.addEnemy()
         },200)
     }
 
 
     private fun initMapView() {
-
         viewModel.gameMap.player = viewModel.getPlayer()
 
         binding.mapView.setGameMap(viewModel.gameMap)

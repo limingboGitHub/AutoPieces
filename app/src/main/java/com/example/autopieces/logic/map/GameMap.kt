@@ -120,13 +120,14 @@ class GameMap {
             }else
                 MoveResult(NO_CHANGE)
         }else if (targetPosition.where == Position.POSITION_EQUIPMENT){
+            val oldPosition = mapRole.position.copy()
+
             equipmentZone.removeRole(mapRole)
 
-            val oldIndex = mapRole.position.x
             val oldRole = equipmentZone.addRole(mapRole,targetPosition.x)?.apply {
-                equipmentZone.addRole(this,oldIndex)
+                equipmentZone.addRole(this,oldPosition.x)
             }
-            MoveResult(SUCCESS,oldRole)
+            MoveResult(SUCCESS,oldRole,oldPosition = oldPosition)
         }else
              MoveResult(NO_CHANGE)
     }
@@ -134,12 +135,14 @@ class GameMap {
     private fun equipEquipment(role: MapRole, equipmentRole: MapRole) =
             if (role.equipment.size < Equipment.EQUIP_MAX_NUM) {
                 role.equipment.add(equipmentRole.role)
-                MoveResult(SUCCESS).apply { removeRole.add(equipmentRole) }
+                MoveResult(SUCCESS,oldPosition = role.position.copy()).apply { removeRole.add(equipmentRole) }
             } else
                 MoveResult(NO_CHANGE)
 
 
     private fun fromStoreZone(mapRole: MapRole, targetPosition: Position):MoveResult{
+        val oldPosition = mapRole.position.copy()
+
         if (targetPosition.where != Position.POSITION_STORE
             && targetPosition.where != Position.POSITION_STORE_DOWN){
             if (player.money<mapRole.role.cost)
@@ -153,7 +156,8 @@ class GameMap {
                 storeZone.removeRole(mapRole)
                 tempMapRoles.add(mapRole)
 
-                val moveResult = MoveResult(SUCCESS).apply { removeRole.add(mapRole) }
+                val moveResult = MoveResult(SUCCESS, oldPosition = oldPosition)
+                    .apply { removeRole.add(mapRole) }
                 //升级
                 roleLevelUp(mapRole,moveResult.removeRole)
                 return moveResult
@@ -166,26 +170,26 @@ class GameMap {
             storeZone.removeRole(mapRole)
             readyZone.addRoleToFirstNotNull(mapRole)
 
-            return MoveResult(MoveResult.SUCCESS)
+            return MoveResult(SUCCESS,oldPosition = oldPosition)
         }else
             return MoveResult()
     }
 
     private fun fromReadyZone(mapRole: MapRole, targetPosition: Position):MoveResult{
+        val oldPosition = mapRole.position.copy()
         return when(targetPosition.where){
             Position.POSITION_STORE ->{
                 readyZone.removeRole(mapRole)
-                MoveResult(SUCCESS).apply { removeRole.add(mapRole) }
+                MoveResult(SUCCESS,oldPosition = oldPosition).apply { removeRole.add(mapRole) }
             }
             Position.POSITION_READY ->{
                 readyZone.removeRole(mapRole)
 
-                val oldIndex = mapRole.position.x
                 //放入准备区指定位置，如果有其他角色，则放到原来的位置
                 val oldRole = readyZone.addRole(mapRole,targetPosition.x)?.apply {
-                    readyZone.addRole(this,oldIndex)
+                    readyZone.addRole(this,oldPosition.x)
                 }
-                MoveResult(SUCCESS,oldRole)
+                MoveResult(SUCCESS,oldRole,oldPosition = oldPosition)
             }
             Position.POSITION_COMBAT ->{
                 //非自己的战斗半区无法拖入
@@ -197,48 +201,42 @@ class GameMap {
                     return MoveResult()
                 }
                 readyZone.removeRole(mapRole)
-                val oldIndex = mapRole.position.x
                 val oldRole = combatZone.addRole(mapRole,targetPosition.x,targetPosition.y)?.apply {
-                    readyZone.addRole(this,oldIndex)
+                    readyZone.addRole(this,oldPosition.x)
                 }
-                MoveResult(SUCCESS,oldRole)
+                MoveResult(SUCCESS,oldRole,oldPosition = oldPosition)
             }
             else -> MoveResult()
         }
     }
 
     private fun fromCombatZone(mapRole: MapRole, targetPosition: Position):MoveResult{
+        val oldPosition = mapRole.position.copy()
         return when (targetPosition.where) {
             Position.POSITION_STORE -> {
                 //拖入商店 出售
                 combatZone.removeRole(mapRole)
-                MoveResult(SUCCESS).apply { removeRole.add(mapRole) }
+                MoveResult(SUCCESS,oldPosition = oldPosition).apply { removeRole.add(mapRole) }
             }
             Position.POSITION_READY -> {
                 //拖入准备区
                 combatZone.removeRole(mapRole)
-                //mapRole原本的位置
-                val oldPositionX = mapRole.position.x
-                val oldPositionY = mapRole.position.y
 
                 val oldMapRole = readyZone.addRole(mapRole,targetPosition.x)
                 oldMapRole?.apply {
-                    combatZone.addRole(oldMapRole,oldPositionX,oldPositionY)
+                    combatZone.addRole(oldMapRole,oldPosition.x,oldPosition.y)
                 }
-                MoveResult(SUCCESS,oldMapRole)
+                MoveResult(SUCCESS,oldMapRole,oldPosition = oldPosition)
             }
             Position.POSITION_COMBAT -> {
                 if (combatZone.isNotMyRoleCombatZone(targetPosition))
                     return MoveResult()
                 combatZone.removeRole(mapRole)
-                //mapRole原本的位置
-                val oldPositionX = mapRole.position.x
-                val oldPositionY = mapRole.position.y
 
                 val oldMapRole = combatZone.addRole(mapRole,targetPosition.x,targetPosition.y)?.apply {
-                    combatZone.addRole(this,oldPositionX,oldPositionY)
+                    combatZone.addRole(this,oldPosition.x,oldPosition.y)
                 }
-                MoveResult(SUCCESS,oldMapRole)
+                MoveResult(SUCCESS,oldMapRole,oldPosition = oldPosition)
             }
             else -> MoveResult()
         }
@@ -268,13 +266,25 @@ class GameMap {
             //继续升级判定
             roleLevelUp(toLevelUpRole,removeRole)
         }else
-            MoveResult(SUCCESS)
+            MoveResult(SUCCESS,oldPosition = mapRole.position.copy())
     }
 
     class MoveResult(
         var result :Int = NO_CHANGE,
+        /**
+         * 互换位置的角色
+         */
         var exchangeRole: MapRole? = null,
-        var removeRole : ArrayList<MapRole> = ArrayList()
+
+        /**
+         * 从地图中删除了的角色
+         */
+        var removeRole : ArrayList<MapRole> = ArrayList(),
+
+        /**
+         * 移动之前的位置
+         */
+        var oldPosition: Position? = null
     ){
         companion object{
             val NO_CHANGE = 0
