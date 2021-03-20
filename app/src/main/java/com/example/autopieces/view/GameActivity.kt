@@ -42,22 +42,24 @@ class GameActivity : BaseActivity() {
         initElement()
 
         binding.startGameBt.setOnClickListener {
-            val combat = Combat(viewModel.gameMap.combatZone)
-            combat.start()
-            //开启一个定时器，每隔33ms获取一次战斗状况，刷新UI
             val handler = Handler(Looper.getMainLooper())
 
+            val combat = Combat(viewModel.gameMap.combatZone)
+            combat.start{
+                handler.post {
+                    binding.mapView.update(it)
+                }
+            }
+
+            //开启一个定时器，每隔33ms获取一次战斗状况，刷新UI
             binding.readyTimeProgress.max = combat.combatTime.toInt()
             binding.readyTimeProgress.progress = combat.combatTime.toInt()
             val timer = Timer()
             timer.schedule(object: TimerTask(){
                 override fun run() {
-
                     handler.post {
                         binding.readyTimeProgress.progress = combat.combatTime.toInt()
                         binding.readyTimeTv.text = (combat.combatTime/1000).toString()
-
-                        binding.mapView.update()
                     }
                     if (combat.isEnd()){
                         timer.cancel()

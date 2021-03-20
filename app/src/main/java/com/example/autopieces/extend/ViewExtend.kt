@@ -2,6 +2,7 @@ package com.example.autopieces.extend
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.graphics.Rect
 import android.graphics.RectF
@@ -52,4 +53,15 @@ fun View.attackAni(targetView:View?,endFun:()->Unit = {}){
         }
     })
     transAni.start()
+}
+
+fun View.deadAni(endFun:()->Unit = {}){
+    val alphaAni = ObjectAnimator.ofFloat(1f,0f)
+    alphaAni.duration = 200
+    alphaAni.addListener(object : AnimatorListenerAdapter(){
+        override fun onAnimationEnd(animation: Animator?) {
+            endFun.invoke()
+        }
+    })
+    alphaAni.start()
 }

@@ -1,7 +1,5 @@
 package com.example.autopieces.logic.map
 
-import com.example.autopieces.logic.role.createMovePlaceholder
-import com.example.autopieces.utils.logE
 import kotlin.math.abs
 import kotlin.math.max
 
@@ -25,73 +23,10 @@ class CombatZone(row:Int,col:Int) : TwoDimensionalZone(row,col){
     fun isTeamAmountToMax(roleLevel:Int):Boolean = teamOneAmount()>=roleLevel
 
     /**
-     * 开始行动
-     */
-    fun action(time:Int){
-        getAllRole().forEach {
-            if (!it.isAlive)
-                return@forEach
-
-            it.stateRestTime = (it.stateRestTime-time).coerceAtLeast(0)
-            //当前攻击状态
-            when(it.state){
-                MapRole.STATE_IDLE -> {
-                    val isFindRole = findRoleToAttack(it)
-                    if (isFindRole) {
-                        //进入前摇状态
-                        it.changeState(MapRole.STATE_BEFORE_ATTACK)
-                    } else {
-                        //进入移动状态
-                        findRoleToMove(it)?.apply {
-                            if (cells[second][first] == null) {
-                                addRole(createMovePlaceholder(), first, second)
-                                it.moveTarget = this
-                                it.changeState(MapRole.STATE_MOVING)
-                            }
-                        }
-                    }
-                }
-                MapRole.STATE_BEFORE_ATTACK->{
-                    if (it.stateRestTime<=0){
-                        //造成伤害
-                        it.hurtRole()
-                        //判定攻击者或者被攻击者是否死亡
-                        if (!it.isAlive)
-                            removeRole(it)
-                        it.attackRoles.forEach { attackRole->
-                            if (!attackRole.isAlive)
-                                removeRole(attackRole)
-                        }
-                        //进入后摇
-                        it.changeState(MapRole.STATE_AFTER_ATTACK)
-                    }
-                }
-                MapRole.STATE_AFTER_ATTACK->{
-                    if (it.stateRestTime<=0)
-                        it.changeState(MapRole.STATE_IDLE)
-                }
-                MapRole.STATE_MOVING ->{
-                    if (it.stateRestTime<=0){
-                        it.moveTarget?.apply {
-                            //从区域中旧位置删除，添加到新位置
-                            removeRole(it)
-                            addRole(it,this.first,this.second)
-                        }
-                        it.moveTarget = null
-                        it.changeState(MapRole.STATE_IDLE)
-                        logE(TAG,"${it.role.name}移动到了(${it.position.x},${it.position.y})")
-                    }
-                }
-            }
-        }
-    }
-
-
-    /**
      * 寻找攻击目标，并添加至攻击列表
      * @return true 找到目标 false 未找到
      */
-    private fun findRoleToAttack(mapRole: MapRole):Boolean{
+    fun findRoleToAttack(mapRole: MapRole):Boolean{
         val roleX = mapRole.position.x
         val roleY = mapRole.position.y
         //在攻击范围内寻找目标
@@ -100,11 +35,11 @@ class CombatZone(row:Int,col:Int) : TwoDimensionalZone(row,col){
             val toBeAttackedMapRole = cells[it.second][it.first]
             if (toBeAttackedMapRole!=null){
                 //攻击目标超过攻击数量上限，则寻找过程结束
-                if (mapRole.attackRoles.size>=mapRole.role.attackAmount ||
+                if (mapRole.beAttackedRoles.size>=mapRole.role.attackAmount ||
                     mapRole.flag == MapRole.FLAG_MOVE_PLACEHOLDER)
                     return true
-                mapRole.attackRoles.add(toBeAttackedMapRole)
-                if (mapRole.attackRoles.size>=mapRole.role.attackAmount)
+                mapRole.beAttackedRoles.add(toBeAttackedMapRole)
+                if (mapRole.beAttackedRoles.size>=mapRole.role.attackAmount)
                     return true
             }
         }

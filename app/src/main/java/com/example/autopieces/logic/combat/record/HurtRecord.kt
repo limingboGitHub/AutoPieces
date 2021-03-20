@@ -7,7 +7,7 @@ import com.example.autopieces.logic.map.MapRole
  * 角色受伤记录
  */
 class HurtRecord(
-    val hurtMapRole: MapRole,
+    val beHurtMapRole: MapRole,
     val damage: Damage
 ):CombatRecord() {
 }

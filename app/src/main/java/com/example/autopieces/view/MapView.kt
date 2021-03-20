@@ -1,8 +1,5 @@
 package com.example.autopieces.view
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.animation.ValueAnimator
 import android.content.Context
 import android.graphics.*
 import android.util.AttributeSet
@@ -17,7 +14,9 @@ import com.example.autopieces.databinding.ItemEquipmentBinding
 import com.example.autopieces.databinding.ItemReadyRoleBinding
 import com.example.autopieces.databinding.ItemStoreBinding
 import com.example.autopieces.extend.attackAni
+import com.example.autopieces.extend.deadAni
 import com.example.autopieces.extend.transAni
+import com.example.autopieces.logic.combat.record.*
 import com.example.autopieces.logic.map.GameMap
 import com.example.autopieces.logic.map.MapRole
 import com.example.autopieces.logic.map.MapViewInterface
@@ -345,43 +344,28 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     /**
      * 战斗状态更新
      */
-    fun update() {
-        mapRoleViews.filter {
-            it.key.position.where == Position.POSITION_COMBAT
-        }.forEach {
-            //TODO findViewById是一个高开销的操作，需要优化
-            //血量更新
-            val hpProgressTV = it.value.findViewById<LinearProgressIndicator>(R.id.hp_progress)
-            if (it.key.role.curHP!=hpProgressTV.progress){
-                hpProgressTV.progress = it.key.role.curHP
+    fun update(combatRecord: CombatRecord) {
+        when{
+            combatRecord is MoveRecord -> {
+                mapRoleViews[combatRecord.mapRole]?.transAni(mapDraw.getPhysicalRectByPosition(combatRecord.targetPosition))
             }
-
-
-            if (it.key.state == MapRole.STATE_MOVING){
-                val viewState = it.value.tag as Int
-                if (viewState == MapRole.STATE_IDLE){
-                    it.key.moveTarget?.apply {
-                        it.value.tag = MapRole.STATE_MOVING
-                        val targetRect = mapDraw.getPhysicalRectByPosition(Position(Position.POSITION_COMBAT,first,second))
-                        it.value.transAni(targetRect){
-                            it.value.tag = MapRole.STATE_IDLE
-                        }
-                    }
+            combatRecord is AttackRecord ->{
+                mapRoleViews[combatRecord.attackMapRole]?.attackAni(mapRoleViews[combatRecord.beAttackedMapRoles[0]])
+            }
+            combatRecord is DeadRecord ->{
+                mapRoleViews[combatRecord.mapRole]?.deadAni{
+                    //死亡动画播完后删除视图
+                    removeRoleView(mapRoleViews.remove(combatRecord.mapRole))
                 }
             }
-            else if (it.key.state == MapRole.STATE_BEFORE_ATTACK){
-                val viewState = it.value.tag as Int
-                if (viewState == MapRole.STATE_IDLE){
-                    it.value.tag = MapRole.STATE_BEFORE_ATTACK
-                    logE(TAG,"${it.key.role.name} 攻击动画")
-                    it.value.attackAni(mapRoleViews[it.key.attackRoles[0]]){
-                        it.value.tag = MapRole.STATE_IDLE
-                    }
+            combatRecord is HurtRecord ->{
+                mapRoleViews[combatRecord.beHurtMapRole]?.apply {
+                    //血量更新
+                    val hpProgressTV = findViewById<LinearProgressIndicator>(R.id.hp_progress)
+                    hpProgressTV.progress = combatRecord.beHurtMapRole.role.curHP
                 }
             }
-            if (!it.key.isAlive){
-                removeRoleView(mapRoleViews.remove(it.key))
-            }
+            else ->{}
         }
     }
 }

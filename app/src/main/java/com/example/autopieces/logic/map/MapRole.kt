@@ -33,7 +33,7 @@ class MapRole(
     /**
      * 攻击目标
      */
-    var attackRoles : ArrayList<MapRole> = ArrayList(),
+    var beAttackedRoles : ArrayList<MapRole> = ArrayList(),
 
     /**
      * 移动目标位置
@@ -85,20 +85,6 @@ class MapRole(
 
     val TAG = "MapRole"
 
-    fun hurtRole(){
-        attackRoles.forEach {
-            val damageValue = role.physicalAttack - it.role.physicalDefense
-            it.beHurt(Damage(damageValue))
-            logE(TAG,"${role.name}攻击了 ${it.role.name},造成${damageValue}点伤害")
-        }
-    }
-
-    fun beHurt(damage: Damage){
-        role.curHP = (role.curHP-damage.value).coerceAtLeast(0)
-        if (role.curHP <= 0){
-            isAlive = false
-        }
-    }
 
     fun changeState(attackState:Int){
         this.state = attackState
