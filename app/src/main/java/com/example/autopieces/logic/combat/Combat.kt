@@ -1,9 +1,7 @@
 package com.example.autopieces.logic.combat
 
-import android.util.Log
+import com.example.autopieces.logic.combat.record.CombatRecord
 import com.example.autopieces.logic.map.CombatZone
-import com.example.autopieces.logic.map.MapRole
-import com.example.autopieces.utils.logD
 import com.example.autopieces.utils.logE
 
 class Combat(
@@ -25,6 +23,12 @@ class Combat(
      * 行动时间
      */
     var lastActionTime = 0L
+
+    /**
+     * 战斗记录
+     * 每个事件都会被记录下来，供UI层使用
+     */
+    var combatRecordList = ArrayList<CombatRecord>()
 
     /**
      * 战斗线程

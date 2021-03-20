@@ -24,6 +24,7 @@ import com.example.autopieces.logic.map.MapViewInterface
 import com.example.autopieces.logic.map.Position
 import com.example.autopieces.logic.role.Role
 import com.example.autopieces.utils.*
+import com.google.android.material.progressindicator.LinearProgressIndicator
 import com.lmb.lmbkit.extend.toast
 import com.lmb.lmbkit.utils.getDensity
 import kotlin.text.StringBuilder
@@ -285,6 +286,11 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         //显示背景
         roleBinding.root.setBackgroundResource(backgroundRes(mapRole.role.cost))
         roleBinding.root.tag = MapRole.STATE_IDLE
+        //血量
+        roleBinding.hpProgress.max = mapRole.role.maxHP
+        roleBinding.hpProgress.progress = mapRole.role.maxHP
+        roleBinding.mpProgress.max = mapRole.role.maxMP
+        roleBinding.mpProgress.progress = mapRole.role.maxMP
 
         roleBinding.root.setOnClickListener {
             mapViewInterface.roleClick(mapRole)
@@ -343,6 +349,14 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         mapRoleViews.filter {
             it.key.position.where == Position.POSITION_COMBAT
         }.forEach {
+            //TODO findViewById是一个高开销的操作，需要优化
+            //血量更新
+            val hpProgressTV = it.value.findViewById<LinearProgressIndicator>(R.id.hp_progress)
+            if (it.key.role.curHP!=hpProgressTV.progress){
+                hpProgressTV.progress = it.key.role.curHP
+            }
+
+
             if (it.key.state == MapRole.STATE_MOVING){
                 val viewState = it.value.tag as Int
                 if (viewState == MapRole.STATE_IDLE){
