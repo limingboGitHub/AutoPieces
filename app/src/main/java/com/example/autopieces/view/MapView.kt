@@ -6,7 +6,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
+import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.customview.widget.ViewDragHelper
 import com.example.autopieces.R
@@ -14,8 +14,10 @@ import com.example.autopieces.databinding.ItemEquipmentBinding
 import com.example.autopieces.databinding.ItemReadyRoleBinding
 import com.example.autopieces.databinding.ItemStoreBinding
 import com.example.autopieces.extend.attackAni
+import com.example.autopieces.extend.damageAni
 import com.example.autopieces.extend.deadAni
 import com.example.autopieces.extend.transAni
+import com.example.autopieces.logic.combat.Damage
 import com.example.autopieces.logic.combat.record.*
 import com.example.autopieces.logic.map.GameMap
 import com.example.autopieces.logic.map.MapRole
@@ -28,7 +30,7 @@ import com.lmb.lmbkit.extend.toast
 import com.lmb.lmbkit.utils.getDensity
 import kotlin.text.StringBuilder
 
-class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs) {
+class MapView(context: Context, attrs: AttributeSet?) : RelativeLayout(context, attrs) {
     private val TAG = "MapView"
 
     /**
@@ -114,7 +116,7 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
                 if (where == Position.POSITION_STORE &&
                     mapRole.position.where != Position.POSITION_STORE){
                     val oldView = mapRoleViews[mapRole]?:return@apply
-                    mapRoleViews[mapRole] = createReadyRoleView(mapRole)
+                    createReadyRoleView(mapRole)
                     removeView(oldView)
                 }
             }
@@ -161,33 +163,32 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     }
 
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+        super.onLayout(changed, l, t, r, b)
         mapDraw.initLayout(width,height)
 
         gameMap.combatZone.forEachCell {
-            layoutChildView(it)
+            layoutRoleView(it)
         }
         gameMap.readyZone.forEachCell{
-            layoutChildView(it)
+            layoutRoleView(it)
         }
         gameMap.equipmentZone.forEachCell {
-            layoutChildView(it)
+            layoutRoleView(it)
         }
         gameMap.storeZone.forEachCell {
-            layoutChildView(it)
+            layoutRoleView(it)
         }
     }
 
-    private fun layoutChildView(mapRole: MapRole){
-//        mapDraw.getPhysicalPointByPosition(mapRole.position).apply {
-//            mapRoleViews[mapRole]?.apply {
-//                this.x
-//            }
-//        }
-
-        mapDraw.getPhysicalRectByPosition(mapRole.position)
-                .apply {
-                    mapRoleViews[mapRole]?.layout(left.toInt(), top.toInt(), right.toInt(), bottom.toInt())
-                }
+    private fun layoutRoleView(mapRole: MapRole){
+        val point = mapDraw.getPhysicalPointByPosition(mapRole.position)
+        mapRoleViews[mapRole]?.apply {
+            x = (point.first - width/2)
+            y = (point.second - height/2)
+            logE(TAG,"left:$left right:$right")
+            left = (point.first - width/2).toInt()
+            top = (point.second - height/2).toInt()
+        }
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -207,7 +208,7 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         //刷新商店
         gameMap.updateStore(roles)
         gameMap.storeZone.forEachCell {
-            mapRoleViews[it] = createRoleView(it)
+            createRoleView(it)
         }
     }
 
@@ -223,7 +224,7 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     fun addEnemy(){
         gameMap.addEnemy()
         gameMap.combatZone.forEachCell {
-            mapRoleViews[it] = createReadyRoleView(it)
+            createReadyRoleView(it)
         }
     }
 
@@ -238,9 +239,9 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         equipBinding.apply {
             nameTv.text = mapRole.role.name
             root.layoutParams = layoutParams
-//            root.setOnClickListener {
-//
-//            }
+            root.setOnClickListener {
+                it.damageAni(this@MapView, Damage(10))
+            }
             addView(root)
         }
         equipBinding.root.tag = MapRole.STATE_IDLE
@@ -267,16 +268,16 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
                 roleMove(clickMapRole,targetPosition)
             }
             addView(root)
+            mapRoleViews[mapRole] = root
         }
-        storeBinding.root.tag = MapRole.STATE_IDLE
+        layoutRoleView(mapRole)
         return storeBinding.root
     }
 
     fun createReadyRoleView(mapRole: MapRole):View{
         val roleBinding = ItemReadyRoleBinding.inflate(LayoutInflater.from(context),this,false)
-        val layoutParams = LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT)
-        layoutParams.width = mapDraw.getReadyCellWidth().toInt()
-        layoutParams.height = mapDraw.getReadyCellWidth().toInt()
+
+        val layoutParams = LayoutParams(mapDraw.getReadyCellWidth().toInt(),mapDraw.getReadyCellWidth().toInt())
         roleBinding.root.layoutParams = layoutParams
 
         roleBinding.nameTv.text = mapRole.role.name
@@ -295,14 +296,11 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
             mapViewInterface.roleClick(mapRole)
         }
 
-        val rect = mapDraw.getPhysicalRectByPosition(mapRole.position)
-        roleBinding.root.apply {
-            left = rect.left.toInt()
-            top = rect.top.toInt()
-            right = rect.right.toInt()
-            bottom = rect.bottom.toInt()
-            addView(this)
-        }
+        addView(roleBinding.root)
+        mapRoleViews[mapRole] = roleBinding.root
+
+        layoutRoleView(mapRole)
+
         return roleBinding.root
     }
 
@@ -325,7 +323,7 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
-        return viewDragHelper.shouldInterceptTouchEvent(ev) || super.onInterceptTouchEvent(ev)
+        return viewDragHelper.shouldInterceptTouchEvent(ev)
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
@@ -363,6 +361,8 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
                     //血量更新
                     val hpProgressTV = findViewById<LinearProgressIndicator>(R.id.hp_progress)
                     hpProgressTV.progress = combatRecord.beHurtMapRole.role.curHP
+                    //伤害飘血动画
+                    this.damageAni(this@MapView,combatRecord.damage)
                 }
             }
             else ->{}

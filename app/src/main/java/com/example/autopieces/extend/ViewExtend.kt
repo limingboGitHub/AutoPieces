@@ -4,9 +4,14 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
+import android.graphics.Color
 import android.graphics.Rect
 import android.graphics.RectF
 import android.view.View
+import android.view.ViewGroup
+import android.widget.LinearLayout
+import android.widget.TextView
+import com.example.autopieces.logic.combat.Damage
 
 fun View.transAni(targetRect: RectF, endFun: () -> Unit = {}){
     val curLeft = left
@@ -64,4 +69,35 @@ fun View.deadAni(endFun:()->Unit = {}){
         }
     })
     alphaAni.start()
+}
+
+/**
+ * 伤害动画
+ */
+fun View.damageAni(rootViewGroup:ViewGroup,damage: Damage){
+    val textView = TextView(rootViewGroup.context)
+    textView.text = damage.value.toString()
+    textView.textSize = 12f
+    textView.setTextColor(Color.RED)
+    val layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT)
+    textView.layoutParams = layoutParams
+
+    rootViewGroup.addView(textView)
+
+//    textView.x = this.x
+//    textView.y = this.y
+//
+//    val animator = ValueAnimator.ofFloat(0f,1f)
+//    animator.duration = 1000
+//    animator.addUpdateListener {
+//        val scale = it.animatedValue as Float
+//        textView.translationX = scale * 100
+//        textView.translationY = scale * 100
+//    }
+//    animator.addListener(object : AnimatorListenerAdapter(){
+//        override fun onAnimationEnd(animation: Animator?) {
+//            rootViewGroup.removeView(textView)
+//        }
+//    })
+//    animator.start()
 }
