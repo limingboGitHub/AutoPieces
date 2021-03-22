@@ -56,7 +56,7 @@ fun View.attackAni(targetView:View?,endFun:()->Unit = {}){
 }
 
 fun View.deadAni(endFun:()->Unit = {}){
-    val alphaAni = ObjectAnimator.ofFloat(1f,0f)
+    val alphaAni = ObjectAnimator.ofFloat(this,"alpha",1f,0f)
     alphaAni.duration = 200
     alphaAni.addListener(object : AnimatorListenerAdapter(){
         override fun onAnimationEnd(animation: Animator?) {
