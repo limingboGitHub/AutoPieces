@@ -15,7 +15,7 @@ class Combat(
     /**
      * 战斗时间30秒
      */
-    var combatTime : Long = 10 * 1000
+    var combatTime : Long = 30 * 1000
 
     /**
      * 加时时长
@@ -23,13 +23,15 @@ class Combat(
     var extraTime : Long = 10 * 1000
 
     /**
-     * 行动时间
+     * 上次行动的时间
      */
     var lastActionTime = 0L
 
     /**
      * 战斗记录
      * 每个事件都会被记录下来，供UI层使用
+     * 如果我们完全不考虑UI层的话，这个变量是不需要的
+     * 但是这个战斗记录机制会很方便UI层展示
      */
     var combatRecordList = ArrayList<CombatRecord>()
 
@@ -52,9 +54,7 @@ class Combat(
 
             actionTime = System.currentTimeMillis() - lastActionTime
             combatTime = (combatTime - actionTime).coerceAtLeast(0)
-//            logE(TAG,"战斗剩余时间:${combatTime/1000}")
         }
-        logE(TAG,"战斗时间结束")
     }, "combatThread")
 
     /**
@@ -77,17 +77,18 @@ class Combat(
         combatZone.getAllRole().forEach {
             if (!it.isAlive)
                 return@forEach
-
+            //棋子当前状态的剩余时间消耗
             it.stateRestTime = (it.stateRestTime-time).coerceAtLeast(0)
-            //当前攻击状态
+            //棋子当前状态
             when(it.state){
                 MapRole.STATE_IDLE -> {
+                    //寻找攻击目标，如果失败，则准备移动
                     val isFindRole = combatZone.findRoleToAttack(it)
                     if (isFindRole) {
                         //进入前摇状态
                         it.changeState(MapRole.STATE_BEFORE_ATTACK)
                     } else {
-                        //进入移动状态
+                        //找到最近的目标并进入移动状态
                         combatZone.findRoleToMove(it)?.apply {
                             if (combatZone.getRoleByIndex(first,second) == null) {
                                 combatZone.addRole(createMovePlaceholder(), first, second)
@@ -98,6 +99,7 @@ class Combat(
                     }
                 }
                 MapRole.STATE_BEFORE_ATTACK->{
+                    //如果攻击前摇结束，则造成伤害
                     if (it.stateRestTime<=0){
                         //生成一条攻击记录
                         addCombatRecord(AttackRecord(it,it.beAttackedRoles))
@@ -108,10 +110,12 @@ class Combat(
                     }
                 }
                 MapRole.STATE_AFTER_ATTACK->{
+                    //攻击后摇结束
                     if (it.stateRestTime<=0)
                         it.changeState(MapRole.STATE_IDLE)
                 }
                 MapRole.STATE_MOVING ->{
+                    //移动时间结束，移动到目标位置
                     if (it.stateRestTime<=0){
                         it.moveTarget?.apply {
                             //增加一条移动记录
@@ -122,7 +126,6 @@ class Combat(
                         }
                         it.moveTarget = null
                         it.changeState(MapRole.STATE_IDLE)
-                        logE(TAG,"${it.role.name}移动到了(${it.position.x},${it.position.y})")
                     }
                 }
             }

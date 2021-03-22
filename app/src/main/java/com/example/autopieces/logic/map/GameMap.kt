@@ -1,9 +1,9 @@
 package com.example.autopieces.logic.map
 
-import com.example.autopieces.logic.Equipment
+import com.example.autopieces.logic.equipment.EquipmentName
 import com.example.autopieces.logic.Player
-import com.example.autopieces.logic.map.GameMap.MoveResult.Companion.NO_CHANGE
-import com.example.autopieces.logic.map.GameMap.MoveResult.Companion.SUCCESS
+import com.example.autopieces.logic.map.GameMap.DragResult.Companion.NO_CHANGE
+import com.example.autopieces.logic.map.GameMap.DragResult.Companion.SUCCESS
 import com.example.autopieces.logic.role.Role
 import com.example.autopieces.logic.role.RoleName
 
@@ -89,9 +89,9 @@ class GameMap {
     }
 
     /**
-     * 棋子移动
+     * 拖动移动
      */
-    fun roleMove(mapRole: MapRole,targetPosition: Position):MoveResult{
+    fun dragRole(mapRole: MapRole, targetPosition: Position):DragResult{
 
         return when(mapRole.position.where){
             Position.POSITION_STORE -> fromStoreZone(mapRole,targetPosition)
@@ -102,23 +102,23 @@ class GameMap {
 
             Position.POSITION_EQUIPMENT -> fromEquipmentZone(mapRole,targetPosition)
 
-            else -> MoveResult()
+            else -> DragResult()
         }
     }
 
-    private fun fromEquipmentZone(mapRole: MapRole, targetPosition: Position): MoveResult {
+    private fun fromEquipmentZone(mapRole: MapRole, targetPosition: Position): DragResult {
         return if (targetPosition.where == Position.POSITION_COMBAT){
             val combatRole = combatZone.getRoleByIndex(targetPosition.x,targetPosition.y)
             if (combatRole != null){
                 equipEquipment(combatRole, mapRole)
             }else
-                MoveResult(NO_CHANGE)
+                DragResult(NO_CHANGE)
         }else if (targetPosition.where == Position.POSITION_READY){
             val readyRole = readyZone.getRoleByIndex(targetPosition.x)
             if (readyRole != null){
                 equipEquipment(readyRole,mapRole)
             }else
-                MoveResult(NO_CHANGE)
+                DragResult(NO_CHANGE)
         }else if (targetPosition.where == Position.POSITION_EQUIPMENT){
             val oldPosition = mapRole.position.copy()
 
@@ -127,26 +127,26 @@ class GameMap {
             val oldRole = equipmentZone.addRole(mapRole,targetPosition.x)?.apply {
                 equipmentZone.addRole(this,oldPosition.x)
             }
-            MoveResult(SUCCESS,oldRole,oldPosition = oldPosition)
+            DragResult(SUCCESS,oldRole,oldPosition = oldPosition)
         }else
-             MoveResult(NO_CHANGE)
+             DragResult(NO_CHANGE)
     }
 
     private fun equipEquipment(role: MapRole, equipmentRole: MapRole) =
-            if (role.equipment.size < Equipment.EQUIP_MAX_NUM) {
+            if (role.equipment.size < EquipmentName.EQUIP_MAX_NUM) {
                 role.equipment.add(equipmentRole.role)
-                MoveResult(SUCCESS,oldPosition = role.position.copy()).apply { removeRole.add(equipmentRole) }
+                DragResult(SUCCESS,oldPosition = role.position.copy()).apply { removeRole.add(equipmentRole) }
             } else
-                MoveResult(NO_CHANGE)
+                DragResult(NO_CHANGE)
 
 
-    private fun fromStoreZone(mapRole: MapRole, targetPosition: Position):MoveResult{
+    private fun fromStoreZone(mapRole: MapRole, targetPosition: Position):DragResult{
         val oldPosition = mapRole.position.copy()
 
         if (targetPosition.where != Position.POSITION_STORE
             && targetPosition.where != Position.POSITION_STORE_DOWN){
             if (player.money<mapRole.role.cost)
-                return MoveResult(MoveResult.MONEY_NOT_ENOUGH)
+                return DragResult(DragResult.MONEY_NOT_ENOUGH)
             //是否可以合成
             val sampleLevelRolesInReadyZone = readyZone.getSameLevelRoles(mapRole)
             val sampleLevelRolesInCombatZone = combatZone.getSameLevelRoles(mapRole)
@@ -156,7 +156,7 @@ class GameMap {
                 storeZone.removeRole(mapRole)
                 tempMapRoles.add(mapRole)
 
-                val moveResult = MoveResult(SUCCESS, oldPosition = oldPosition)
+                val moveResult = DragResult(SUCCESS, oldPosition = oldPosition)
                     .apply { removeRole.add(mapRole) }
                 //升级
                 roleLevelUp(mapRole,moveResult.removeRole)
@@ -164,23 +164,23 @@ class GameMap {
             }
 
             if (readyZone.isFull())
-                return MoveResult(MoveResult.READY_ZONE_FULL)
+                return DragResult(DragResult.READY_ZONE_FULL)
 
             player.money -= mapRole.role.cost
             storeZone.removeRole(mapRole)
             readyZone.addRoleToFirstNotNull(mapRole)
 
-            return MoveResult(SUCCESS,oldPosition = oldPosition)
+            return DragResult(SUCCESS,oldPosition = oldPosition)
         }else
-            return MoveResult()
+            return DragResult()
     }
 
-    private fun fromReadyZone(mapRole: MapRole, targetPosition: Position):MoveResult{
+    private fun fromReadyZone(mapRole: MapRole, targetPosition: Position):DragResult{
         val oldPosition = mapRole.position.copy()
         return when(targetPosition.where){
             Position.POSITION_STORE ->{
                 readyZone.removeRole(mapRole)
-                MoveResult(SUCCESS,oldPosition = oldPosition).apply { removeRole.add(mapRole) }
+                DragResult(SUCCESS,oldPosition = oldPosition).apply { removeRole.add(mapRole) }
             }
             Position.POSITION_READY ->{
                 readyZone.removeRole(mapRole)
@@ -189,34 +189,34 @@ class GameMap {
                 val oldRole = readyZone.addRole(mapRole,targetPosition.x)?.apply {
                     readyZone.addRole(this,oldPosition.x)
                 }
-                MoveResult(SUCCESS,oldRole,oldPosition = oldPosition)
+                DragResult(SUCCESS,oldRole,oldPosition = oldPosition)
             }
             Position.POSITION_COMBAT ->{
                 //非自己的战斗半区无法拖入
                 if (combatZone.isNotMyRoleCombatZone(targetPosition))
-                    return MoveResult()
+                    return DragResult()
                 //参战棋子已达上限
                 if (combatZone.getRoleByIndex(targetPosition.x,targetPosition.y)==null
                     && combatZone.isTeamAmountToMax(player.level)){
-                    return MoveResult()
+                    return DragResult()
                 }
                 readyZone.removeRole(mapRole)
                 val oldRole = combatZone.addRole(mapRole,targetPosition.x,targetPosition.y)?.apply {
                     readyZone.addRole(this,oldPosition.x)
                 }
-                MoveResult(SUCCESS,oldRole,oldPosition = oldPosition)
+                DragResult(SUCCESS,oldRole,oldPosition = oldPosition)
             }
-            else -> MoveResult()
+            else -> DragResult()
         }
     }
 
-    private fun fromCombatZone(mapRole: MapRole, targetPosition: Position):MoveResult{
+    private fun fromCombatZone(mapRole: MapRole, targetPosition: Position):DragResult{
         val oldPosition = mapRole.position.copy()
         return when (targetPosition.where) {
             Position.POSITION_STORE -> {
                 //拖入商店 出售
                 combatZone.removeRole(mapRole)
-                MoveResult(SUCCESS,oldPosition = oldPosition).apply { removeRole.add(mapRole) }
+                DragResult(SUCCESS,oldPosition = oldPosition).apply { removeRole.add(mapRole) }
             }
             Position.POSITION_READY -> {
                 //拖入准备区
@@ -226,19 +226,19 @@ class GameMap {
                 oldMapRole?.apply {
                     combatZone.addRole(oldMapRole,oldPosition.x,oldPosition.y)
                 }
-                MoveResult(SUCCESS,oldMapRole,oldPosition = oldPosition)
+                DragResult(SUCCESS,oldMapRole,oldPosition = oldPosition)
             }
             Position.POSITION_COMBAT -> {
                 if (combatZone.isNotMyRoleCombatZone(targetPosition))
-                    return MoveResult()
+                    return DragResult()
                 combatZone.removeRole(mapRole)
 
                 val oldMapRole = combatZone.addRole(mapRole,targetPosition.x,targetPosition.y)?.apply {
                     combatZone.addRole(this,oldPosition.x,oldPosition.y)
                 }
-                MoveResult(SUCCESS,oldMapRole,oldPosition = oldPosition)
+                DragResult(SUCCESS,oldMapRole,oldPosition = oldPosition)
             }
-            else -> MoveResult()
+            else -> DragResult()
         }
     }
 
@@ -266,10 +266,14 @@ class GameMap {
             //继续升级判定
             roleLevelUp(toLevelUpRole,removeRole)
         }else
-            MoveResult(SUCCESS,oldPosition = mapRole.position.copy())
+            DragResult(SUCCESS,oldPosition = mapRole.position.copy())
     }
 
-    class MoveResult(
+    /**
+     * 棋子拖动的结果
+     * 是否成功，是否需要互换，是否需要删除等
+     */
+    class DragResult(
         var result :Int = NO_CHANGE,
         /**
          * 互换位置的角色
@@ -277,7 +281,7 @@ class GameMap {
         var exchangeRole: MapRole? = null,
 
         /**
-         * 从地图中删除了的角色
+         * 需要删除的角色
          */
         var removeRole : ArrayList<MapRole> = ArrayList(),
 

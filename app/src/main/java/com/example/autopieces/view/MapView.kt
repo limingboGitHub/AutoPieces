@@ -99,18 +99,18 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
         mapRole: MapRole,
         targetPosition: Position
     ) {
-        val moveResult = gameMap.roleMove(mapRole, targetPosition)
+        val dragResult = gameMap.dragRole(mapRole, targetPosition)
         //分析移动结果
-        when (moveResult.result) {
-            GameMap.MoveResult.MONEY_NOT_ENOUGH -> context.toast(R.string.your_money_is_not_enough)
+        when (dragResult.result) {
+            GameMap.DragResult.MONEY_NOT_ENOUGH -> context.toast(R.string.your_money_is_not_enough)
         }
         //需要删除的角色
-        moveResult.removeRole.forEach {
+        dragResult.removeRole.forEach {
             removeRoleView(mapRoleViews.remove(it))
         }
         //归位
         moveRoleViewAni(mapRole) {
-            moveResult.oldPosition?.apply {
+            dragResult.oldPosition?.apply {
                 if (where == Position.POSITION_STORE &&
                     mapRole.position.where != Position.POSITION_STORE){
                     val oldView = mapRoleViews[mapRole]?:return@apply
@@ -120,7 +120,7 @@ class MapView(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs
             }
             updateRoleView()
         }
-        moveResult.exchangeRole?.apply { moveRoleViewAni(this) }
+        dragResult.exchangeRole?.apply { moveRoleViewAni(this) }
     }
 
     private fun updateRoleView() {

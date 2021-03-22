@@ -1,6 +1,6 @@
-package com.example.autopieces.logic
+package com.example.autopieces.logic.equipment
 
-class Equipment{
+class EquipmentName{
 
     companion object{
         const val EQUIP_MAX_NUM = 3

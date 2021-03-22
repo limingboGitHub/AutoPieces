@@ -51,9 +51,6 @@ class CombatZoneTest {
         assertEquals(MapRole.STATE_BEFORE_ATTACK,teamTwoRole.state)
 
         //模拟经过250ms
-//        teamOneRole.stateRestTime = 0
-//        teamTwoRole.stateRestTime = 0
-
         combat.action(250)
         //相互受到伤害
         assertEquals(70,teamOneRole.role.curHP)
@@ -77,9 +74,12 @@ class CombatZoneTest {
         //两个阵营分别添加两个角色
         combatZone.addRole(teamOneRole,2,6)
         combatZone.addRole(teamTwoRole,4,1)
-        val combat = Combat(combatZone)
 
+        //开启一场战斗
+        val combat = Combat(combatZone)
+        //各个角色行动一次
         combat.action(0)
+        //模拟经过了500ms，再看看行动结果
         combat.action(teamOneRole.role.moveSpeed)
         assertEquals(2,teamOneRole.position.x)
         assertEquals(5,teamOneRole.position.y)
@@ -89,8 +89,10 @@ class CombatZoneTest {
         assertEquals(2,teamTwoRole.position.y)
         assertEquals(MapRole.STATE_IDLE,teamTwoRole.state)
 
+        //再次行动，并经过了500ms
         combat.action(0)
         combat.action(teamOneRole.role.moveSpeed)
+
         assertEquals(2,teamOneRole.position.x)
         assertEquals(4,teamOneRole.position.y)
         assertEquals(MapRole.STATE_IDLE,teamOneRole.state)
@@ -99,8 +101,8 @@ class CombatZoneTest {
         assertEquals(3,teamTwoRole.position.y)
         assertEquals(MapRole.STATE_IDLE,teamTwoRole.state)
 
+        //再次行动，并经过了500ms,这次两个目标应该是相遇了
         combat.action(0)
-
         combat.action(teamOneRole.role.moveSpeed)
         assertEquals(3,teamOneRole.position.x)
         assertEquals(4,teamOneRole.position.y)
@@ -110,16 +112,19 @@ class CombatZoneTest {
         assertEquals(3,teamTwoRole.position.y)
         assertEquals(MapRole.STATE_IDLE,teamTwoRole.state)
 
+        //再次行动，两个角色准备开始相互攻击
         combat.action(0)
-        //两个角色开始相互攻击
         assertEquals(MapRole.STATE_BEFORE_ATTACK,teamOneRole.state)
         assertEquals(MapRole.STATE_BEFORE_ATTACK,teamTwoRole.state)
+
+        //模拟经过了攻击前摇所需的时间，角色应该受伤了
         combat.action(teamOneRole.role.beforeAttackTime)
         assertEquals(70,teamOneRole.role.curHP)
         assertEquals(70,teamTwoRole.role.curHP)
         assertEquals(MapRole.STATE_AFTER_ATTACK,teamOneRole.state)
         assertEquals(MapRole.STATE_AFTER_ATTACK,teamTwoRole.state)
 
+        //模拟经过了攻击后摇所需时间
         combat.action(teamOneRole.role.afterAttackTime)
         assertEquals(MapRole.STATE_IDLE,teamOneRole.state)
         assertEquals(MapRole.STATE_IDLE,teamTwoRole.state)
@@ -145,6 +150,7 @@ class CombatZoneTest {
         assertEquals(0,teamOneRole.role.curHP)
         assertEquals(10,teamTwoRole.role.curHP)
 
+        //战斗结束
         assert(combatZone.isCombatEnd())
     }
 }

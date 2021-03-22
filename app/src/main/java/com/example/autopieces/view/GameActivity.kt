@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.activity.viewModels
 import com.example.autopieces.R
 import com.example.autopieces.databinding.ActivityGameBinding
-import com.example.autopieces.logic.Equipment
+import com.example.autopieces.logic.equipment.EquipmentName
 import com.example.autopieces.logic.combat.Combat
 import com.example.autopieces.logic.map.GameMap
 import com.example.autopieces.logic.map.MapRole
@@ -79,8 +79,8 @@ class GameActivity : BaseActivity() {
             binding.mapView.updateStore(createRandomRoles(1))
             //添加两件装备在装备栏
             val equipments = listOf(
-                Role(Equipment.KUWU),
-                Role(Equipment.SHOULIJIAN)
+                Role(EquipmentName.KUWU),
+                Role(EquipmentName.SHOULIJIAN)
             )
             binding.mapView.addEquipment(equipments)
             //添加一个杂兵
