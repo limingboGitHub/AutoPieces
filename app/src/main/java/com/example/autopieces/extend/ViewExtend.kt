@@ -5,13 +5,13 @@ import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.graphics.Color
-import android.graphics.Rect
 import android.graphics.RectF
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
+import android.view.animation.AccelerateInterpolator
 import android.widget.TextView
 import com.example.autopieces.logic.combat.Damage
+import com.example.autopieces.view.Layer
 
 fun View.transAni(targetRect: RectF, endFun: () -> Unit = {}){
     val curLeft = left
@@ -75,29 +75,35 @@ fun View.deadAni(endFun:()->Unit = {}){
  * 伤害动画
  */
 fun View.damageAni(rootViewGroup:ViewGroup,damage: Damage){
-    val textView = TextView(rootViewGroup.context)
-    textView.text = damage.value.toString()
-    textView.textSize = 12f
-    textView.setTextColor(Color.RED)
-    val layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT)
-    textView.layoutParams = layoutParams
+    val textView = TextView(rootViewGroup.context).apply {
+        text = damage.value.toString()
+        textSize = 12f
+        setTextColor(Color.RED)
+        elevation = Layer.DAMAGE
+    }
 
+    textView.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT)
     rootViewGroup.addView(textView)
+    //让textView测量好宽高
+    textView.measure(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT)
 
-//    textView.x = this.x
-//    textView.y = this.y
-//
-//    val animator = ValueAnimator.ofFloat(0f,1f)
-//    animator.duration = 1000
-//    animator.addUpdateListener {
-//        val scale = it.animatedValue as Float
-//        textView.translationX = scale * 100
-//        textView.translationY = scale * 100
-//    }
-//    animator.addListener(object : AnimatorListenerAdapter(){
-//        override fun onAnimationEnd(animation: Animator?) {
-//            rootViewGroup.removeView(textView)
-//        }
-//    })
-//    animator.start()
+    val startX = this.left + (this.width-textView.measuredWidth)/2
+    val startY = this.top - textView.measuredHeight
+    textView.translationX = startX.toFloat()
+    textView.translationY = startY.toFloat()
+
+    val animator = ValueAnimator.ofFloat(0f,1f)
+    animator.duration = 600
+    animator.addUpdateListener {
+        val scale = it.animatedValue as Float
+        textView.translationX = startX + scale * 100
+        textView.translationY = startY - scale * 70
+    }
+    animator.addListener(object : AnimatorListenerAdapter(){
+        override fun onAnimationEnd(animation: Animator?) {
+            rootViewGroup.removeView(textView)
+        }
+    })
+    animator.interpolator = AccelerateInterpolator()
+    animator.start()
 }

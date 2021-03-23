@@ -8,6 +8,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.RelativeLayout
 import android.widget.TextView
+import androidx.core.view.ViewCompat
 import androidx.customview.widget.ViewDragHelper
 import com.example.autopieces.R
 import com.example.autopieces.databinding.ItemEquipmentBinding
@@ -181,13 +182,10 @@ class MapView(context: Context, attrs: AttributeSet?) : RelativeLayout(context, 
     }
 
     private fun layoutRoleView(mapRole: MapRole){
-        val point = mapDraw.getPhysicalPointByPosition(mapRole.position)
+        val rectF = mapDraw.getPhysicalRectByPosition(mapRole.position)
         mapRoleViews[mapRole]?.apply {
-            x = (point.first - width/2)
-            y = (point.second - height/2)
-            logE(TAG,"left:$left right:$right")
-            left = (point.first - width/2).toInt()
-            top = (point.second - height/2).toInt()
+            ViewCompat.offsetLeftAndRight(this, rectF.left.toInt())
+            ViewCompat.offsetTopAndBottom(this, rectF.top.toInt())
         }
     }
 
@@ -277,7 +275,7 @@ class MapView(context: Context, attrs: AttributeSet?) : RelativeLayout(context, 
     fun createReadyRoleView(mapRole: MapRole):View{
         val roleBinding = ItemReadyRoleBinding.inflate(LayoutInflater.from(context),this,false)
 
-        val layoutParams = LayoutParams(mapDraw.getReadyCellWidth().toInt(),mapDraw.getReadyCellWidth().toInt())
+        val layoutParams = LayoutParams(mapDraw.getMapRoleWidth().toInt(),mapDraw.getMapRoleWidth().toInt())
         roleBinding.root.layoutParams = layoutParams
 
         roleBinding.nameTv.text = mapRole.role.name
