@@ -179,7 +179,7 @@ class MapDraw {
         )
         //商店角色宽高
         storeItemWidth =
-            storeCellWidth - 5 * MyContext.context.resources.getDimensionPixelOffset(R.dimen.store_item_padding)
+            storeCellWidth - 2 * storeCellPadding
     }
 
     fun drawAll(canvas: Canvas){
@@ -290,7 +290,7 @@ class MapDraw {
 
     fun getStoreItemWidth() = storeItemWidth
 
-    fun getReadyCellWidth() = readyZoneCellWidth
+    fun getMapRoleWidth() = mapRoleWidth
 
     fun getPhysicalPointByPosition(position: Position):Pair<Float,Float>{
         return when(position.where){
