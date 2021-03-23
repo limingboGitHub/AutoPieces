@@ -22,30 +22,6 @@ class CombatZone(row:Int,col:Int) : TwoDimensionalZone(row,col){
      */
     fun isTeamAmountToMax(roleLevel:Int):Boolean = teamOneAmount()>=roleLevel
 
-    /**
-     * 寻找攻击目标，并添加至攻击列表
-     * @return true 找到目标 false 未找到
-     */
-    fun findRoleToAttack(mapRole: MapRole):Boolean{
-        val roleX = mapRole.position.x
-        val roleY = mapRole.position.y
-        //在攻击范围内寻找目标
-        val offsetList = calculateAttackScopeAll(mapRole.role.attackScope)
-        calculateCellIndex(roleX,roleY,offsetList).forEach {
-            val toBeAttackedMapRole = cells[it.second][it.first]
-            if (toBeAttackedMapRole!=null){
-                //攻击目标超过攻击数量上限，则寻找过程结束
-                if (mapRole.beAttackedRoles.size>=mapRole.role.attackAmount ||
-                    mapRole.flag == MapRole.FLAG_MOVE_PLACEHOLDER)
-                    return true
-                mapRole.beAttackedRoles.add(toBeAttackedMapRole)
-                if (mapRole.beAttackedRoles.size>=mapRole.role.attackAmount)
-                    return true
-            }
-        }
-        return false
-    }
-
     fun findRoleToMove(mapRole: MapRole):Pair<Int,Int>?{
         val targetPosition = searchClosetTarget(mapRole)
         if (targetPosition!=null){
@@ -117,15 +93,7 @@ class CombatZone(row:Int,col:Int) : TwoDimensionalZone(row,col){
         return null
     }
 
-    private fun calculateCellIndex(x:Int,y:Int,offsetList: List<Pair<Int, Int>>) =
-        ArrayList<Pair<Int,Int>>().apply {
-            offsetList.forEach {
-                //筛选出地图界内的坐标索引
-                if (x+it.first in 0 until col &&
-                    y+it.second in 0 until row)
-                    add(Pair(x+it.first,y+it.second))
-            }
-        }
+
 
     /**
      * 判断战斗是否结束

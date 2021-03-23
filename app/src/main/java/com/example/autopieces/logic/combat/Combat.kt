@@ -82,20 +82,23 @@ class Combat(
             //棋子当前状态
             when(it.state){
                 MapRole.STATE_IDLE -> {
-                    //寻找攻击目标，如果失败，则准备移动
-                    val isFindRole = combatZone.findRoleToAttack(it)
-                    if (isFindRole) {
-                        //进入前摇状态
-                        it.changeState(MapRole.STATE_BEFORE_ATTACK)
-                    } else {
-                        //找到最近的目标并进入移动状态
-                        combatZone.findRoleToMove(it)?.apply {
-                            if (combatZone.getRoleByIndex(first,second) == null) {
-                                combatZone.addRole(createMovePlaceholder(), first, second)
-                                it.moveTarget = this
-                                it.changeState(MapRole.STATE_MOVING)
+                    //寻找攻击目标
+                    when(combatZone.findRoleToAttack(it)){
+                        FindRoleTool.RESULT_SUCCESS -> {
+                            //进入前摇状态
+                            it.changeState(MapRole.STATE_BEFORE_ATTACK)
+                        }
+                        FindRoleTool.RESULT_FAILED -> {
+                            //找到最近的目标并进入移动状态
+                            combatZone.findRoleToMove(it)?.apply {
+                                if (combatZone.getRoleByIndex(first,second) == null) {
+                                    combatZone.addRole(createMovePlaceholder(), first, second)
+                                    it.moveTarget = this
+                                    it.changeState(MapRole.STATE_MOVING)
+                                }
                             }
                         }
+                        FindRoleTool.RESULT_WAIT -> { /*等待，什么也不做*/}
                     }
                 }
                 MapRole.STATE_BEFORE_ATTACK->{
