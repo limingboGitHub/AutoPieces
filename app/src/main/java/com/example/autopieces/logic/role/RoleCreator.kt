@@ -44,6 +44,6 @@ private fun randomCreateRole(level:Int):Role{
     return roleFromPool ?: randomCreateRole(level)
 }
 
-fun createMovePlaceholder():MapRole{
-    return MapRole(Role(""),flag = MapRole.FLAG_MOVE_PLACEHOLDER)
+fun createMovePlaceholder(mapRole: MapRole):MapRole{
+    return MapRole(Role(""),belongTeam = mapRole.belongTeam,flag = MapRole.FLAG_MOVE_PLACEHOLDER)
 }

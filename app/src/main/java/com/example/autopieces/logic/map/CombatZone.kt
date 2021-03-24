@@ -1,5 +1,6 @@
 package com.example.autopieces.logic.map
 
+import com.example.autopieces.logic.combat.search.distance
 import kotlin.math.abs
 import kotlin.math.max
 
@@ -22,72 +23,66 @@ class CombatZone(row:Int,col:Int) : TwoDimensionalZone(row,col){
      */
     fun isTeamAmountToMax(roleLevel:Int):Boolean = teamOneAmount()>=roleLevel
 
-    fun findRoleToMove(mapRole: MapRole):Pair<Int,Int>?{
-        val targetPosition = searchClosetTarget(mapRole)?:return null
-        var toMovePosition : Pair<Int,Int>? = null
-        var minDistance = 0;
-        var minLongerSide = 0;
-        //角色只能朝上下左右4个方向移动，计算那种移动距离目标最近
-        listOf(
-            Pair(0,-1),
-            Pair(0,1),
-            Pair(-1,0),
-            Pair(1,0)
-        ).forEach {
-            val toMoveX = mapRole.position.x+it.first
-            val toMoveY = mapRole.position.y+it.second
-            if (toMoveX in 0 until col &&
-                toMoveY in 0 until row &&
-                cells[toMoveY][toMoveX]==null){
-                //计算移动后的坐标到目标的距离
-                val xDistance = abs(targetPosition.first-toMoveX)
-                val yDistance = abs(targetPosition.second-toMoveY)
-                val distance = xDistance + yDistance
-                val longerSide = max(xDistance,yDistance)
-                //找到距离目标最近的移动方式
-                if (toMovePosition==null){
-                    toMovePosition = Pair(toMoveX,toMoveY)
-                    minDistance = distance
-                    minLongerSide = longerSide
-                }
-                if (distance<minDistance
-                    || (distance == minDistance && longerSide < minLongerSide)
-                ){
-                    toMovePosition = Pair(toMoveX,toMoveY)
-                    minDistance = distance
-                    minLongerSide = longerSide
-                }
-            }
-        }
-        return toMovePosition
-    }
+    /**
+     * 寻找最近的目标
+     */
+//    fun findClosestTargetRole(mapRole: MapRole):Pair<Int,Int>?{
+//        val targetPosition = searchClosetTarget(mapRole)?:return null
+//        var toMovePosition : Pair<Int,Int>? = null
+//        var minDistance = 0;
+//        var minLongerSide = 0;
+//        //角色只能朝上下左右4个方向移动，计算那种移动距离目标最近
+//        listOf(
+//            Pair(0,-1),
+//            Pair(0,1),
+//            Pair(-1,0),
+//            Pair(1,0)
+//        ).forEach {
+//            val toMoveX = mapRole.position.x+it.first
+//            val toMoveY = mapRole.position.y+it.second
+//            if (toMoveX in 0 until col &&
+//                toMoveY in 0 until row &&
+//                cells[toMoveY][toMoveX]==null){
+//                //计算移动后的坐标到目标的距离
+//                val xDistance = abs(targetPosition.first-toMoveX)
+//                val yDistance = abs(targetPosition.second-toMoveY)
+//                val distance = xDistance + yDistance
+//                val longerSide = max(xDistance,yDistance)
+//                //找到距离目标最近的移动方式
+//                if (toMovePosition==null){
+//                    toMovePosition = Pair(toMoveX,toMoveY)
+//                    minDistance = distance
+//                    minLongerSide = longerSide
+//                }
+//                if (distance<minDistance
+//                    || (distance == minDistance && longerSide < minLongerSide)
+//                ){
+//                    toMovePosition = Pair(toMoveX,toMoveY)
+//                    minDistance = distance
+//                    minLongerSide = longerSide
+//                }
+//            }
+//        }
+//        return toMovePosition
+//    }
 
     /**
-     * 寻找距离最近的目标
+     * 寻找能够达到的，距离最近的目标
      */
-    private fun searchClosetTarget(mapRole: MapRole):Pair<Int,Int>?{
-        val roleX = mapRole.position.x
-        val roleY = mapRole.position.y
-        val offsetList = ArrayList<Pair<Int,Int>>()
-        var scope = 1
-        while (scope<row+col){
-            calculateAttackScopeN(scope,offsetList)
-            offsetList.forEach {
-                //在地图范围内
-                val x = roleX + it.first
-                val y = roleY + it.second
-                if (x in 0 until col
-                    && y in 0 until row){
-                    //有目标，且是一个棋子角色
-                    val targetMapRole = cells[y][x]
-                    if (targetMapRole!=null
-                        && targetMapRole.flag == MapRole.FLAG_ROLE)
-                    return Pair(x,y)
-                }
-            }
-            scope++
-        }
-        return null
+    fun findClosetTarget(mapRole: MapRole):Position?{
+        //TODO 要计算出移动到所有棋子的路径，找到最短路径的那个棋子
+//        var minDistance = 0f
+        var closestPosition : Position? = null
+//        getAllRole().forEach {
+//            //求路径
+//            val distance = distance(mapRole.position.x,mapRole.position.y,it.position.x,it.position.y)
+//            if (minDistance == 0f
+//                ||distance < minDistance){
+//                minDistance = distance
+//                closestPosition = it.position.copy()
+//            }
+//        }
+        return closestPosition
     }
 
 

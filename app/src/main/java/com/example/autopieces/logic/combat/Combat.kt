@@ -90,12 +90,11 @@ class Combat(
                         }
                         FindRoleTool.RESULT_FAILED -> {
                             //找到最近的目标并进入移动状态
-                            combatZone.findRoleToMove(it)?.apply {
-                                if (combatZone.getRoleByIndex(first,second) == null) {
-                                    combatZone.addRole(createMovePlaceholder(), first, second)
-                                    it.moveTarget = this
-                                    it.changeState(MapRole.STATE_MOVING)
-                                }
+                            combatZone.findClosetTarget(it)?.apply {
+                                //TODO 找到目标后，取移动路径里的第一个，进入移动状态
+//                                combatZone.addRole(createMovePlaceholder(it), first, second)
+//                                it.moveTarget = this
+//                                it.changeState(MapRole.STATE_MOVING)
                             }
                         }
                         FindRoleTool.RESULT_WAIT -> { /*等待，什么也不做*/}

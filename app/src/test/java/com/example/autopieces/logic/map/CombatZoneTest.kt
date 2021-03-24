@@ -39,7 +39,7 @@ class CombatZoneTest {
         assert(combatZone.getRoleByIndex(0,0)!=null)
         assert(combatZone.getRoleByIndex(6,0)!=null)
 
-        var toMovePosition = combatZone.findRoleToMove(mapRole)
+        var toMovePosition = combatZone.findClosestTargetRole(mapRole)
         assert(toMovePosition!=null)
         assertEquals(1,toMovePosition!!.first)
         assertEquals(0,toMovePosition.second)
@@ -47,7 +47,7 @@ class CombatZoneTest {
         combatZone.removeRole(mapRole2)
         combatZone.addRole(mapRole2,0,7)
 
-        toMovePosition = combatZone.findRoleToMove(mapRole)
+        toMovePosition = combatZone.findClosestTargetRole(mapRole)
         assertEquals(0,toMovePosition!!.first)
         assertEquals(1,toMovePosition.second)
     }

@@ -36,9 +36,14 @@ class MapRole(
     var beAttackedRoles : ArrayList<MapRole> = ArrayList(),
 
     /**
-     * 移动目标位置
+     * 移动终点位置
      */
     var moveTarget : Pair<Int,Int>? = null,
+
+    /**
+     * 移动路径
+     */
+    var movePathList : ArrayList<Pair<Int,Int>> = ArrayList(),
 
     /**
      * 存活状态
