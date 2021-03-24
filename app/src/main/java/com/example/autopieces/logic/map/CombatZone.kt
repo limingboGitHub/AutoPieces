@@ -23,46 +23,43 @@ class CombatZone(row:Int,col:Int) : TwoDimensionalZone(row,col){
     fun isTeamAmountToMax(roleLevel:Int):Boolean = teamOneAmount()>=roleLevel
 
     fun findRoleToMove(mapRole: MapRole):Pair<Int,Int>?{
-        val targetPosition = searchClosetTarget(mapRole)
-        if (targetPosition!=null){
-            var toMovePosition : Pair<Int,Int>? = null
-            var minDistance = 0;
-            var minLongerSide = 0;
-            //角色只能朝上下左右4个方向移动，计算那种移动距离目标最近
-            listOf(
-                Pair(0,-1),
-                Pair(0,1),
-                Pair(-1,0),
-                Pair(1,0)
-            ).forEach {
-                val toMoveX = mapRole.position.x+it.first
-                val toMoveY = mapRole.position.y+it.second
-                if (toMoveX in 0 until col &&
-                    toMoveY in 0 until row &&
-                    cells[toMoveY][toMoveX]==null){
-                    //计算移动后的坐标到目标的距离
-                    val xDistance = abs(targetPosition.first-toMoveX)
-                    val yDistance = abs(targetPosition.second-toMoveY)
-                    val distance = xDistance + yDistance
-                    val longerSide = max(xDistance,yDistance)
-                    //找到距离目标最近的移动方式
-                    if (toMovePosition==null){
-                        toMovePosition = Pair(toMoveX,toMoveY)
-                        minDistance = distance
-                        minLongerSide = longerSide
-                    }
-                    if (distance<minDistance
-                        || (distance == minDistance && longerSide < minLongerSide)
-                    ){
-                        toMovePosition = Pair(toMoveX,toMoveY)
-                        minDistance = distance
-                        minLongerSide = longerSide
-                    }
+        val targetPosition = searchClosetTarget(mapRole)?:return null
+        var toMovePosition : Pair<Int,Int>? = null
+        var minDistance = 0;
+        var minLongerSide = 0;
+        //角色只能朝上下左右4个方向移动，计算那种移动距离目标最近
+        listOf(
+            Pair(0,-1),
+            Pair(0,1),
+            Pair(-1,0),
+            Pair(1,0)
+        ).forEach {
+            val toMoveX = mapRole.position.x+it.first
+            val toMoveY = mapRole.position.y+it.second
+            if (toMoveX in 0 until col &&
+                toMoveY in 0 until row &&
+                cells[toMoveY][toMoveX]==null){
+                //计算移动后的坐标到目标的距离
+                val xDistance = abs(targetPosition.first-toMoveX)
+                val yDistance = abs(targetPosition.second-toMoveY)
+                val distance = xDistance + yDistance
+                val longerSide = max(xDistance,yDistance)
+                //找到距离目标最近的移动方式
+                if (toMovePosition==null){
+                    toMovePosition = Pair(toMoveX,toMoveY)
+                    minDistance = distance
+                    minLongerSide = longerSide
+                }
+                if (distance<minDistance
+                    || (distance == minDistance && longerSide < minLongerSide)
+                ){
+                    toMovePosition = Pair(toMoveX,toMoveY)
+                    minDistance = distance
+                    minLongerSide = longerSide
                 }
             }
-            return toMovePosition
         }
-        return null
+        return toMovePosition
     }
 
     /**
@@ -72,7 +69,7 @@ class CombatZone(row:Int,col:Int) : TwoDimensionalZone(row,col){
         val roleX = mapRole.position.x
         val roleY = mapRole.position.y
         val offsetList = ArrayList<Pair<Int,Int>>()
-        var scope = mapRole.role.attackScope+1
+        var scope = 1
         while (scope<row+col){
             calculateAttackScopeN(scope,offsetList)
             offsetList.forEach {

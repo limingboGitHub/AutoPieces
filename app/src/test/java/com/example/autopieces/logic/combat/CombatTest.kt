@@ -5,6 +5,7 @@ import com.example.autopieces.logic.map.GameMap
 import com.example.autopieces.logic.map.MapRole
 import com.example.autopieces.logic.role.Role
 import com.example.autopieces.logic.role.RoleName
+import org.junit.Assert.*
 import org.junit.Assert
 import org.junit.Test
 
@@ -59,6 +60,9 @@ class CombatTest {
         Assert.assertEquals(MapRole.STATE_AFTER_ATTACK, teamTwoRole.state)
     }
 
+    /**
+     * 两个角色坐标[2,6],[4,1]，战斗测试
+     */
     @Test
     fun combat2Test(){
         val combatZone = CombatZone(GameMap.COMBAT_ROW_NUM,GameMap.COMBAT_COL_NUM)
@@ -153,6 +157,9 @@ class CombatTest {
         assert(combatZone.isCombatEnd())
     }
 
+    /**
+     * 两个角色坐标[2,5],[4,1]，战斗测试
+     */
     @Test
     fun combat3Test(){
         val combatZone = CombatZone(GameMap.COMBAT_ROW_NUM,GameMap.COMBAT_COL_NUM)
@@ -245,5 +252,53 @@ class CombatTest {
 
         //战斗结束
         assert(combatZone.isCombatEnd())
+    }
+
+    /**
+     * 两个阵营1的角色，一个阵营2的角色
+     */
+    @Test
+    fun combat4Test(){
+        val combatZone = CombatZone(GameMap.COMBAT_ROW_NUM,GameMap.COMBAT_COL_NUM)
+
+        val teamOneRole = MapRole(
+            Role(RoleName.MING_REN),
+            belongTeam = 1)
+        val teamOneRole2 = MapRole(
+            Role(RoleName.MING_REN),
+            belongTeam = 1)
+
+        val teamTwoRole = MapRole(
+            Role(RoleName.ZUO_ZU),
+            belongTeam = 2)
+
+        //两个阵营分别添加两个角色
+        combatZone.addRole(teamOneRole,1,5)
+        combatZone.addRole(teamOneRole2,2,5)
+        combatZone.addRole(teamTwoRole,4,1)
+
+        //开启一场战斗
+        val combat = Combat(combatZone)
+        //各个角色行动一次
+        combat.action(0)
+        combat.action(teamOneRole.role.moveSpeed)
+        combat.action(0)
+        combat.action(teamOneRole.role.moveSpeed)
+        combat.action(0)
+        combat.action(teamOneRole.role.moveSpeed)
+
+        assertEquals(1,teamOneRole.position.x)
+        assertEquals(2,teamOneRole.position.y)
+
+        assertEquals(3,teamOneRole2.position.x)
+        assertEquals(3,teamOneRole2.position.y)
+
+        assertEquals(4,teamTwoRole.position.x)
+        assertEquals(3,teamTwoRole.position.y)
+
+        combat.action(0)
+        combat.action(teamOneRole.role.moveSpeed)
+
+
     }
 }
