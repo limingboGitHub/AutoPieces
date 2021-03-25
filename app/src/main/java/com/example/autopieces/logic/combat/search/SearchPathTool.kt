@@ -9,14 +9,14 @@ fun CombatZone.getMovePath(startPosition:Position,endPosition: Position):List<Pa
     val movePath = ArrayList<Pair<Int,Int>>()
     //
     val endNode = Node().apply {
-        x = startPosition.x
-        y = startPosition.y
+        x = endPosition.x
+        y = endPosition.y
     }
 
     val startNode = Node().apply {
-        x = endPosition.x
-        y = endPosition.y
-        g = 0f
+        x = startPosition.x
+        y = startPosition.y
+        g = 0
         h = distance(x,y,endNode.x,endNode.y)
         f = g + h
     }
@@ -33,8 +33,7 @@ fun CombatZone.getMovePath(startPosition:Position,endPosition: Position):List<Pa
         if (nowNode==null)
             break
 
-        val listNear = ArrayList<Node>()
-        getNearNodeList(nowNode,listNear,listStart,listEnd,endNode)
+        val listNear = getNearNodeList(nowNode,listStart,listEnd,endNode)
 
         listEnd.add(nowNode)
         listStart.removeNode(nowNode)
@@ -44,9 +43,9 @@ fun CombatZone.getMovePath(startPosition:Position,endPosition: Position):List<Pa
         }
     }
 
-    if (nowNode == null){
-        //没有找到路径
-    }
+    //没有找到路径
+    if (nowNode == null)
+        return movePath
 
     var nodeFind : Node? = null
     listStart.forEach {
@@ -55,53 +54,65 @@ fun CombatZone.getMovePath(startPosition:Position,endPosition: Position):List<Pa
         }
     }
     if (nodeFind != null){
-        var parent = nodeFind?.parent
+        while (nodeFind!!.parent!=null){
+            movePath.add(Pair(nodeFind!!.parent!!.x,nodeFind!!.parent!!.y))
+            nodeFind = nodeFind!!.parent
+        }
+        if (movePath.isNotEmpty())
+            movePath.removeAt(movePath.size-1)
     }
     return movePath
 }
 
 fun CombatZone.getNearNodeList(
     pNode: Node,
-    listNear:ArrayList<Node>,
     listStart:List<Node>,
     listEnd:List<Node>,
     endNode: Node
-){
-    for (i in -1..1){
-        for (j in -1..1){
-            if (i == 0 && j==0)
-                continue
-            val tempX = pNode.x + i
-            val tempY = pNode.y + j
-            //越界的坐标
-            if (tempX<0 || tempX>col || tempY<0 || tempY>row)
-                continue
-            //有障碍
-            if (getRoleByIndex(tempX,tempY)!=null){
-                if (tempX!=endNode.x || tempY!=endNode.y)
-                    continue
-            }
+):List<Node>{
+    val listNear = ArrayList<Node>()
+    val offsetList = listOf(
+        Pair(0,-1),
+        Pair(0,1),
+        Pair(-1,0),
+        Pair(1,0)
+    )
+    for (offset in offsetList){
+        val i = offset.first
+        val j = offset.second
 
-            val node = Node().apply {
-                x = tempX
-                y = tempY
-            }
-            if (listStart.contains(node))
+        val tempX = pNode.x + i
+        val tempY = pNode.y + j
+        //越界的坐标
+        if (tempX<0 || tempX>col || tempY<0 || tempY>row)
+            continue
+        //有障碍
+        if (getRoleByIndex(tempX,tempY)!=null){
+            if (tempX!=endNode.x || tempY!=endNode.y)
                 continue
-            if (listEnd.contains(node))
-                continue
+        }
 
-            Node().apply {
-                g = pNode.g + distance(pNode.x,pNode.y,tempX,tempY)
-                h = distance(tempX,tempY,endNode.x,endNode.y)
-                f = g + h
-                x = tempX
-                y = tempY
-                parent = pNode
-                listNear.add(this)
-            }
+        val node = Node().apply {
+            x = tempX
+            y = tempY
+        }
+        if (listStart.contains(node))
+            continue
+        if (listEnd.contains(node))
+            continue
+
+        Node().apply {
+            g = pNode.g + distance(pNode.x,pNode.y,tempX,tempY)
+            h = distance(tempX,tempY,endNode.x,endNode.y)
+            f = g + h
+            x = tempX
+            y = tempY
+            parent = pNode
+            listNear.add(this)
         }
     }
+
+    return listNear
 }
 
 fun ArrayList<Node>.removeNode(nodeToRemove: Node){
@@ -135,8 +146,9 @@ fun getNearestNode(nodeList:List<Node>):Node?{
     return tempNode
 }
 
-fun distance(x:Int,y:Int,x2:Int,y2:Int):Float{
-    return sqrt((x-x2)*(x-x2).toFloat() + (y-y2)*(y-y2))
+fun distance(x:Int,y:Int,x2:Int,y2:Int):Int{
+    return (sqrt((x-x2)*(x-x2).toFloat() + (y-y2)*(y-y2))*10).toInt()
+//    return abs(x-x2)+ abs(y-y2).toFloat()
 }
 
 

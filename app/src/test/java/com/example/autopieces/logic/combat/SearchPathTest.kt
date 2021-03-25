@@ -7,6 +7,7 @@ import com.example.autopieces.logic.map.MapRole
 import com.example.autopieces.logic.role.Role
 import com.example.autopieces.logic.role.RoleName
 import org.junit.Test
+import org.junit.Assert.*
 
 class SearchPathTest {
 
@@ -30,6 +31,13 @@ class SearchPathTest {
         combatZone.addRole(teamOneRole2,2,3)
         combatZone.addRole(teamTwoRole,3,3)
 
-
+        val startTime = System.currentTimeMillis()
+        val pathList = combatZone.getMovePath(teamOneRole.position,teamTwoRole.position)
+        val time = System.currentTimeMillis()-startTime
+        assertEquals(2,time)
+        assertEquals(3,pathList[0].first)
+        assertEquals(2,pathList[0].second)
+        assertEquals(2,pathList[1].first)
+        assertEquals(2,pathList[1].second)
     }
 }
