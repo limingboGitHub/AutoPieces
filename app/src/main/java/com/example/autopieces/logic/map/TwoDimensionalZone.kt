@@ -24,6 +24,18 @@ abstract class TwoDimensionalZone(val row:Int, val col:Int) {
         }
     }
 
+    fun getAllOtherTeamRole(mapRole: MapRole):List<MapRole>{
+        return ArrayList<MapRole>().apply {
+            forEachCell {
+                if (it.flag == MapRole.FLAG_ROLE //是一个棋子
+                    && it.belongTeam != mapRole.belongTeam//敌方队伍
+                    && (mapRole.position.x !=it.position.x || mapRole.position.y!=it.position.y)//不是自己
+                )
+                    add(it)
+            }
+        }
+    }
+
     /**
      * 找到所有角色
      */

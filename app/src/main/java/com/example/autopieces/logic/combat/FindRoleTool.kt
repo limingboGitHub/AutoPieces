@@ -1,9 +1,9 @@
 package com.example.autopieces.logic.combat
 
-import com.example.autopieces.logic.map.CombatZone
-import com.example.autopieces.logic.map.MapRole
-import com.example.autopieces.logic.map.calculateAttackScopeAll
-import com.example.autopieces.logic.map.calculateAttackScopeN
+import com.example.autopieces.logic.combat.search.distance
+import com.example.autopieces.logic.combat.search.getMovePath
+import com.example.autopieces.logic.map.*
+import com.example.autopieces.utils.logE
 import kotlin.math.abs
 
 class FindRoleTool {
@@ -80,18 +80,19 @@ private fun CombatZone.searchClosestRole(roleX: Int, roleY: Int): Pair<Int, Int>
  * @see FindRoleTool.RESULT_SUCCESS
  */
 fun CombatZone.findRoleToAttack(mapRole: MapRole):Int{
-//    val startTime = System.currentTimeMillis()
     val roleX = mapRole.position.x
     val roleY = mapRole.position.y
 
     var result = FindRoleTool.RESULT_FAILED
     //在攻击范围内寻找目标
     val offsetList = calculateAttackScopeAll(mapRole.role.attackScope)
-    calculateCellIndex(roleX,roleY,offsetList).forEach {
-        val toBeAttackedMapRole = getRoleByIndex(it.first,it.second)
+    for (point in calculateCellIndex(roleX,roleY,offsetList)){
+        val toBeAttackedMapRole = getRoleByIndex(point.first,point.second)
         if (toBeAttackedMapRole!=null && toBeAttackedMapRole.belongTeam!= mapRole.belongTeam){
-            if (toBeAttackedMapRole.flag == MapRole.FLAG_MOVE_PLACEHOLDER)
+            if (toBeAttackedMapRole.flag == MapRole.FLAG_MOVE_PLACEHOLDER){
                 result =  FindRoleTool.RESULT_WAIT
+                continue
+            }
             //攻击目标超过攻击数量上限，则寻找过程结束
             if (mapRole.beAttackedRoles.size>=mapRole.role.attackAmount)
                 return FindRoleTool.RESULT_SUCCESS
@@ -100,8 +101,14 @@ fun CombatZone.findRoleToAttack(mapRole: MapRole):Int{
                 return FindRoleTool.RESULT_SUCCESS
         }
     }
-//    val time = System.currentTimeMillis()-startTime
     return result
+}
+
+/**
+ * 两个位置相距的步数
+ */
+private fun moveStep(position: Position,position2: Position):Int{
+    return abs(position.x-position2.x) + abs(position.y - position2.y)
 }
 
 private fun CombatZone.calculateCellIndex(x:Int,y:Int,offsetList: List<Pair<Int, Int>>) =

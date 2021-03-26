@@ -21,70 +21,23 @@ class CombatZone(row:Int,col:Int) : TwoDimensionalZone(row,col){
     fun isTeamAmountToMax(roleLevel:Int):Boolean = teamOneAmount()>=roleLevel
 
     /**
-     * 寻找最近的目标
-     */
-//    fun findClosestTargetRole(mapRole: MapRole):Pair<Int,Int>?{
-//        val targetPosition = searchClosetTarget(mapRole)?:return null
-//        var toMovePosition : Pair<Int,Int>? = null
-//        var minDistance = 0;
-//        var minLongerSide = 0;
-//        //角色只能朝上下左右4个方向移动，计算那种移动距离目标最近
-//        listOf(
-//            Pair(0,-1),
-//            Pair(0,1),
-//            Pair(-1,0),
-//            Pair(1,0)
-//        ).forEach {
-//            val toMoveX = mapRole.position.x+it.first
-//            val toMoveY = mapRole.position.y+it.second
-//            if (toMoveX in 0 until col &&
-//                toMoveY in 0 until row &&
-//                cells[toMoveY][toMoveX]==null){
-//                //计算移动后的坐标到目标的距离
-//                val xDistance = abs(targetPosition.first-toMoveX)
-//                val yDistance = abs(targetPosition.second-toMoveY)
-//                val distance = xDistance + yDistance
-//                val longerSide = max(xDistance,yDistance)
-//                //找到距离目标最近的移动方式
-//                if (toMovePosition==null){
-//                    toMovePosition = Pair(toMoveX,toMoveY)
-//                    minDistance = distance
-//                    minLongerSide = longerSide
-//                }
-//                if (distance<minDistance
-//                    || (distance == minDistance && longerSide < minLongerSide)
-//                ){
-//                    toMovePosition = Pair(toMoveX,toMoveY)
-//                    minDistance = distance
-//                    minLongerSide = longerSide
-//                }
-//            }
-//        }
-//        return toMovePosition
-//    }
-
-    /**
      * 寻找能够达到的，距离最近的目标
      */
-    fun findClosetTarget(mapRole: MapRole):Position?{
-        //TODO 要计算出移动到所有棋子的路径，找到最短路径的那个棋子
-        var closestPosition : Position? = null
+    fun findClosetTarget(mapRole: MapRole):Pair<Int,Int>?{
         var minMovePath : IntArray? = null
-        getAllRole().forEach {
+        for (role in getAllOtherTeamRole(mapRole)){
             val movePath = MoveMethod.calculateMovePath(
-                it.position.x,it.position.y,
-                mapRole.position.x,mapRole.position.y,toIntArrayMap(),row,col)
-            if (minMovePath==null || movePath.size< minMovePath!!.size){
+                mapRole.position.x,mapRole.position.y,
+                role.position.x,role.position.y,
+                toIntArrayMap(),row,col)
+            if (minMovePath==null || movePath.size< minMovePath.size){
                 minMovePath = movePath
-                closestPosition = it.position.copy()
             }
         }
         if (minMovePath!=null){
-            repeat(minMovePath!!.size/2){
-                mapRole.movePath.add(Pair(minMovePath!![it*2],minMovePath!![it*2+1]))
-            }
-        }
-        return closestPosition
+            return Pair(minMovePath[minMovePath.size-2],minMovePath[minMovePath.size-1])
+        }else
+            return null
     }
 
 

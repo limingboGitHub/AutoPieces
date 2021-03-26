@@ -47,13 +47,13 @@ class MainActivity : BaseActivity() {
             belongTeam = 2)
 
         //两个阵营分别添加两个角色
-        combatZone.addRole(teamOneRole,1,2)
-        combatZone.addRole(teamOneRole2,2,3)
-        combatZone.addRole(teamTwoRole,3,3)
+        combatZone.addRole(teamOneRole,3,5)
+//        combatZone.addRole(teamOneRole2,2,3)
+        combatZone.addRole(teamTwoRole,4,1)
 
         val map = combatZone.toIntArrayMap()
         val startTime = System.nanoTime()
-        val result = MoveMethod.calculateMovePath(0,0,6,7,map,combatZone.row,combatZone.col)
+        val result = MoveMethod.calculateMovePath(4,1,3,5,map,combatZone.row,combatZone.col)
         val time = System.nanoTime()-startTime
         logE("calculateMovePath",time.toString())
     }

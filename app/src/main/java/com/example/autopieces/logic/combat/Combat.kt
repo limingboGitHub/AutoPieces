@@ -46,14 +46,16 @@ class Combat(
      */
     private val combatThread = Thread({
         var actionTime = 0L
-        while (combatTime > 0
-            &&!combatZone.isCombatEnd()) {
+        while (combatTime > 0) {
             lastActionTime = System.currentTimeMillis()
 
             action(actionTime.toInt())
 
             actionTime = System.currentTimeMillis() - lastActionTime
             combatTime = (combatTime - actionTime).coerceAtLeast(0)
+
+            if (combatZone.isCombatEnd())
+                break
         }
     }, "combatThread")
 
@@ -89,23 +91,13 @@ class Combat(
                             it.changeState(MapRole.STATE_BEFORE_ATTACK)
                         }
                         FindRoleTool.RESULT_FAILED -> {
-                            //如果没有移动路径，则尝试生成
-                            if (it.movePath.isEmpty()){
-                                combatZone.findClosetTarget(it)
-                            }
-                            //如果移动路径不为空，则移动
-                            if (it.movePath.isNotEmpty()){
-                                val nextMovePoint = it.movePath.removeAt(it.movePath.size-1)
-                            }
-                            //找到最近的目标并进入移动状态
-                            combatZone.findClosetTarget(it)?.apply {
-                                //TODO 找到目标后，取移动路径里的第一个，进入移动状态
-//                                combatZone.addRole(createMovePlaceholder(it), first, second)
-//                                it.moveTarget = this
-//                                it.changeState(MapRole.STATE_MOVING)
+                            val nextMovePoint = combatZone.findClosetTarget(it)?.apply {
+                                combatZone.addRole(createMovePlaceholder(it), first, second)
+                                it.moveTarget = this
+                                it.changeState(MapRole.STATE_MOVING)
                             }
                         }
-                        FindRoleTool.RESULT_WAIT -> { /*等待，什么也不做*/}
+                        FindRoleTool.RESULT_WAIT -> {/*等待，什么也不做*/}
                     }
                 }
                 MapRole.STATE_BEFORE_ATTACK->{

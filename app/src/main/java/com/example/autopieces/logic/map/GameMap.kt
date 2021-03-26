@@ -85,7 +85,12 @@ class GameMap {
             Role(RoleName.MINIONS),
             belongTeam = 2
         )
+        val enemy2 = MapRole(
+            Role(RoleName.MINIONS),
+            belongTeam = 2
+        )
         combatZone.addRole(enemy,4,1)
+        combatZone.addRole(enemy2,3,1)
     }
 
     /**

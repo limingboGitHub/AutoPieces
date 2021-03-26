@@ -29,21 +29,17 @@ class SearchPathTest {
             belongTeam = 2)
 
         //两个阵营分别添加两个角色
-        combatZone.addRole(teamOneRole,1,2)
-        combatZone.addRole(teamOneRole2,2,3)
-        combatZone.addRole(teamTwoRole,3,3)
+        combatZone.addRole(teamOneRole,1,6)
+        combatZone.addRole(teamOneRole2,2,7)
+        combatZone.addRole(teamTwoRole,4,1)
 
-        val startTime = System.currentTimeMillis()
         val pathList = combatZone.getMovePath(teamOneRole.position,teamTwoRole.position)
-        val time = System.currentTimeMillis()-startTime
-//        assertEquals(2,time)
+        val pathList2 = combatZone.getMovePath(teamOneRole2.position,teamTwoRole.position)
+        val pathList3 = combatZone.getMovePath(teamTwoRole.position,teamOneRole.position)
+        assertEquals(2,pathList)
 //        assertEquals(3,pathList[0].first)
 //        assertEquals(2,pathList[0].second)
 //        assertEquals(2,pathList[1].first)
 //        assertEquals(2,pathList[1].second)
-
-        val map = combatZone.toIntArrayMap()
-        val result = MoveMethod.calculateMovePath(1,2,3,3,map,combatZone.row,combatZone.row)
-        assertEquals(0,result[0])
     }
 }
