@@ -6,5 +6,8 @@ public class MoveMethod {
         System.loadLibrary("MoveMethod");
     }
 
-    public static native int[] calculateMovePath(int startX,int startY,int endX,int endY);
+    public static native int[] calculateMovePath(
+            int startX, int startY,
+            int endX, int endY,
+            int[] map,int row,int col);
 }

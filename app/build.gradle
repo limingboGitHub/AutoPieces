@@ -50,6 +50,7 @@ android {
         jni.srcDirs = []
         jniLibs.srcDirs = ['src/main/jniLibs']
     }
+    ndkVersion '22.1.7171670'
 }
 
 dependencies {

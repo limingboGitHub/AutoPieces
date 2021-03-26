@@ -43,7 +43,7 @@ class MapRole(
     /**
      * 移动路径
      */
-    var movePathList : ArrayList<Pair<Int,Int>> = ArrayList(),
+    var movePath : ArrayList<Pair<Int,Int>> = ArrayList(),
 
     /**
      * 存活状态

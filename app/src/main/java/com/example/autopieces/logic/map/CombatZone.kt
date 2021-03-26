@@ -1,9 +1,6 @@
 package com.example.autopieces.logic.map
 
-import com.example.autopieces.logic.combat.search.distance
-import kotlin.math.abs
-import kotlin.math.max
-
+import com.example.autopieces.cpp.MoveMethod
 
 class CombatZone(row:Int,col:Int) : TwoDimensionalZone(row,col){
 
@@ -71,17 +68,22 @@ class CombatZone(row:Int,col:Int) : TwoDimensionalZone(row,col){
      */
     fun findClosetTarget(mapRole: MapRole):Position?{
         //TODO 要计算出移动到所有棋子的路径，找到最短路径的那个棋子
-//        var minDistance = 0f
         var closestPosition : Position? = null
-//        getAllRole().forEach {
-//            //求路径
-//            val distance = distance(mapRole.position.x,mapRole.position.y,it.position.x,it.position.y)
-//            if (minDistance == 0f
-//                ||distance < minDistance){
-//                minDistance = distance
-//                closestPosition = it.position.copy()
-//            }
-//        }
+        var minMovePath : IntArray? = null
+        getAllRole().forEach {
+            val movePath = MoveMethod.calculateMovePath(
+                it.position.x,it.position.y,
+                mapRole.position.x,mapRole.position.y,toIntArrayMap(),row,col)
+            if (minMovePath==null || movePath.size< minMovePath!!.size){
+                minMovePath = movePath
+                closestPosition = it.position.copy()
+            }
+        }
+        if (minMovePath!=null){
+            repeat(minMovePath!!.size/2){
+                mapRole.movePath.add(Pair(minMovePath!![it*2],minMovePath!![it*2+1]))
+            }
+        }
         return closestPosition
     }
 
@@ -104,6 +106,15 @@ class CombatZone(row:Int,col:Int) : TwoDimensionalZone(row,col){
         return true
     }
 
+    fun toIntArrayMap():IntArray{
+        val map = IntArray(row*col)
+        for (y in 0 until row){
+            for (x in 0 until col){
+                map[y*col + x] = if (cells[y][x]==null) 0 else 1
+            }
+        }
+        return map
+    }
 }
 
 /**

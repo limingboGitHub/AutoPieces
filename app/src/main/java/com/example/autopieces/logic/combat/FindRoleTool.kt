@@ -80,6 +80,7 @@ private fun CombatZone.searchClosestRole(roleX: Int, roleY: Int): Pair<Int, Int>
  * @see FindRoleTool.RESULT_SUCCESS
  */
 fun CombatZone.findRoleToAttack(mapRole: MapRole):Int{
+//    val startTime = System.currentTimeMillis()
     val roleX = mapRole.position.x
     val roleY = mapRole.position.y
 
@@ -99,6 +100,7 @@ fun CombatZone.findRoleToAttack(mapRole: MapRole):Int{
                 return FindRoleTool.RESULT_SUCCESS
         }
     }
+//    val time = System.currentTimeMillis()-startTime
     return result
 }
 

@@ -1,5 +1,6 @@
 package com.example.autopieces.logic.combat
 
+import com.example.autopieces.cpp.MoveMethod
 import com.example.autopieces.logic.combat.search.*
 import com.example.autopieces.logic.map.CombatZone
 import com.example.autopieces.logic.map.GameMap
@@ -13,6 +14,7 @@ class SearchPathTest {
 
     @Test
     fun searchPathTest(){
+
         val combatZone = CombatZone(GameMap.COMBAT_ROW_NUM, GameMap.COMBAT_COL_NUM)
 
         val teamOneRole = MapRole(
@@ -34,10 +36,14 @@ class SearchPathTest {
         val startTime = System.currentTimeMillis()
         val pathList = combatZone.getMovePath(teamOneRole.position,teamTwoRole.position)
         val time = System.currentTimeMillis()-startTime
-        assertEquals(2,time)
-        assertEquals(3,pathList[0].first)
-        assertEquals(2,pathList[0].second)
-        assertEquals(2,pathList[1].first)
-        assertEquals(2,pathList[1].second)
+//        assertEquals(2,time)
+//        assertEquals(3,pathList[0].first)
+//        assertEquals(2,pathList[0].second)
+//        assertEquals(2,pathList[1].first)
+//        assertEquals(2,pathList[1].second)
+
+        val map = combatZone.toIntArrayMap()
+        val result = MoveMethod.calculateMovePath(1,2,3,3,map,combatZone.row,combatZone.row)
+        assertEquals(0,result[0])
     }
 }
