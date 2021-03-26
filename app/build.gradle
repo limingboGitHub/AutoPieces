@@ -22,6 +22,9 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+        customDebugType {
+            debuggable true
+        }
     }
 
     dataBinding{
@@ -40,6 +43,17 @@ android {
     testOptions {
         unitTests.returnDefaultValues = true
     }
+
+    externalNativeBuild {
+        ndkBuild{
+            path 'src/main/jni/Android.mk'
+        }
+    }
+    sourceSets.main {
+        jni.srcDirs = []
+        jniLibs.srcDirs = ['src/main/jniLibs']
+    }
+    ndkVersion '22.1.7171670'
 }
 
 dependencies {

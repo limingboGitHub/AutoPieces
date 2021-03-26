@@ -1,8 +1,6 @@
 package com.example.autopieces.logic.map
 
-import kotlin.math.abs
-import kotlin.math.max
-
+import com.example.autopieces.cpp.MoveMethod
 
 class CombatZone(row:Int,col:Int) : TwoDimensionalZone(row,col){
 
@@ -22,75 +20,24 @@ class CombatZone(row:Int,col:Int) : TwoDimensionalZone(row,col){
      */
     fun isTeamAmountToMax(roleLevel:Int):Boolean = teamOneAmount()>=roleLevel
 
-    fun findRoleToMove(mapRole: MapRole):Pair<Int,Int>?{
-        val targetPosition = searchClosetTarget(mapRole)
-        if (targetPosition!=null){
-            var toMovePosition : Pair<Int,Int>? = null
-            var minDistance = 0;
-            var minLongerSide = 0;
-            //角色只能朝上下左右4个方向移动，计算那种移动距离目标最近
-            listOf(
-                Pair(0,-1),
-                Pair(0,1),
-                Pair(-1,0),
-                Pair(1,0)
-            ).forEach {
-                val toMoveX = mapRole.position.x+it.first
-                val toMoveY = mapRole.position.y+it.second
-                if (toMoveX in 0 until col &&
-                    toMoveY in 0 until row &&
-                    cells[toMoveY][toMoveX]==null){
-                    //计算移动后的坐标到目标的距离
-                    val xDistance = abs(targetPosition.first-toMoveX)
-                    val yDistance = abs(targetPosition.second-toMoveY)
-                    val distance = xDistance + yDistance
-                    val longerSide = max(xDistance,yDistance)
-                    //找到距离目标最近的移动方式
-                    if (toMovePosition==null){
-                        toMovePosition = Pair(toMoveX,toMoveY)
-                        minDistance = distance
-                        minLongerSide = longerSide
-                    }
-                    if (distance<minDistance
-                        || (distance == minDistance && longerSide < minLongerSide)
-                    ){
-                        toMovePosition = Pair(toMoveX,toMoveY)
-                        minDistance = distance
-                        minLongerSide = longerSide
-                    }
-                }
-            }
-            return toMovePosition
-        }
-        return null
-    }
-
     /**
-     * 寻找距离最近的目标
+     * 寻找能够达到的，距离最近的目标
      */
-    private fun searchClosetTarget(mapRole: MapRole):Pair<Int,Int>?{
-        val roleX = mapRole.position.x
-        val roleY = mapRole.position.y
-        val offsetList = ArrayList<Pair<Int,Int>>()
-        var scope = mapRole.role.attackScope+1
-        while (scope<row+col){
-            calculateAttackScopeN(scope,offsetList)
-            offsetList.forEach {
-                //在地图范围内
-                val x = roleX + it.first
-                val y = roleY + it.second
-                if (x in 0 until col
-                    && y in 0 until row){
-                    //有目标，且是一个棋子角色
-                    val targetMapRole = cells[y][x]
-                    if (targetMapRole!=null
-                        && targetMapRole.flag == MapRole.FLAG_ROLE)
-                    return Pair(x,y)
-                }
+    fun findClosetTarget(mapRole: MapRole):Pair<Int,Int>?{
+        var minMovePath : IntArray? = null
+        for (role in getAllOtherTeamRole(mapRole)){
+            val movePath = MoveMethod.calculateMovePath(
+                mapRole.position.x,mapRole.position.y,
+                role.position.x,role.position.y,
+                toIntArrayMap(),row,col)
+            if (minMovePath==null || movePath.size< minMovePath.size){
+                minMovePath = movePath
             }
-            scope++
         }
-        return null
+        if (minMovePath!=null){
+            return Pair(minMovePath[minMovePath.size-2],minMovePath[minMovePath.size-1])
+        }else
+            return null
     }
 
 
@@ -112,6 +59,15 @@ class CombatZone(row:Int,col:Int) : TwoDimensionalZone(row,col){
         return true
     }
 
+    fun toIntArrayMap():IntArray{
+        val map = IntArray(row*col)
+        for (y in 0 until row){
+            for (x in 0 until col){
+                map[y*col + x] = if (cells[y][x]==null) 0 else 1
+            }
+        }
+        return map
+    }
 }
 
 /**
